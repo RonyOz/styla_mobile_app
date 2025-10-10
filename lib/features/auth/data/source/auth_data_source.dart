@@ -13,6 +13,7 @@ class AuthException implements Exception {
 
 abstract class AuthDataSource {
   Future<String> signUp(String email, String password);
+  Future<void> signIn(String email, String password);
 }
 
 class AuthDataSourceImpl extends AuthDataSource {
@@ -34,6 +35,23 @@ class AuthDataSourceImpl extends AuthDataSource {
       }
 
       return response.user!.id;
+    } on AuthApiException catch (e) {
+      throw AuthException(_parseSupabaseError(e.message), code: e.code);
+    } catch (e) {
+      throw AuthException('Error de conexión: ${e.toString()}');
+    }
+  }
+
+  Future<void> signIn(String email, String password) async {
+    try {
+      AuthResponse response = await _supabaseClient.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+
+      if (response.session == null) {
+        throw AuthException('No se pudo iniciar sesión');
+      }
     } on AuthApiException catch (e) {
       throw AuthException(_parseSupabaseError(e.message), code: e.code);
     } catch (e) {
