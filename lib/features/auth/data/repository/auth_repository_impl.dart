@@ -5,7 +5,11 @@ class AuthRepositoryImpl extends AuthRepository {
   AuthDataSource _authDataSource = AuthDataSourceImpl();
   
   @override
-  Future<void> registerUser(String email, String password) async {}
+  Future<void> registerUser(String email, String password) async {
+    print("_-----------------------------------");
+    print("Registrando USUARIO con email: $email");
+    _authDataSource.signUp(email, password);
+  }
 
   Future<void> signIn(String email, String password) {
     return _authDataSource.signIn(email, password);
