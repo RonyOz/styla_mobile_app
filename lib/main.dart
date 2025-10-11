@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/signup_bloc.dart';
 import 'package:styla_mobile_app/features/auth/ui/screens/signIn_screen.dart';
+import 'package:styla_mobile_app/features/auth/ui/screens/signup_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'app/app.dart';
+// import 'app/app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,10 +30,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: session != null ? '/home' : '/login',
+      initialRoute: session != null ? '/home' : '/signup',
       routes: {
         '/login': (_) =>
             BlocProvider(create: (_) => SigninBloc(), child: SigninScreen()),
+        '/signup': (_) =>
+            BlocProvider(create: (_) => SignupBloc(), child: SignupScreen()),
       },
     );
   }
