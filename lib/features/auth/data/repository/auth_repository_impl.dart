@@ -12,4 +12,9 @@ class AuthRepositoryImpl extends AuthRepository {
   Future<void> signIn(String email, String password) {
     return _authDataSource.signIn(email, password);
   }
+  
+  @override
+  Future<void> signOut() {
+    return _authDataSource.signOut();
+  }
 }
