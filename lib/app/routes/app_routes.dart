@@ -5,6 +5,7 @@ class AppRoutes {
 
   // Rutas principales
   static const String splash = '/';
+  static const String welcome = '/welcome';
   static const String home = '/home';
   
   // Rutas de autenticación
