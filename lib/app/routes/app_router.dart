@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/signup_bloc.dart';
+import 'package:styla_mobile_app/features/auth/ui/screens/signin_screen.dart';
+import 'package:styla_mobile_app/features/auth/ui/screens/signup_screen.dart';
 import 'package:styla_mobile_app/features/profile/ui/bloc/profile_bloc.dart';
 import 'package:styla_mobile_app/features/profile/ui/screens/profile_screen.dart';
 import '../pages/home_page.dart';
 import '../pages/splash_page.dart';
 import 'app_routes.dart';
 
-/// Configuración del router de la aplicación
-/// Usa el sistema de navegación básico de Flutter
 class AppRouter {
   AppRouter._();
 
@@ -19,13 +21,19 @@ class AppRouter {
         create: (_) => ProfileBloc(),
         child: const ProfileScreen(),
       ),
-      // TODO: Agregar rutas de features (auth, profile, etc)
+      AppRoutes.login: (_) => BlocProvider(
+        create: (_) => SigninBloc(),
+        child: const SigninScreen(),
+      ),
+      AppRoutes.signup: (_) => BlocProvider(
+        create: (_) => SignupBloc(),
+        child: const SignupScreen(),
+      ),
     };
   }
 
   /// Genera rutas dinámicas para navegación avanzada
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    // Aquí puedes manejar rutas con parámetros
     switch (settings.name) {
       default:
         return null;
