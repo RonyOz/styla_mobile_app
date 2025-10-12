@@ -43,6 +43,7 @@ class AuthDataSourceImpl extends AuthDataSource {
     }
   }
 
+  @override
   Future<void> signIn(String email, String password) async {
     try {
       AuthResponse response = await _supabaseClient.auth.signInWithPassword(

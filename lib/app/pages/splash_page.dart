@@ -25,8 +25,8 @@ class _SplashPageState extends State<SplashPage> {
     // 2. Verificamos si hay una sesión de usuario activa
     final session = Supabase.instance.client.auth.currentSession;
     
-    // 3. Decidimos la ruta: si no hay sesión, vamos a login; si hay, a home.
-    final nextRoute = session != null ? AppRoutes.home : AppRoutes.login;
+    // 3. Decidimos la ruta: si no hay sesión, vamos a welcome; si hay, a home.
+    final nextRoute = session != null ? AppRoutes.home : AppRoutes.welcome;
     
     if (mounted) {
       Navigator.pushReplacementNamed(context, nextRoute);

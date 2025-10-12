@@ -5,11 +5,12 @@ class AppRoutes {
 
   // Rutas principales
   static const String splash = '/';
+  static const String welcome = '/welcome';
   static const String home = '/home';
   
   // Rutas de autenticación
   static const String login = '/login';
-  static const String register = '/register';
+  static const String signup = '/signup';
   
   // Rutas de perfil
   static const String profile = '/profile';

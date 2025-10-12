@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/features/auth/domain/usescases/login_user_usecase.dart';
-import 'package:styla_mobile_app/features/auth/ui/bloc/events/signIn_event.dart';
-import 'package:styla_mobile_app/features/auth/ui/bloc/states/signIn_state.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/events/signin_event.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/states/signin_state.dart';
 
 class SigninBloc extends Bloc<SignInEvent, SignInState> {
   final LoginUserUsecase _loginUserUsecase = LoginUserUsecase();
