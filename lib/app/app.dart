@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/core.dart';
 import 'routes/app_router.dart';
 import 'routes/app_routes.dart';
 
@@ -15,10 +16,7 @@ class App extends StatelessWidget {
 
       debugShowCheckedModeBanner: false,
 
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.theme,
 
       initialRoute: session != null ? AppRoutes.home : AppRoutes.signup,
 
