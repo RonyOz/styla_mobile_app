@@ -9,10 +9,7 @@ class SignupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SignupBloc(),
-      child: const _SignupContent(),
-    );
+    return const _SignupContent();
   }
 }
 
