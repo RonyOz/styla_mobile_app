@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:styla_mobile_app/features/onboarding/ui/screens/onboarding_screen.dart';
 import '../pages/home_page.dart';
 import '../pages/splash_page.dart';
 import 'app_routes.dart';
@@ -12,6 +13,7 @@ class AppRouter {
     return {
       AppRoutes.splash: (context) => const SplashPage(),
       AppRoutes.home: (context) => const HomePage(),
+      AppRoutes.onboarding: (context) => OnboardingScreen()
       // TODO: Agregar rutas de features (auth, profile, etc)
     };
   }
