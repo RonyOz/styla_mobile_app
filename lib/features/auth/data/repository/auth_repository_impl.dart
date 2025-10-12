@@ -6,7 +6,7 @@ class AuthRepositoryImpl extends AuthRepository {
   
   @override
   Future<void> registerUser(String email, String password) async {
-    _authDataSource.signUp(email, password);
+    await _authDataSource.signUp(email, password);
   }
 
   Future<void> signIn(String email, String password) {
