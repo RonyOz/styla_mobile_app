@@ -20,8 +20,8 @@ class App extends StatelessWidget {
         useMaterial3: true,
       ),
 
-      initialRoute: session != null ? AppRoutes.home : AppRoutes.login,
-      
+      initialRoute: session != null ? AppRoutes.home : AppRoutes.signup,
+
       routes: {...AppRouter.routes},
     );
   }
