@@ -6,8 +6,6 @@ class AuthRepositoryImpl extends AuthRepository {
   
   @override
   Future<void> registerUser(String email, String password) async {
-    print("_-----------------------------------");
-    print("Registrando USUARIO con email: $email");
     _authDataSource.signUp(email, password);
   }
 
