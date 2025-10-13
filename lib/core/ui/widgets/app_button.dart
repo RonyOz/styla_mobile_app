@@ -4,13 +4,13 @@ import '../design/app_typography.dart';
 import '../design/app_spacing.dart';
 
 /// Botón simple de la aplicación
-class SimpleButton extends StatelessWidget {
+class AppButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
   final bool isPrimary;
   final bool isLoading;
 
-  const SimpleButton({
+  const AppButton({
     super.key,
     required this.text,
     this.onPressed,
@@ -19,7 +19,7 @@ class SimpleButton extends StatelessWidget {
   });
 
   /// Constructor para botón primario
-  const SimpleButton.primary({
+  const AppButton.primary({
     super.key,
     required this.text,
     this.onPressed,
@@ -27,7 +27,7 @@ class SimpleButton extends StatelessWidget {
   }) : isPrimary = true;
 
   /// Constructor para botón secundario
-  const SimpleButton.secondary({
+  const AppButton.secondary({
     super.key,
     required this.text,
     this.onPressed,

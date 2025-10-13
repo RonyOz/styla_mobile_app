@@ -4,7 +4,7 @@ import '../design/app_typography.dart';
 import '../design/app_spacing.dart';
 
 /// Campo de texto simple de la aplicación
-class SimpleTextField extends StatelessWidget {
+class AppTextField extends StatelessWidget {
   final String? label;
   final String? hint;
   final TextEditingController? controller;
@@ -12,7 +12,7 @@ class SimpleTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
 
-  const SimpleTextField({
+  const AppTextField({
     super.key,
     this.label,
     this.hint,

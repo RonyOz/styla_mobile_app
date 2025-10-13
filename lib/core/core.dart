@@ -7,6 +7,6 @@ export 'ui/design/app_spacing.dart';
 export 'ui/theme/app_theme.dart';
 
 // Widgets
-export 'ui/widgets/simple_button.dart';
-export 'ui/widgets/simple_text_field.dart';
+export 'ui/widgets/app_button.dart';
+export 'ui/widgets/app_text_field.dart';
 export 'ui/widgets/app_image.dart';

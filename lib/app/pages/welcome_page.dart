@@ -29,7 +29,7 @@ class WelcomePage extends StatelessWidget {
               AppSpacing.verticalLarge,
               
               // Botón de login usando nuestro SimpleButton
-              SimpleButton.primary(
+              AppButton.primary(
                 text: 'Iniciar sesión',
                 onPressed: () => Navigator.pushNamed(context, AppRoutes.login),
               ),
@@ -37,7 +37,7 @@ class WelcomePage extends StatelessWidget {
               AppSpacing.verticalMedium,
               
               // Botón de registro usando SimpleButton secundario
-              SimpleButton.secondary(
+              AppButton.secondary(
                 text: 'Registrarse',
                 onPressed: () => Navigator.pushNamed(context, AppRoutes.signup),
               ),

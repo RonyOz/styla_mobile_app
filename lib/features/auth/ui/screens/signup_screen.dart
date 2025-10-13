@@ -111,7 +111,7 @@ class _SignupContentState extends State<_SignupContent> {
   Widget _buildForm(SignupState state) {
     return Column(
       children: [
-        SimpleTextField(
+        AppTextField(
           label: 'Email',
           hint: 'ejemplo@correo.com',
           controller: _emailController,
@@ -119,7 +119,7 @@ class _SignupContentState extends State<_SignupContent> {
           validator: _validateEmail,
         ),
         AppSpacing.verticalMedium,
-        SimpleTextField(
+        AppTextField(
           label: 'Contraseña',
           hint: 'Mínimo 6 caracteres',
           controller: _passwordController,
@@ -127,7 +127,7 @@ class _SignupContentState extends State<_SignupContent> {
           validator: _validatePassword,
         ),
         AppSpacing.verticalMedium,
-        SimpleTextField(
+        AppTextField(
           label: 'Confirmar contraseña',
           controller: _confirmPasswordController,
           obscureText: _obscureConfirmPassword,
@@ -140,7 +140,7 @@ class _SignupContentState extends State<_SignupContent> {
   Widget _buildSignupButton(SignupState state) {
     final isLoading = state is SignupLoadingState;
 
-    return SimpleButton.primary(
+    return AppButton.primary(
       text: 'Crear cuenta',
       onPressed: _handleSignup,
       isLoading: isLoading,
