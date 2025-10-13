@@ -192,15 +192,7 @@ class SigninScreenState extends State<SigninScreen> {
       backgroundColor: AppColors.background,
       appBar: const AuthAppBar(),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: SizedBox(
-            height:
-                MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top -
-                MediaQuery.of(context).padding.bottom,
-            child: dynamicContent(),
-          ),
-        ),
+        child: dynamicContent(),
       ),
     );
   }
