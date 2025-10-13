@@ -7,6 +7,9 @@ import 'package:styla_mobile_app/features/auth/ui/screens/signup_screen.dart';
 import 'package:styla_mobile_app/features/profile/ui/bloc/profile_bloc.dart';
 import 'package:styla_mobile_app/features/profile/ui/screens/profile_screen.dart';
 import '../pages/home_page.dart';
+import '../pages/onboarding_page_1.dart';
+import '../pages/onboarding_page_2.dart';
+import '../pages/onboarding_page_3.dart';
 import '../pages/splash_page.dart';
 import '../pages/welcome_page.dart';
 import 'app_routes.dart';
@@ -17,6 +20,9 @@ class AppRouter {
   static Map<String, WidgetBuilder> get routes {
     return {
       AppRoutes.splash: (context) => const SplashPage(),
+      AppRoutes.onboarding1: (context) => const OnboardingPage1(),
+      AppRoutes.onboarding2: (context) => const OnboardingPage2(),
+      AppRoutes.onboarding3: (context) => const OnboardingPage3(),
       AppRoutes.welcome: (context) => const WelcomePage(),
       AppRoutes.home: (context) => const HomePage(),
       AppRoutes.profile: (context) => BlocProvider(
