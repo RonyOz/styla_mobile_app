@@ -1,5 +1,3 @@
-import 'package:styla_mobile_app/features/onboarding/domain/entitites/onboarding_data.dart';
-
 abstract class OnboardingEvent {}
 
 class NextPageRequested extends OnboardingEvent {}
@@ -7,15 +5,19 @@ class NextPageRequested extends OnboardingEvent {}
 class PreviousPageRequested extends OnboardingEvent {}
 
 class GenderSelected extends OnboardingEvent {
-  final Gender gender;
+  final String gender;
   GenderSelected(this.gender);
 }
 
 class MeasurementsUpdated extends OnboardingEvent {
   final int age;
-  final int height;
-  final int weight;
-  MeasurementsUpdated({required this.age, required this.height, required this.weight});
+  final double height;
+  final double weight;
+  MeasurementsUpdated({
+    required this.age,
+    required this.height,
+    required this.weight,
+  });
 }
 
 class StyleSelected extends OnboardingEvent {
@@ -33,7 +35,13 @@ class ProfileInfoUpdated extends OnboardingEvent {
   final String fullName;
   final String nickname;
   final String phoneNumber;
-  ProfileInfoUpdated({required this.fullName, required this.nickname, required this.phoneNumber});
+  final int age;
+  ProfileInfoUpdated({
+    required this.fullName,
+    required this.nickname,
+    required this.phoneNumber,
+    required this.age,
+  });
 }
 
 class SubmitOnboarding extends OnboardingEvent {}

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:styla_mobile_app/features/auth/ui/bloc/events/signIn_event.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/events/signin_event.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
-import 'package:styla_mobile_app/features/auth/ui/bloc/states/signIn_state.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/states/signin_state.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -17,6 +17,7 @@ class SigninScreenState extends State<SigninScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  @override
   void initState() {
     super.initState();
   }
@@ -159,7 +160,9 @@ class SigninScreenState extends State<SigninScreen> {
               style: TextStyle(color: Colors.white70),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/signup');
+              },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,

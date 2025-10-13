@@ -9,7 +9,7 @@ class AppRoutes {
   
   // Rutas de autenticación
   static const String login = '/login';
-  static const String register = '/register';
+  static const String signup = '/signup';
   
   // Rutas de perfil
   static const String profile = '/profile';
