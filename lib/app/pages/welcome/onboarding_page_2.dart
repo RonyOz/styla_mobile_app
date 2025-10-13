@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../routes/app_routes.dart';
-import '../services/onboarding_storage.dart';
-import '../layouts/onboarding_layout.dart';
+import 'package:styla_mobile_app/app/layouts/onboarding_layout.dart';
+import 'package:styla_mobile_app/app/routes/app_routes.dart';
+import 'package:styla_mobile_app/app/services/onboarding_storage.dart';
 
-class OnboardingPage3 extends StatelessWidget {
-  const OnboardingPage3({super.key});
+class OnboardingPage2 extends StatelessWidget {
+  const OnboardingPage2({super.key});
 
-  Future<void> _handleComplete(BuildContext context) async {
+  Future<void> _handleSkip(BuildContext context) async {
     final navigator = Navigator.of(context);
     await OnboardingStorage.markCompleted();
     navigator.pushReplacementNamed(AppRoutes.welcome);
@@ -14,23 +14,23 @@ class OnboardingPage3 extends StatelessWidget {
 
   Future<void> _goToNext(BuildContext context) async {
     final navigator = Navigator.of(context);
-    navigator.pushReplacementNamed(AppRoutes.welcome);
+    navigator.pushReplacementNamed(AppRoutes.onboarding3);
   }
 
   @override
   Widget build(BuildContext context) {
     return OnboardingLayout(
-      headline: 'Tu closet tiene más de lo que imaginas',
+      headline: 'Inspirate, combina y crea tu estilo cada día',
       // body removed to match the prototype
       body: null,
       currentStep: 2,
       totalSteps: 3,
       primaryActionLabel: 'Continuar',
       onPrimaryAction: () => _goToNext(context),
-      onSkip: () => _handleComplete(context),
+      onSkip: () => _handleSkip(context),
 
       // NEW: background asset for this screen
-      backgroundAsset: 'assets/images/backgrounds/welcome3.png',
+      backgroundAsset: 'assets/images/backgrounds/welcome2.png',
       // Optional: tweak contrast if needed
       // overlayColor: Colors.black.withOpacity(0.28),
     );

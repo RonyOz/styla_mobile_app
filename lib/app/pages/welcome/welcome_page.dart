@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../core/core.dart';
-import '../routes/app_routes.dart';
+import 'package:styla_mobile_app/app/routes/app_routes.dart';
+import 'package:styla_mobile_app/core/ui/design/app_colors.dart';
+import 'package:styla_mobile_app/core/ui/design/app_spacing.dart';
+import 'package:styla_mobile_app/core/ui/widgets/app_button.dart';
+import 'package:styla_mobile_app/core/ui/widgets/app_image.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});

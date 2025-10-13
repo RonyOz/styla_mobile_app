@@ -169,7 +169,12 @@ class _SignupContentState extends State<_SignupContent> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pop(context);
+      // Opción B (recomendada si NO quieres que vuelvan con “back”):
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.onboardingSetup,
+        (route) => false,
+     );
     } else if (state is SignupErrorState) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
