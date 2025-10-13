@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/core.dart';
-import '../bloc/signup_bloc.dart';
-import '../bloc/events/signup_event.dart';
-import '../bloc/states/signup_state.dart';
+import 'package:styla_mobile_app/core/core.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/events/signup_event.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/signup_bloc.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/states/signup_state.dart';
+import 'package:styla_mobile_app/features/auth/ui/widgets/auth_app_bar.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
@@ -51,10 +52,8 @@ class _SignupContentState extends State<_SignupContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crear cuenta'),
-        centerTitle: true,
-      ),
+      backgroundColor: AppColors.background,
+      appBar: const AuthAppBar(),
       body: BlocConsumer<SignupBloc, SignupState>(
         listener: _handleStateChanges,
         builder: (context, state) {
@@ -86,7 +85,6 @@ class _SignupContentState extends State<_SignupContent> {
   Widget _buildHeader(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 32),
         Icon(
           Icons.person_add_outlined,
           size: 80,

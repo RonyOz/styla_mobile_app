@@ -4,6 +4,7 @@ import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/events/signin_event.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/states/signin_state.dart';
+import '../widgets/auth_app_bar.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -28,16 +29,6 @@ class SigninScreenState extends State<SigninScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        AppSpacing.verticalLarge,
-        // Back button
-        Align(
-          alignment: Alignment.centerLeft,
-          child: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: AppColors.primary),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        AppSpacing.verticalMedium,
         // Title
         Text(
           'Inicia Sesión',
@@ -199,6 +190,7 @@ class SigninScreenState extends State<SigninScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      appBar: const AuthAppBar(),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
