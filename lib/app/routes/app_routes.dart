@@ -23,4 +23,6 @@ class AppRoutes {
   // Rutas de perfil
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
+  static const String onboarding = '/onboarding';
+
 }

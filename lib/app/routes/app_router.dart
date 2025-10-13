@@ -4,12 +4,16 @@ import 'package:styla_mobile_app/app/pages/onboarding_setup_page.dart';
 import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_1.dart';
 import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_2.dart';
 import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_3.dart';
+
 import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/signup_bloc.dart';
 import 'package:styla_mobile_app/features/auth/ui/screens/signin_screen.dart';
 import 'package:styla_mobile_app/features/auth/ui/screens/signup_screen.dart';
+
 import 'package:styla_mobile_app/features/profile/ui/bloc/profile_bloc.dart';
 import 'package:styla_mobile_app/features/profile/ui/screens/profile_screen.dart';
+
+import 'package:styla_mobile_app/features/onboarding/ui/screens/onboarding_screen.dart';
 import '../pages/home_page.dart';
 import '../pages/splash_page.dart';
 import '../pages/welcome/welcome_page.dart';
@@ -27,6 +31,7 @@ class AppRouter {
       AppRoutes.welcome: (context) => const WelcomePage(),
       AppRoutes.onboardingSetup: (_) => const OnboardingSetupPage(),
       AppRoutes.home: (context) => const HomePage(),
+
       AppRoutes.profile: (context) => BlocProvider(
         create: (_) => ProfileBloc(),
         child: const ProfileScreen(),
@@ -39,6 +44,8 @@ class AppRouter {
         create: (_) => SignupBloc(),
         child: const SignupScreen(),
       ),
+      AppRoutes.onboarding: (context) => OnboardingScreen()
+      // TODO: Agregar rutas de features (auth, profile, etc)
     };
   }
 
