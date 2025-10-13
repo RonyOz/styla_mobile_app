@@ -8,44 +8,68 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: AppSpacing.paddingLarge,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(),
-              
-              // Logo principal
-              Center(
-                child: AppLogo(
-                  width: 180,
-                  height: 120,
+      body: Stack(
+        children: [
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/welcome_background.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback: color de fondo si la imagen no existe
+                return Container(color: AppColors.background);
+              },
+            ),
+          ),
+
+          // Overlay semi-transparente para opacidad
+          Positioned.fill(child: Container(color: Colors.black54)),
+
+          // Contenido sobre el background
+          SafeArea(
+            child: SizedBox.expand(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                child: Column(
+                  children: [
+                    // Espacio superior (2 partes)
+                    const Spacer(flex: 2),
+
+                    // Logo centrado
+                    AppLogo(width: 360, height: 240),
+
+                    // Espacio entre logo y botones (1 parte)
+                    const Spacer(flex: 1),
+
+                  // Botones aproximadamente en 3/4 de la pantalla
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 280),
+                    child: AppButton.primary(
+                      text: 'Iniciar sesión',
+                      onPressed: () =>
+                          Navigator.pushNamed(context, AppRoutes.login),
+                    ),
+                  ),
+
+                  AppSpacing.verticalMedium,
+
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 280),
+                    child: AppButton.secondary(
+                      text: 'Registrarse',
+                      onPressed: () =>
+                          Navigator.pushNamed(context, AppRoutes.signup),
+                    ),
+                  ),
+
+                  // Espacio inferior (1 parte)
+                  const Spacer(flex: 1),
+                  ],
                 ),
               ),
-              
-              AppSpacing.verticalLarge,
-              
-              // Botón de login usando nuestro SimpleButton
-              AppButton.primary(
-                text: 'Iniciar sesión',
-                onPressed: () => Navigator.pushNamed(context, AppRoutes.login),
-              ),
-              
-              AppSpacing.verticalMedium,
-              
-              // Botón de registro usando SimpleButton secundario
-              AppButton.secondary(
-                text: 'Registrarse',
-                onPressed: () => Navigator.pushNamed(context, AppRoutes.signup),
-              ),
-              
-              AppSpacing.verticalLarge,
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
