@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
+=======
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/core.dart';
+>>>>>>> dev
 import 'routes/app_router.dart';
 
 class App extends StatelessWidget {
@@ -11,10 +16,7 @@ class App extends StatelessWidget {
 
       debugShowCheckedModeBanner: false,
 
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.theme,
 
       initialRoute: '/',
 
