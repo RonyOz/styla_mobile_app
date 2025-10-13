@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:styla_mobile_app/features/auth/ui/bloc/events/signIn_event.dart';
+import 'package:styla_mobile_app/app/routes/app_routes.dart';
+import 'package:styla_mobile_app/core/core.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/events/signin_event.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
-import 'package:styla_mobile_app/features/auth/ui/bloc/states/signIn_state.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/states/signin_state.dart';
+import 'package:styla_mobile_app/features/auth/ui/widgets/auth_app_bar.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -17,114 +20,65 @@ class SigninScreenState extends State<SigninScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  @override
   void initState() {
     super.initState();
   }
 
   Widget content() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+    padding: AppSpacing.paddingLarge,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 60),
-        // Back button
-        Align(
-          alignment: Alignment.centerLeft,
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Color(0xFFD4E157)),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        const SizedBox(height: 20),
         // Title
-        const Text(
+        Text(
           'Inicia Sesión',
-          style: TextStyle(
-            color: Color(0xFFD4E157),
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTypography.title.copyWith(color: AppColors.primary),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 12),
+        AppSpacing.verticalSmall,
         // Subtitle
-        const Text(
+        Text(
           '¡Qué bueno verte de nuevo!',
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: AppTypography.subtitle,
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 40),
-        // Email label
-        const Text(
-          'Username or email',
-          style: TextStyle(color: Colors.white70, fontSize: 14),
-        ),
-        const SizedBox(height: 8),
+        AppSpacing.verticalLarge,
         // Email input
-        TextField(
+        AppTextField(
           controller: emailController,
-          style: const TextStyle(color: Colors.black87),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-          ),
+          label: 'Username or email',
         ),
-        const SizedBox(height: 20),
-        // Password label
-        const Text(
-          'Password',
-          style: TextStyle(color: Colors.white70, fontSize: 14),
-        ),
-        const SizedBox(height: 8),
+        AppSpacing.verticalMedium,
         // Password input
-        TextField(
+        AppTextField(
           controller: passwordController,
+          label: 'Password',
           obscureText: true,
-          style: const TextStyle(color: Colors.black87),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-          ),
         ),
-        const SizedBox(height: 30),
+        AppSpacing.verticalLarge,
         // Submit button
         submitButton(),
-        const SizedBox(height: 12),
+        AppSpacing.verticalSmall,
         // Forgot password
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
             onPressed: () {},
-            child: const Text(
+            child: Text(
               'Forgot Password?',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+              style: AppTypography.caption,
             ),
           ),
         ),
         const Spacer(),
         // Social login
-        const Text(
+        Text(
           'O inicia con',
-          style: TextStyle(color: Colors.white54, fontSize: 14),
+          style: AppTypography.caption,
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.verticalMedium,
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -132,102 +86,71 @@ class SigninScreenState extends State<SigninScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.g_mobiledata, size: 32),
+              child: Icon(Icons.g_mobiledata, size: 32, color: AppColors.textPrimary),
             ),
-            const SizedBox(width: 16),
+            AppSpacing.horizontalMedium,
             Container(
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.facebook, color: Colors.blue),
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        AppSpacing.verticalLarge,
         // Sign up link
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'No tienes cuenta? ',
-              style: TextStyle(color: Colors.white70),
+              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.signup),
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text(
+              child: Text(
                 'Crear cuenta',
-                style: TextStyle(
-                  color: Color(0xFFD4E157),
+                style: AppTypography.body.copyWith(
+                  color: AppColors.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        AppSpacing.verticalLarge,
       ],
     ),
   );
 
   Widget submitButton() => BlocBuilder<SigninBloc, SignInState>(
     builder: (context, state) {
-      return SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: ElevatedButton(
-          onPressed: state is SignInLoadingState
-              ? null
-              : () {
-                  context.read<SigninBloc>().add(
-                    SignInRequested(
-                      email: emailController.text,
-                      password: passwordController.text,
-                    ),
-                  );
-                },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFD4E157),
-            foregroundColor: Colors.black87,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            elevation: 0,
-          ),
-          child: state is SignInLoadingState
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
+      final isLoading = state is SignInLoadingState;
+      return AppButton.primary(
+        text: 'Continuar',
+        onPressed: isLoading
+            ? null
+            : () {
+                context.read<SigninBloc>().add(
+                  SignInRequested(
+                    email: emailController.text,
+                    password: passwordController.text,
                   ),
-                )
-              : const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Continuar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(Icons.arrow_forward, size: 20),
-                  ],
-                ),
-        ),
+                );
+              },
+        isLoading: isLoading,
+        icon: Icons.arrow_forward,
       );
     },
   );
@@ -243,11 +166,11 @@ class SigninScreenState extends State<SigninScreen> {
           children: [
             Expanded(child: content()),
             Container(
-              padding: const EdgeInsets.all(16),
-              color: Colors.red.shade900,
+              padding: AppSpacing.paddingMedium,
+              color: AppColors.error,
               child: Text(
                 state.message,
-                style: const TextStyle(color: Colors.white),
+                style: AppTypography.body.copyWith(color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -267,17 +190,10 @@ class SigninScreenState extends State<SigninScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2C2C2C),
+      backgroundColor: AppColors.background,
+      appBar: const AuthAppBar(),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: SizedBox(
-            height:
-                MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top -
-                MediaQuery.of(context).padding.bottom,
-            child: dynamicContent(),
-          ),
-        ),
+        child: dynamicContent(),
       ),
     );
   }

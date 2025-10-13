@@ -14,6 +14,7 @@ class AuthException implements Exception {
 abstract class AuthDataSource {
   Future<String> signUp(String email, String password);
   Future<void> signIn(String email, String password);
+  Future<void> signOut();
 }
 
 class AuthDataSourceImpl extends AuthDataSource {
@@ -42,6 +43,7 @@ class AuthDataSourceImpl extends AuthDataSource {
     }
   }
 
+  @override
   Future<void> signIn(String email, String password) async {
     try {
       AuthResponse response = await _supabaseClient.auth.signInWithPassword(
@@ -70,5 +72,16 @@ class AuthDataSourceImpl extends AuthDataSource {
       return 'Email no confirmado';
     }
     return message;
+  }
+  
+  @override
+  Future<void> signOut() {
+    try {
+      return _supabaseClient.auth.signOut();
+    } on AuthApiException catch (e) {
+      throw AuthException('Error al cerrar sesión: ${e.message}', code: e.code);
+    } catch (e) {
+      throw AuthException('Error de conexión: ${e.toString()}');
+    }
   }
 }
