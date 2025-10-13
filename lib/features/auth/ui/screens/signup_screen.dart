@@ -55,7 +55,8 @@ class _SignupContentState extends State<_SignupContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear cuenta'), centerTitle: true),
+      backgroundColor: AppColors.background,
+      appBar: const AuthAppBar(),
       body: BlocConsumer<SignupBloc, SignupState>(
         listener: _handleStateChanges,
         builder: (context, state) {
@@ -74,6 +75,8 @@ class _SignupContentState extends State<_SignupContent> {
                     _buildSignupButton(state),
                     AppSpacing.verticalLarge,
                     _buildLoginLink(state),
+                    AppSpacing.verticalLarge,
+                    _buildSocialLogin(),
                   ],
                 ),
               ),
@@ -87,21 +90,17 @@ class _SignupContentState extends State<_SignupContent> {
   Widget _buildHeader(BuildContext context) {
     return Column(
       children: [
-        Icon(Icons.person_add_outlined, size: 80, color: AppColors.primary),
-        AppSpacing.verticalMedium,
+         // Title
         Text(
-          'Bienvenido',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          'Crea tu cuenta',
+          style: AppTypography.title.copyWith(color: AppColors.primary),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          'En Styla consigue tu mejor estilo',
+          style: AppTypography.subtitle.copyWith(color: AppColors.textPrimary)
         ),
         AppSpacing.verticalSmall,
-        Text(
-          'Crea tu cuenta para comenzar',
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-        ),
       ],
     );
   }
@@ -195,37 +194,81 @@ class _SignupContentState extends State<_SignupContent> {
   Widget _buildSignupButton(SignupState state) {
     final isLoading = state is SignupLoadingState;
 
-    return ElevatedButton(
-      onPressed: isLoading ? null : _handleSignup,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: isLoading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Text(
-              'Crear cuenta',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+    return AppButton.primary(
+      text: 'Crear cuenta',
+      onPressed: _handleSignup,
+      isLoading: isLoading,
     );
   }
 
-  Widget _buildLoginLink(SignupState state) {
-    final isLoading = state is SignupLoadingState;
+Widget _buildLoginLink(SignupState state) {
+  final isLoading = state is SignupLoadingState;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text('¿Ya tienes cuenta?'),
-        TextButton(
-          onPressed: isLoading
-              ? null
-              : () => Navigator.pushReplacementNamed(context, AppRoutes.login),
-          child: const Text('Iniciar sesión'),
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        '¿Ya tienes cuenta? ', 
+        style: AppTypography.body.copyWith(
+          color: AppColors.textSecondary,
+        ),
+      ),
+      TextButton(
+        onPressed: isLoading ? null : () => Navigator.pushReplacementNamed(context, AppRoutes.login),
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(
+          'Iniciar sesión',
+          style: AppTypography.body.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialLogin() {
+  return Column(
+    children: [
+      Text(
+        'Resgistrate con', 
+        style: AppTypography.caption.copyWith(color: AppColors.textPrimary),
+        textAlign: TextAlign.center,
+      ),
+      AppSpacing.verticalMedium,
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.g_mobiledata,
+              size: 32,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          AppSpacing.horizontalMedium,
+          // Botón Facebook
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.facebook, color: Colors.blue),
+            ),
+          ],
         ),
       ],
     );
