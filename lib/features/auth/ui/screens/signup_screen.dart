@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styla_mobile_app/app/routes/app_routes.dart';
 import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/events/signup_event.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/signup_bloc.dart';
@@ -153,7 +154,7 @@ class _SignupContentState extends State<_SignupContent> {
       children: [
         const Text('¿Ya tienes cuenta?'),
         TextButton(
-          onPressed: isLoading ? null : () => Navigator.pop(context),
+          onPressed: isLoading ? null : () => Navigator.pushReplacementNamed(context, AppRoutes.login),
           child: const Text('Iniciar sesión'),
         ),
       ],
