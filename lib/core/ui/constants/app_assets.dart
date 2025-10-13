@@ -14,9 +14,21 @@ class AppAssets {
   static const String backgroundPattern = 'assets/images/background_pattern.png';
 
   // === ICONOS PERSONALIZADOS ===
-  static const String iconHome = 'assets/images/icons/home.png';
+  static const String iconHome = 'assets/images/icons/inicio.svg';
+  static const String iconHomeActive = 'assets/images/icons/icons-active/inicio_active.svg';
+  static const String iconCloset = 'assets/images/icons/closet.svg';
+  static const String iconClosetActive = 'assets/images/icons/icons-active/closet_active.svg';
+  static const String iconComunidad = 'assets/images/icons/comunidad.svg';
+  static const String iconComunidadActive = 'assets/images/icons/icons-active/comunidad_active.svg';
+  static const String iconVestirse = 'assets/images/icons/vestirse.svg';
+  static const String iconVestirseActive = 'assets/images/icons/icons-active/vestirse_active.svg';
+
   static const String iconProfile = 'assets/images/icons/profile.png';
   static const String iconSettings = 'assets/images/icons/settings.png';
+  static const String iconSearch = 'assets/images/icons/search.png';
+  static const String iconNotifications = 'assets/images/icons/notifications.png';
+  static const String iconFavorites = 'assets/images/icons/favorites.png';
+
 
   // === ILUSTRACIONES ===
   static const String illustrationWelcome = 'assets/images/illustrations/welcome.png';
