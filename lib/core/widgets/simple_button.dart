@@ -42,9 +42,9 @@ class SimpleButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.textOnPrimary,
-          padding: AppSpacing.paddingMedium,
+          padding: AppSpacing.paddingLarge,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
           ),
           textStyle: AppTypography.button,
         ),
@@ -65,9 +65,9 @@ class SimpleButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
           side: BorderSide(color: AppColors.primary),
-          padding: AppSpacing.paddingMedium,
+          padding: AppSpacing.paddingLarge,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
           ),
           textStyle: AppTypography.button,
         ),
