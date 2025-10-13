@@ -9,6 +9,7 @@ class AppButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isPrimary;
   final bool isLoading;
+  final IconData? icon;
 
   const AppButton({
     super.key,
@@ -16,6 +17,7 @@ class AppButton extends StatelessWidget {
     this.onPressed,
     this.isPrimary = true,
     this.isLoading = false,
+    this.icon,
   });
 
   /// Constructor para botón primario
@@ -24,6 +26,7 @@ class AppButton extends StatelessWidget {
     required this.text,
     this.onPressed,
     this.isLoading = false,
+    this.icon,
   }) : isPrimary = true;
 
   /// Constructor para botón secundario
@@ -32,10 +35,32 @@ class AppButton extends StatelessWidget {
     required this.text,
     this.onPressed,
     this.isLoading = false,
+    this.icon,
   }) : isPrimary = false;
 
   @override
   Widget build(BuildContext context) {
+    Widget buttonContent = isLoading
+        ? const SizedBox(
+            height: 16,
+            width: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          )
+        : (icon != null
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(text),
+                  const SizedBox(width: 8),
+                  Icon(icon, size: 20),
+                ],
+              )
+            : Text(text));
+
     if (isPrimary) {
       return ElevatedButton(
         onPressed: isLoading ? null : onPressed,
@@ -48,16 +73,7 @@ class AppButton extends StatelessWidget {
           ),
           textStyle: AppTypography.button,
         ),
-        child: isLoading
-            ? const SizedBox(
-                height: 16,
-                width: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Text(text),
+        child: buttonContent,
       );
     } else {
       return OutlinedButton(
@@ -80,7 +96,7 @@ class AppButton extends StatelessWidget {
                   valueColor: AlwaysStoppedAnimation<Color>(AppColors.secondaryLight),
                 ),
               )
-            : Text(text),
+            : buttonContent,
       );
     }
   }
