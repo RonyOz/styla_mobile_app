@@ -23,7 +23,7 @@ class App extends StatelessWidget {
         useMaterial3: true,
       ),
       // Set initial route based on session
-      initialRoute: session != null ? AppRoutes.login : AppRoutes.login,
+      initialRoute: session != null ? AppRoutes.home : AppRoutes.login,
       // Add login route to the main router
       routes: {
         ...AppRouter.routes,
