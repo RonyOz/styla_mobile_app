@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.person_outline),
             tooltip: 'Ir al perfil',
             onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.login);
+              Navigator.pushNamed(context, AppRoutes.profile);
             },
           ),
         ],
