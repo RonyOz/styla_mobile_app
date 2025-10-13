@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/signup_bloc.dart';
-import '../bloc/events/signup_event.dart';
-import '../bloc/states/signup_state.dart';
+import 'package:styla_mobile_app/app/routes/app_routes.dart';
+import 'package:styla_mobile_app/core/core.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/events/signup_event.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/signup_bloc.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/states/signup_state.dart';
+import 'package:styla_mobile_app/features/auth/ui/widgets/auth_app_bar.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
@@ -58,7 +61,7 @@ class _SignupContentState extends State<_SignupContent> {
         builder: (context, state) {
           return SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: AppSpacing.paddingLarge,
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -69,7 +72,7 @@ class _SignupContentState extends State<_SignupContent> {
                     _buildForm(state),
                     const SizedBox(height: 32),
                     _buildSignupButton(state),
-                    const SizedBox(height: 24),
+                    AppSpacing.verticalLarge,
                     _buildLoginLink(state),
                   ],
                 ),
@@ -84,20 +87,15 @@ class _SignupContentState extends State<_SignupContent> {
   Widget _buildHeader(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 32),
-        Icon(
-          Icons.person_add_outlined,
-          size: 80,
-          color: Theme.of(context).primaryColor,
-        ),
-        const SizedBox(height: 16),
+        Icon(Icons.person_add_outlined, size: 80, color: AppColors.primary),
+        AppSpacing.verticalMedium,
         Text(
           'Bienvenido',
           style: Theme.of(
             context,
           ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 8),
+        AppSpacing.verticalSmall,
         Text(
           'Crea tu cuenta para comenzar',
           style: Theme.of(
@@ -109,27 +107,21 @@ class _SignupContentState extends State<_SignupContent> {
   }
 
   Widget _buildForm(SignupState state) {
-    final isLoading = state is SignupLoadingState;
-
     return Column(
       children: [
-        _buildTextField(
+        AppTextField(
+          label: 'Email',
+          hint: 'ejemplo@correo.com',
           controller: _emailController,
-          labelText: 'Email',
-          hintText: 'ejemplo@correo.com',
-          prefixIcon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
-          enabled: !isLoading,
           validator: _validateEmail,
         ),
-        const SizedBox(height: 16),
-        _buildTextField(
+        AppSpacing.verticalMedium,
+        AppTextField(
+          label: 'Contraseña',
+          hint: 'Mínimo 6 caracteres',
           controller: _passwordController,
-          labelText: 'Contraseña',
-          hintText: 'Mínimo 6 caracteres',
-          prefixIcon: Icons.lock_outlined,
           obscureText: _obscurePassword,
-          enabled: !isLoading,
           validator: _validatePassword,
           suffixIcon: IconButton(
             icon: Icon(
@@ -141,13 +133,11 @@ class _SignupContentState extends State<_SignupContent> {
                 setState(() => _obscurePassword = !_obscurePassword),
           ),
         ),
-        const SizedBox(height: 16),
-        _buildTextField(
+        AppSpacing.verticalMedium,
+        AppTextField(
+          label: 'Confirmar contraseña',
           controller: _confirmPasswordController,
-          labelText: 'Confirmar contraseña',
-          prefixIcon: Icons.lock_outlined,
           obscureText: _obscureConfirmPassword,
-          enabled: !isLoading,
           validator: _validateConfirmPassword,
           suffixIcon: IconButton(
             icon: Icon(
@@ -232,7 +222,9 @@ class _SignupContentState extends State<_SignupContent> {
       children: [
         const Text('¿Ya tienes cuenta?'),
         TextButton(
-          onPressed: isLoading ? null : () => Navigator.pop(context),
+          onPressed: isLoading
+              ? null
+              : () => Navigator.pushReplacementNamed(context, AppRoutes.login),
           child: const Text('Iniciar sesión'),
         ),
       ],
@@ -247,7 +239,12 @@ class _SignupContentState extends State<_SignupContent> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pop(context);
+      // Opción B (recomendada si NO quieres que vuelvan con “back”):
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.onboardingSetup,
+        (route) => false,
+      );
     } else if (state is SignupErrorState) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(state.message), backgroundColor: Colors.red),
