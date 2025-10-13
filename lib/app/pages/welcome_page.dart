@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/core.dart';
 import '../routes/app_routes.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -7,79 +8,41 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: AppSpacing.paddingLarge,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
               
-              // Logo/Icon
-              Icon(
-                Icons.fitness_center,
-                size: 120,
-                color: Theme.of(context).primaryColor,
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // App name
-              Text(
-                'Styla',
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+              // Logo principal
+              Center(
+                child: AppLogo(
+                  width: 180,
+                  height: 120,
                 ),
-                textAlign: TextAlign.center,
               ),
               
-              const SizedBox(height: 16),
+              AppSpacing.verticalLarge,
               
-              // Subtitle
-              Text(
-                'Tu compañero fitness personal',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[600],
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              const Spacer(),
-              
-              // Login button
-              ElevatedButton(
+              // Botón de login usando nuestro SimpleButton
+              SimpleButton.primary(
+                text: 'Iniciar sesión',
                 onPressed: () => Navigator.pushNamed(context, AppRoutes.login),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Iniciar sesión',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
               ),
               
-              const SizedBox(height: 12),
+              AppSpacing.verticalMedium,
               
-              // Signup button
-              OutlinedButton(
+              // Botón de registro usando SimpleButton secundario
+              SimpleButton.secondary(
+                text: 'Registrarse',
                 onPressed: () => Navigator.pushNamed(context, AppRoutes.signup),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Crear cuenta',
-                  style: TextStyle(fontSize: 16),
-                ),
               ),
               
-              const SizedBox(height: 48),
+              AppSpacing.verticalLarge,
             ],
           ),
         ),
