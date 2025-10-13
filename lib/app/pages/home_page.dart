@@ -19,25 +19,25 @@ class _HomePageState extends State<HomePage> {
     const StylaBottomNavItem(
       label: 'Inicio',
       icon:
-          Icons.home_outlined, // TODO: replace with custom Inicio outline icon
+          'assets/icon/inicio.svg',
       activeIcon:
-          Icons.home_rounded, // TODO: replace with custom Inicio filled icon
+          'assets/icon/icon-active/inicio_active.svg',
     ),
     const StylaBottomNavItem(
       label: 'Closet',
-      icon: Icons.storefront_outlined, // TODO: replace with Closet icon asset
-      activeIcon: Icons.storefront, // TODO: replace with Closet icon asset
+      icon: 'assets/icon/closet2.svg',
+      activeIcon: 'assets/icon/icon-active/closet2_active.svg', 
     ),
     const StylaBottomNavItem(
       label: 'Vestirse',
       icon:
-          Icons.auto_awesome_outlined, // TODO: replace with Vestirse icon asset
-      activeIcon: Icons.auto_awesome, // TODO: replace with Vestirse icon asset
+          'assets/icon/vestirse.svg', 
+      activeIcon: 'assets/icon/icon-active/vestirse_active.svg',
     ),
     const StylaBottomNavItem(
       label: 'Comunidad',
-      icon: Icons.public_outlined, // TODO: replace with Comunidad icon asset
-      activeIcon: Icons.public, // TODO: replace with Comunidad icon asset
+      icon: 'assets/icon/comunidad.svg',
+      activeIcon: 'assets/icon/icon-active/comunidad_active.svg',
     ),
   ];
 
