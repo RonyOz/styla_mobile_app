@@ -34,8 +34,8 @@ class AppTypography {
   );
 
   static const TextStyle button = TextStyle(
-    fontFamily: headingFont,
+    fontFamily: bodyFont,
     fontSize: 16,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w400,
   );
 }
