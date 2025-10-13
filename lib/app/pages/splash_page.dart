@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // 1. Importa Supabase
 import '../routes/app_routes.dart';
@@ -22,6 +23,11 @@ class _SplashPageState extends State<SplashPage> {
   Future<void> _initialize() async {
     // Esta espera es para que el splash sea visible. Puede ser más corta.
     await Future.delayed(const Duration(seconds: 1));
+
+    if (kDebugMode) {
+      await OnboardingStorage.reset();
+      debugPrint('SplashPage: force onboarding in debug mode');
+    }
 
     // 1. Check if user has completed onboarding for the current version
     final hasCompletedOnboarding = await OnboardingStorage.isCompleted();
@@ -58,3 +64,5 @@ class _SplashPageState extends State<SplashPage> {
     );
   }
 }
+
+

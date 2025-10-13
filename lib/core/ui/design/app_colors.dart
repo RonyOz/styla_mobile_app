@@ -7,6 +7,12 @@ class AppColors {
   // Color principal
   static const Color primary = Color.fromARGB(255, 237, 242, 94);
   static const Color secondary = Color.fromARGB(255, 161, 148, 242);
+
+  //variaciones del color secundario
+  static const Color secondaryLightest = Color.fromARGB(255, 217, 212, 250);
+  static const Color secondaryLight = Color.fromARGB(255, 198, 191, 247);
+  static const Color secondaryMedium = Color.fromARGB(255,179 , 169, 245);
+
   
   // Colores de fondo
   static const Color background = Color.fromARGB(255, 33, 33, 33);
@@ -17,6 +23,7 @@ class AppColors {
   static const Color textPrimary = Color(0xF2F2F2F2);
   static const Color textSecondary = Color(0xFFB3B3B3);
   static const Color textOnPrimary = Color(0xFF1A1A1A);
+  static const Color textOnSecondary = Color.fromARGB(255, 88, 60, 114);
   
   // Colores de borde
   static const Color border = Color(0xFF404040);

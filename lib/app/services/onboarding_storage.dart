@@ -9,7 +9,7 @@ class OnboardingStorage {
 
   /// Increase this value whenever the onboarding flow changes in a way
   /// that users should see it again.
-  static const int currentVersion = 1;
+  static const int currentVersion = 2;
 
   /// Returns true when the stored onboarding version matches the current one.
   static Future<bool> isCompleted() async {

@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-=======
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/core.dart';
->>>>>>> dev
 import 'routes/app_router.dart';
 
 class App extends StatelessWidget {
