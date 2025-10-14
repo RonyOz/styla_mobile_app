@@ -30,7 +30,7 @@ class ProfileDataSourceImpl extends ProfileDataSource {
       final response = await _supabaseClient
           .from('profiles')
           .select()
-          .eq('id', userId)
+          .eq('user_id', userId)
           .single();
           
       return Profile.fromJson(response);

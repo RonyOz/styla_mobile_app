@@ -1,37 +1,16 @@
-/// Modelo de dominio para el perfil de usuario
-/// Entidad compartida en toda la aplicación
-///
-/// Representa la información personal y configuración del usuario
 class Profile {
-  /// UID de Supabase Auth
   String id;
-
   final String nickname;
-
-  /// URL completa de la foto de perfil desde Supabase Storage
-  /// Ejemplo: 'https://xxx.supabase.co/storage/v1/object/public/avatars/user123.jpg'
   final String? photo;
-
   final String? phoneNumber;
-
   final int age;
-
   final bool isPrivate;
-
-  /// Peso en kilogramos
   final double? weight;
-
-  /// Altura en centímetros
   final double? height;
-
   final String? gender;
-
   DateTime? birthdate;
 
-  final DateTime createdAt;
-
-  final DateTime? updatedAt;
-
+  // FIX: Removed createdAt and updatedAt as they are not in the DB schema
   Profile({
     required this.id,
     required this.nickname,
@@ -43,12 +22,10 @@ class Profile {
     this.height,
     this.gender,
     this.birthdate,
-    required this.createdAt,
-    this.updatedAt,
   });
 
   factory Profile.empty() {
-    return Profile(id: '', nickname: '', age: 0, createdAt: DateTime.now());
+    return Profile(id: '', nickname: '', age: 0);
   }
 
   Map<String, dynamic> toJson() {
@@ -66,26 +43,30 @@ class Profile {
     };
   }
 
+  // =================== CORRECTED FROMJSON ===================
   factory Profile.fromJson(Map<String, dynamic> json) {
     return Profile(
-      id: json['id'] as String,
+      // FIX: Use 'user_id' to match the database column name
+      id: json['user_id'] as String,
       nickname: json['nickname'] as String,
       photo: json['photo'] as String?,
-      phoneNumber: json['phone_number'] as String?,
-      age: json['age'] as int,
-      isPrivate: json['is_private'] as bool? ?? false,
+      // FIX: Use 'telephonenumber' to match the database column name
+      phoneNumber: json['telephonenumber'] as String?,
+      // FIX: Safely handle nullable numeric type from DB
+      age: (json['age'] as num?)?.toInt() ?? 0,
+      // FIX: Use 'isprivate' to match the database column name
+      isPrivate: json['isprivate'] as bool? ?? false,
       weight: (json['weight'] as num?)?.toDouble(),
       height: (json['height'] as num?)?.toDouble(),
       gender: json['gender'] as String?,
       birthdate: json['birthdate'] != null
           ? DateTime.parse(json['birthdate'] as String)
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : null,
+      // FIX: Removed createdAt and updatedAt because they don't exist in the 'profiles' table.
+      // This was the primary cause of the crash.
     );
   }
+  // ==========================================================
 
   @override
   bool operator ==(Object other) {
@@ -101,9 +82,7 @@ class Profile {
         other.weight == weight &&
         other.height == height &&
         other.gender == gender &&
-        other.birthdate == birthdate &&
-        other.createdAt == createdAt &&
-        other.updatedAt == updatedAt;
+        other.birthdate == birthdate;
   }
 
   @override
@@ -117,9 +96,7 @@ class Profile {
         weight.hashCode ^
         height.hashCode ^
         gender.hashCode ^
-        birthdate.hashCode ^
-        createdAt.hashCode ^
-        updatedAt.hashCode;
+        birthdate.hashCode;
   }
 
   @override
@@ -138,8 +115,6 @@ class Profile {
     double? height,
     String? gender,
     DateTime? birthdate,
-    DateTime? createdAt,
-    DateTime? updatedAt,
   }) {
     return Profile(
       id: id ?? this.id,
@@ -152,8 +127,6 @@ class Profile {
       height: height ?? this.height,
       gender: gender ?? this.gender,
       birthdate: birthdate ?? this.birthdate,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }
