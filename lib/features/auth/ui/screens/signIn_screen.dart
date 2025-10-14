@@ -45,10 +45,7 @@ class SigninScreenState extends State<SigninScreen> {
         ),
         AppSpacing.verticalLarge,
         // Email input
-        AppTextField(
-          controller: emailController,
-          label: 'Username or email',
-        ),
+        AppTextField(controller: emailController, label: 'Username or email'),
         AppSpacing.verticalMedium,
         // Password input
         AppTextField(
@@ -65,10 +62,7 @@ class SigninScreenState extends State<SigninScreen> {
           alignment: Alignment.centerRight,
           child: TextButton(
             onPressed: () {},
-            child: Text(
-              'Forgot Password?',
-              style: AppTypography.caption,
-            ),
+            child: Text('Forgot Password?', style: AppTypography.caption),
           ),
         ),
         const Spacer(),
@@ -89,7 +83,11 @@ class SigninScreenState extends State<SigninScreen> {
                 color: AppColors.surface,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.g_mobiledata, size: 32, color: AppColors.textPrimary),
+              child: Icon(
+                Icons.g_mobiledata,
+                size: 32,
+                color: AppColors.textPrimary,
+              ),
             ),
             AppSpacing.horizontalMedium,
             Container(
@@ -110,10 +108,13 @@ class SigninScreenState extends State<SigninScreen> {
           children: [
             Text(
               'No tienes cuenta? ',
-              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.body.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
             TextButton(
-              onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.signup),
+              onPressed: () =>
+                  Navigator.pushReplacementNamed(context, AppRoutes.signup),
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -170,7 +171,9 @@ class SigninScreenState extends State<SigninScreen> {
               color: AppColors.error,
               child: Text(
                 state.message,
-                style: AppTypography.body.copyWith(color: AppColors.textPrimary),
+                style: AppTypography.body.copyWith(
+                  color: AppColors.textPrimary,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -192,9 +195,7 @@ class SigninScreenState extends State<SigninScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const AuthAppBar(),
-      body: SafeArea(
-        child: dynamicContent(),
-      ),
+      body: SafeArea(child: dynamicContent()),
     );
   }
 }

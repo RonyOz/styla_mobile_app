@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:styla_mobile_app/app/app.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
+import 'package:styla_mobile_app/features/auth/ui/screens/signin_screen.dart';
+import 'package:styla_mobile_app/features/onboarding/ui/screens/onboarding_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/app/pages/onboarding_setup_page.dart';
 import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_1.dart';
@@ -31,20 +35,15 @@ class AppRouter {
       AppRoutes.welcome: (context) => const WelcomePage(),
       AppRoutes.onboardingSetup: (_) => const OnboardingSetupPage(),
       AppRoutes.home: (context) => const HomePage(),
-
+      AppRoutes.onboarding: (context) => OnboardingScreen(),
       AppRoutes.profile: (context) => BlocProvider(
         create: (_) => ProfileBloc(),
         child: const ProfileScreen(),
       ),
-      AppRoutes.login: (_) => BlocProvider(
+      AppRoutes.login: (context) => BlocProvider(
         create: (_) => SigninBloc(),
         child: const SigninScreen(),
       ),
-      AppRoutes.signup: (_) => BlocProvider(
-        create: (_) => SignupBloc(),
-        child: const SignupScreen(),
-      ),
-      AppRoutes.onboarding: (context) => OnboardingScreen()
       // TODO: Agregar rutas de features (auth, profile, etc)
     };
   }

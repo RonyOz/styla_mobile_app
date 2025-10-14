@@ -9,5 +9,4 @@ class RegisterUserUsecase {
   Future<void> execute(String email, String password) async {
     await _authRepository.registerUser(email, password);
   }
-
 }

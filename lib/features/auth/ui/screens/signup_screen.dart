@@ -42,11 +42,13 @@ class _SignupContentState extends State<_SignupContent> {
   void _handleSignup() {
     if (_formKey.currentState!.validate()) {
       context.read<SignupBloc>().add(
-            SignupRequested(
-              email: _emailController.text.trim(),
-              password: _passwordController.text,
-            ),
-          );
+        SignupRequested(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        ),
+      );
+      // navigate to signup
+      Navigator.of(context).pushReplacementNamed('/onboarding');
     }
   }
 
@@ -73,6 +75,8 @@ class _SignupContentState extends State<_SignupContent> {
                     _buildSignupButton(state),
                     AppSpacing.verticalLarge,
                     _buildLoginLink(state),
+                    AppSpacing.verticalLarge,
+                    _buildSocialLogin(),
                   ],
                 ),
               ),
@@ -86,23 +90,17 @@ class _SignupContentState extends State<_SignupContent> {
   Widget _buildHeader(BuildContext context) {
     return Column(
       children: [
-        Icon(
-          Icons.person_add_outlined,
-          size: 80,
-          color: AppColors.primary,
-        ),
-        AppSpacing.verticalMedium,
+         // Title
         Text(
-          'Bienvenido',
-          style: AppTypography.title,
+          'Crea tu cuenta',
+          style: AppTypography.title.copyWith(color: AppColors.primary),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          'En Styla consigue tu mejor estilo',
+          style: AppTypography.subtitle.copyWith(color: AppColors.textPrimary)
         ),
         AppSpacing.verticalSmall,
-        Text(
-          'Crea tu cuenta para comenzar',
-          style: AppTypography.caption.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
       ],
     );
   }
@@ -124,6 +122,15 @@ class _SignupContentState extends State<_SignupContent> {
           controller: _passwordController,
           obscureText: _obscurePassword,
           validator: _validatePassword,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePassword
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+            ),
+            onPressed: () =>
+                setState(() => _obscurePassword = !_obscurePassword),
+          ),
         ),
         AppSpacing.verticalMedium,
         AppTextField(
@@ -131,8 +138,56 @@ class _SignupContentState extends State<_SignupContent> {
           controller: _confirmPasswordController,
           obscureText: _obscureConfirmPassword,
           validator: _validateConfirmPassword,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscureConfirmPassword
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+            ),
+            onPressed: () => setState(
+              () => _obscureConfirmPassword = !_obscureConfirmPassword,
+            ),
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String labelText,
+    String? hintText,
+    required IconData prefixIcon,
+    bool obscureText = false,
+    bool enabled = true,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+    Widget? suffixIcon,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      enabled: enabled,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        prefixIcon: Icon(prefixIcon),
+        suffixIcon: suffixIcon,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: Theme.of(context).primaryColor,
+            width: 2,
+          ),
+        ),
+      ),
+      validator: validator,
     );
   }
 
@@ -146,16 +201,74 @@ class _SignupContentState extends State<_SignupContent> {
     );
   }
 
-  Widget _buildLoginLink(SignupState state) {
-    final isLoading = state is SignupLoadingState;
+Widget _buildLoginLink(SignupState state) {
+  final isLoading = state is SignupLoadingState;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text('¿Ya tienes cuenta?'),
-        TextButton(
-          onPressed: isLoading ? null : () => Navigator.pushReplacementNamed(context, AppRoutes.login),
-          child: const Text('Iniciar sesión'),
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        '¿Ya tienes cuenta? ', 
+        style: AppTypography.body.copyWith(
+          color: AppColors.textSecondary,
+        ),
+      ),
+      TextButton(
+        onPressed: isLoading ? null : () => Navigator.pushReplacementNamed(context, AppRoutes.login),
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(
+          'Iniciar sesión',
+          style: AppTypography.body.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialLogin() {
+  return Column(
+    children: [
+      Text(
+        'Resgistrate con', 
+        style: AppTypography.caption.copyWith(color: AppColors.textPrimary),
+        textAlign: TextAlign.center,
+      ),
+      AppSpacing.verticalMedium,
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.g_mobiledata,
+              size: 32,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          AppSpacing.horizontalMedium,
+          // Botón Facebook
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.facebook, color: Colors.blue),
+            ),
+          ],
         ),
       ],
     );
@@ -174,13 +287,10 @@ class _SignupContentState extends State<_SignupContent> {
         context,
         AppRoutes.onboardingSetup,
         (route) => false,
-     );
+      );
     } else if (state is SignupErrorState) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.message),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(state.message), backgroundColor: Colors.red),
       );
     }
   }

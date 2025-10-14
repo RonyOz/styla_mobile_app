@@ -1,3 +1,4 @@
+import 'package:styla_mobile_app/core/domain/model/user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthException implements Exception {
@@ -30,6 +31,13 @@ class AuthDataSourceImpl extends AuthDataSource {
         email: email,
         password: password,
       );
+
+      Users user = Users.empty();
+      user.email = email;
+      user.password = password;
+      user.user_id = response.user?.id ?? '';
+
+      await insertUserToDatabase(user);
 
       if (response.user == null) {
         throw AuthException('No se pudo crear el usuario');
@@ -73,7 +81,24 @@ class AuthDataSourceImpl extends AuthDataSource {
     }
     return message;
   }
-  
+
+  Future<void> insertUserToDatabase(Users user) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('users')
+          .insert(user.toJson())
+          .select();
+
+      if (response.isEmpty) {
+        throw AuthException('No se pudo crear el usuario en la base de datos');
+      }
+    } catch (e) {
+      throw AuthException(
+        'Error al insertar usuario en la base de datos: ${e.toString()}',
+      );
+    }
+  }
+
   @override
   Future<void> signOut() {
     try {

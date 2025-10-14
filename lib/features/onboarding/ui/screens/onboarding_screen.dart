@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/app/routes/app_routes.dart';
+import 'package:styla_mobile_app/core/ui/design/app_colors.dart';
 import 'package:styla_mobile_app/features/onboarding/data/repository/onboarding_repository_impl.dart';
 import 'package:styla_mobile_app/features/onboarding/data/source/onboarding_data_source.dart';
 import 'package:styla_mobile_app/features/onboarding/domain/usecases/complete_onboarding_usecase.dart';
@@ -50,7 +51,7 @@ class _OnboardingViewState extends State<OnboardingView> {
     final email = Supabase.instance.client.auth.currentUser?.email ?? '';
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: BlocConsumer<OnboardingBloc, OnboardingState>(
           listener: (context, state) {
