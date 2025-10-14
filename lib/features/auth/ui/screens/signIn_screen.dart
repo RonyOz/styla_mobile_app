@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/app/routes/app_routes.dart';
 import 'package:styla_mobile_app/core/core.dart';
-import 'package:styla_mobile_app/features/auth/ui/bloc/events/signin_event.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/events/signIn_event.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
-import 'package:styla_mobile_app/features/auth/ui/bloc/states/signin_state.dart';
+import 'package:styla_mobile_app/features/auth/ui/bloc/states/signIn_state.dart';
 import 'package:styla_mobile_app/features/auth/ui/widgets/auth_app_bar.dart';
 
 class SigninScreen extends StatefulWidget {

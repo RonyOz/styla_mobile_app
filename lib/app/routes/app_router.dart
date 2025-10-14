@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:styla_mobile_app/app/app.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
-import 'package:styla_mobile_app/features/auth/ui/screens/signin_screen.dart';
+import 'package:styla_mobile_app/features/auth/ui/screens/signIn_screen.dart';
 import 'package:styla_mobile_app/features/onboarding/ui/screens/onboarding_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/app/pages/onboarding_setup_page.dart';
@@ -9,15 +8,10 @@ import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_1.dart';
 import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_2.dart';
 import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_3.dart';
 
-import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
-import 'package:styla_mobile_app/features/auth/ui/bloc/signup_bloc.dart';
-import 'package:styla_mobile_app/features/auth/ui/screens/signin_screen.dart';
-import 'package:styla_mobile_app/features/auth/ui/screens/signup_screen.dart';
 
 import 'package:styla_mobile_app/features/profile/ui/bloc/profile_bloc.dart';
 import 'package:styla_mobile_app/features/profile/ui/screens/profile_screen.dart';
 
-import 'package:styla_mobile_app/features/onboarding/ui/screens/onboarding_screen.dart';
 import '../pages/home_page.dart';
 import '../pages/splash_page.dart';
 import '../pages/welcome/welcome_page.dart';
