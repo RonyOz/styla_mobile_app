@@ -70,16 +70,6 @@ class OnboardingStepFillProfile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          TextField(
-            controller: _agecontroller,
-            decoration: const InputDecoration(
-              labelText: 'Edad',
-              border: OutlineInputBorder(),
-              fillColor: Colors.white,
-              filled: true,
-            ),
-            keyboardType: TextInputType.number,
-          ),
           const Spacer(),
           ElevatedButton(
             onPressed: () {

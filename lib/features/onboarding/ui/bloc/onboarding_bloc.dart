@@ -49,7 +49,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       final prefs = state.preferences;
       emit(
         state.copyWith(
-          preferences: state.preferences.copyWith(name: event.style + " "),
+          preferences: state.preferences.copyWith(name: event.style),
         ),
       );
     });
