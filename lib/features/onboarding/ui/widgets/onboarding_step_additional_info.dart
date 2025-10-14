@@ -89,11 +89,9 @@ class OnboardingStepAdditionalInfo extends StatelessWidget {
   final String imagePath1 = 'assets/images/outfits/outfit1.png'; 
   final String imagePath2 = 'assets/images/outfits/outfit2.png'; 
 
-  // Constantes de identificación de preferencia de imagen
   static const imagePref1 = 'URL_IMAGEN_1';
   static const imagePref2 = 'URL_IMAGEN_2';
 
-  // Funciones auxiliares para parsear el estado (se mantienen igual)
   String _getSelectedColor(String? name) {
     if (name == null || name.isEmpty) return '';
     return name.split(' ')[0];
@@ -120,7 +118,7 @@ class OnboardingStepAdditionalInfo extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.all(24.0),
           children: [
-            // 1. Botón Back
+
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
@@ -132,8 +130,6 @@ class OnboardingStepAdditionalInfo extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
-            // 2. Título y Subtítulo
             const Text(
               'Info adicional', 
               style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold), 
@@ -148,7 +144,6 @@ class OnboardingStepAdditionalInfo extends StatelessWidget {
 
             const SizedBox(height: 40),
 
-            // 3. Selector de Colores
             const Text('¿Color de ropa preferido?', style: TextStyle(color: Colors.white70, fontSize: 18)),
             const SizedBox(height: 10),
             
@@ -168,7 +163,6 @@ class OnboardingStepAdditionalInfo extends StatelessWidget {
                   color: color,
                   isSelected: selectedColor == color,
                   onTap: () {
-                    // Mantener la selección de la imagen si ya existe
                     final newImage = selectedImage.isNotEmpty ? selectedImage : imagePref1;
                     context.read<OnboardingBloc>().add(AdditionalInfoUpdated(color: color, imagePreference: newImage));
                   },
@@ -178,13 +172,11 @@ class OnboardingStepAdditionalInfo extends StatelessWidget {
             
             const SizedBox(height: 40),
 
-            // 4. Selector de Imágenes
             const Text('¿Cuál te gusta más?', style: TextStyle(color: Colors.white70, fontSize: 18)),
             const SizedBox(height: 10),
 
             Row(
               children: [
-                // 🔑 CORRECCIÓN: _ImageSelector se envuelve en Expanded aquí
                 Expanded(
                   child: _ImageSelector(
                     imagePath: imagePath1, 
@@ -196,7 +188,6 @@ class OnboardingStepAdditionalInfo extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                // 🔑 CORRECCIÓN: El segundo selector también se envuelve en Expanded
                 Expanded(
                   child: _ImageSelector(
                     imagePath: imagePath2, 
@@ -212,8 +203,6 @@ class OnboardingStepAdditionalInfo extends StatelessWidget {
             
             
             const SizedBox(height: 40), 
-            
-            // 5. Botón Siguiente
             SizedBox(
               height: 56,
               child: ElevatedButton(

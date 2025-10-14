@@ -35,12 +35,10 @@ class ProfileInfoUpdated extends OnboardingEvent {
   final String fullName;
   final String nickname;
   final String phoneNumber;
-  final int age;
   ProfileInfoUpdated({
     required this.fullName,
     required this.nickname,
     required this.phoneNumber,
-    required this.age,
   });
 }
 

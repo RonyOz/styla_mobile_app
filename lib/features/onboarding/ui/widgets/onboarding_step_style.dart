@@ -28,7 +28,7 @@ class _StyleOption extends StatelessWidget {
       child: SizedBox(
         height: 56,
         child: OutlinedButton(
-          onPressed: onTap, // Llama al onTap que envía el evento al BLoC
+          onPressed: onTap, 
           style: OutlinedButton.styleFrom(
             backgroundColor: isSelected ? AppColors.primary.withOpacity(0.2) : Colors.white.withOpacity(0.1),
             side: BorderSide(
@@ -51,7 +51,6 @@ class _StyleOption extends StatelessWidget {
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
-              // Círculo de Selección (Radio button look)
               Container(
                   width: 20,
                   height: 20,
@@ -89,7 +88,6 @@ class OnboardingStepStyle extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.all(24.0),
           children: [
-            // 1. Botón Back
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
@@ -102,7 +100,6 @@ class OnboardingStepStyle extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // 2. Título y Descripción
             const Text(
               '¿Cómo describes tu estilo?', 
               style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold), 
@@ -117,7 +114,6 @@ class OnboardingStepStyle extends StatelessWidget {
             
             const SizedBox(height: 40),
 
-            // 3. Opciones de Estilo
             ...styles.map((style) {
               return _StyleOption(
                 label: style,
