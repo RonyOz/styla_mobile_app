@@ -84,6 +84,20 @@ class AuthDataSourceImpl extends AuthDataSource {
 
   Future<void> insertUserToDatabase(Users user) async {
     try {
+      final responeSetting = await Supabase.instance.client
+          .from('settings')
+          .insert({
+            'notification': true,
+            'sound': true,
+            'disturb': false,
+            'vibration': true,
+            'reminders': true,
+          })
+          .select()
+          .single();
+
+      user.settings_setting_id = responeSetting['setting_id'] as String;
+
       final response = await Supabase.instance.client
           .from('users')
           .insert(user.toJson())
