@@ -5,6 +5,9 @@ class Garment {
   final String categoryName;
   final List<String> tagNames;
   final DateTime createdAt;
+  final String color;
+  final String style;
+  final String occasion;
 
   Garment({
     required this.id,
@@ -13,6 +16,9 @@ class Garment {
     required this.categoryName,
     required this.tagNames,
     required this.createdAt,
+    required this.color,
+    required this.style,
+    required this.occasion,
   });
 
   factory Garment.empty() {
@@ -23,6 +29,9 @@ class Garment {
       categoryName: '',
       tagNames: [],
       createdAt: DateTime.now(),
+      color: '',
+      style: '',
+      occasion: '',
     );
   }
 
@@ -34,6 +43,9 @@ class Garment {
       'category_name': categoryName,
       'tag_names': tagNames,
       'created_at': createdAt.toIso8601String(),
+      'color': color,
+      'style': style,
+      'occasion': occasion,
     };
   }
 
@@ -45,6 +57,9 @@ class Garment {
       categoryName: json['category_name'] as String,
       tagNames: (json['tag_names'] as List<dynamic>?)?.cast<String>() ?? [],
       createdAt: DateTime.parse(json['created_at'] as String),
+      color: json['color'] as String? ?? '',
+      style: json['style'] as String? ?? '',
+      occasion: json['occasion'] as String? ?? '',
     );
   }
 
@@ -55,6 +70,9 @@ class Garment {
     String? categoryName,
     List<String>? tagNames,
     DateTime? createdAt,
+    String? color,
+    String? style,
+    String? occasion,
   }) {
     return Garment(
       id: id ?? this.id,
@@ -63,11 +81,14 @@ class Garment {
       categoryName: categoryName ?? this.categoryName,
       tagNames: tagNames ?? this.tagNames,
       createdAt: createdAt ?? this.createdAt,
+      color: color ?? this.color,
+      style: style ?? this.style,
+      occasion: occasion ?? this.occasion,
     );
   }
 
   @override
   String toString() {
-    return 'Garment(id: $id, userId: $userId, categoryName: $categoryName, tagNames: $tagNames)';
+    return 'Garment(id: $id, userId: $userId, categoryName: $categoryName, tagNames: $tagNames, color: $color, style: $style, occasion: $occasion)';
   }
 }
