@@ -4,6 +4,7 @@ import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/screens/add_garment_screen.dart';
 
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({super.key});
@@ -30,7 +31,12 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              Navigator.pushNamed(context, '/wardrobe/add');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AddGarmentScreen(),
+                ),
+              );
             },
           ),
         ],
