@@ -7,6 +7,9 @@ abstract class WardrobeRepository {
     required String imagePath,
     required String categoryId,
     required List<String> tagIds,
+    required String color,
+    required String style,
+    required String occasion,
   });
 
   Future<List<Garment>> getGarments();
