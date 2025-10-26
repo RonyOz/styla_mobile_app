@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/core/core.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/category.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
 
+// TODO: fixear diseño. Que el usuario pueda agregar sus propios tags.
 class AddGarmentScreen extends StatefulWidget {
   const AddGarmentScreen({super.key});
 
@@ -14,14 +17,64 @@ class AddGarmentScreen extends StatefulWidget {
 
 class _AddGarmentScreenState extends State<AddGarmentScreen> {
   String? _selectedImagePath;
-  String _selectedCategory = 'camisa';
+  Category? _selectedCategory;
+  final Set<String> _selectedTagIds = {};
+  
+  // Nuevos campos
+  String _selectedColor = 'Negro';
+  String _selectedStyle = 'Casual';
+  String _selectedOccasion = 'Diario';
 
-  final List<String> _categories = [
-    'camisa',
-    'pantalón',
-    'zapatos',
-    'accesorios',
+  List<Category> _categories = [];
+  List<Tag> _availableTags = [];
+  bool _isLoadingData = true;
+
+  // Opciones predefinidas
+  final List<String> _colors = [
+    'Negro',
+    'Blanco',
+    'Gris',
+    'Azul',
+    'Rojo',
+    'Verde',
+    'Amarillo',
+    'Naranja',
+    'Rosa',
+    'Morado',
+    'Café',
+    'Beige',
   ];
+
+  final List<String> _styles = [
+    'Casual',
+    'Formal',
+    'Deportivo',
+    'Elegante',
+    'Vintage',
+    'Moderno',
+    'Clásico',
+  ];
+
+  final List<String> _occasions = [
+    'Diario',
+    'Trabajo',
+    'Fiesta',
+    'Deporte',
+    'Viaje',
+    'Especial',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialData();
+  }
+
+  void _loadInitialData() {
+    // Cargar categorías y tags al iniciar
+    context.read<WardrobeBloc>().add(LoadCategoriesRequested());
+    context.read<WardrobeBloc>().add(LoadTagsRequested());
+  }
 
   void _pickImage() {
     // TODO: Implementar selección de imagen
@@ -39,13 +92,33 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
       return;
     }
 
+    if (_selectedCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor selecciona una categoría')),
+      );
+      return;
+    }
+
     context.read<WardrobeBloc>().add(
           AddGarmentRequested(
             imagePath: _selectedImagePath!,
-            categoryId: _selectedCategory, // TODO: Usar ID real de categoría
-            tagIds: const [], // TODO: Implementar selección de tags
+            categoryId: _selectedCategory!.id,
+            tagIds: _selectedTagIds.toList(),
+            color: _selectedColor,
+            style: _selectedStyle,
+            occasion: _selectedOccasion,
           ),
         );
+  }
+
+  void _toggleTag(String tagId) {
+    setState(() {
+      if (_selectedTagIds.contains(tagId)) {
+        _selectedTagIds.remove(tagId);
+      } else {
+        _selectedTagIds.add(tagId);
+      }
+    });
   }
 
   @override
@@ -58,7 +131,19 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
       ),
       body: BlocListener<WardrobeBloc, WardrobeState>(
         listener: (context, state) {
-          if (state is GarmentAddedState) {
+          if (state is CategoriesLoadedState) {
+            setState(() {
+              _categories = state.categories;
+              if (_categories.isNotEmpty) {
+                _selectedCategory = _categories.first;
+              }
+            });
+          } else if (state is TagsLoadedState) {
+            setState(() {
+              _availableTags = state.tags;
+              _isLoadingData = false;
+            });
+          } else if (state is GarmentAddedState) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Prenda agregada exitosamente'),
@@ -67,6 +152,9 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
             );
             Navigator.pop(context);
           } else if (state is WardrobeErrorState) {
+            setState(() {
+              _isLoadingData = false;
+            });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -76,7 +164,11 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
           }
         },
         child: SafeArea(
-          child: Padding(
+          child: _isLoadingData
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Padding(
             padding: AppSpacing.paddingLarge,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -137,7 +229,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                   style: AppTypography.subtitle,
                 ),
                 AppSpacing.verticalSmall,
-                DropdownButtonFormField<String>(
+                DropdownButtonFormField<Category>(
                   value: _selectedCategory,
                   decoration: InputDecoration(
                     filled: true,
@@ -152,7 +244,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                     return DropdownMenuItem(
                       value: category,
                       child: Text(
-                        category,
+                        category.name,
                         style: AppTypography.body,
                       ),
                     );
@@ -164,6 +256,156 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                       });
                     }
                   },
+                ),
+                AppSpacing.verticalLarge,
+
+                // Color Selector
+                Text(
+                  'Color',
+                  style: AppTypography.subtitle,
+                ),
+                AppSpacing.verticalSmall,
+                DropdownButtonFormField<String>(
+                  value: _selectedColor,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  dropdownColor: AppColors.surface,
+                  items: _colors.map((color) {
+                    return DropdownMenuItem(
+                      value: color,
+                      child: Text(
+                        color,
+                        style: AppTypography.body,
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedColor = value;
+                      });
+                    }
+                  },
+                ),
+                AppSpacing.verticalLarge,
+
+                // Style Selector
+                Text(
+                  'Estilo',
+                  style: AppTypography.subtitle,
+                ),
+                AppSpacing.verticalSmall,
+                DropdownButtonFormField<String>(
+                  value: _selectedStyle,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  dropdownColor: AppColors.surface,
+                  items: _styles.map((style) {
+                    return DropdownMenuItem(
+                      value: style,
+                      child: Text(
+                        style,
+                        style: AppTypography.body,
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedStyle = value;
+                      });
+                    }
+                  },
+                ),
+                AppSpacing.verticalLarge,
+
+                // Occasion Selector
+                Text(
+                  'Ocasión',
+                  style: AppTypography.subtitle,
+                ),
+                AppSpacing.verticalSmall,
+                DropdownButtonFormField<String>(
+                  value: _selectedOccasion,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  dropdownColor: AppColors.surface,
+                  items: _occasions.map((occasion) {
+                    return DropdownMenuItem(
+                      value: occasion,
+                      child: Text(
+                        occasion,
+                        style: AppTypography.body,
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedOccasion = value;
+                      });
+                    }
+                  },
+                ),
+                AppSpacing.verticalLarge,
+
+                // Tags Selector
+                Text(
+                  'Tags (opcional)',
+                  style: AppTypography.subtitle,
+                ),
+                AppSpacing.verticalSmall,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: _availableTags.isEmpty
+                      ? Text(
+                          'No hay tags disponibles',
+                          style: AppTypography.body.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        )
+                      : Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _availableTags.map((tag) {
+                            final isSelected = _selectedTagIds.contains(tag.id);
+                            return FilterChip(
+                              label: Text(tag.name),
+                              selected: isSelected,
+                              onSelected: (_) => _toggleTag(tag.id),
+                              backgroundColor: AppColors.surface,
+                              selectedColor: AppColors.primary.withOpacity(0.2),
+                              checkmarkColor: AppColors.primary,
+                              labelStyle: AppTypography.body.copyWith(
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : AppColors.textPrimary,
+                              ),
+                            );
+                          }).toList(),
+                        ),
                 ),
                 const Spacer(),
 
