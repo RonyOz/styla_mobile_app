@@ -14,6 +14,9 @@ abstract class WardrobeDataSource {
     required String imagePath,
     required String categoryId,
     required List<String> tagIds,
+    required String color,
+    required String style,
+    required String occasion,
   });
 
   Future<List<Garment>> getGarments();
@@ -42,6 +45,9 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
     required String imagePath,
     required String categoryId,
     required List<String> tagIds,
+    required String color,
+    required String style,
+    required String occasion,
   }) async {
     try {
       final userId = _supabaseClient.auth.currentUser?.id;
@@ -52,13 +58,17 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       // 1. Upload image to Supabase Storage
       final imageUrl = await _uploadImage(imagePath);
 
-      // 2. Insert garment with category_id
+      // 2. Insert garment with garment_category_id
       final garmentResponse = await _supabaseClient
           .from('garments')
           .insert({
             'user_id': userId,
             'image_url': imageUrl,
-            'category_id': categoryId,
+            'garment_category_id': categoryId,
+            'color': color,
+            'style': style,
+            'ocasion': occasion, 
+            'created_at': DateTime.now().toIso8601String().split('T')[0],
           })
           .select()
           .single();
@@ -80,6 +90,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       // 4. Fetch complete garment with JOINs to get names
       return await _getGarmentById(garmentId);
     } catch (e) {
+      print(e.toString());
       throw WardrobeException('Failed to add garment: ${e.toString()}');
     }
   }
@@ -100,6 +111,9 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
             user_id,
             image_url,
             created_at,
+            color,
+            style,
+            ocasion,
             category:garment_categories(name),
             tags:garment_tags(tag:tags(name))
           ''')
@@ -120,6 +134,9 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           user_id,
           image_url,
           created_at,
+          color,
+          style,
+          ocasion,
           category:garment_categories(name),
           tags:garment_tags(tag:tags(name))
         ''')
@@ -148,6 +165,9 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       categoryName: categoryName,
       tagNames: tagNames,
       createdAt: DateTime.parse(json['created_at'] as String),
+      color: json['color'] as String? ?? '',
+      style: json['style'] as String? ?? '',
+      occasion: json['ocasion'] as String? ?? '', 
     );
   }
 
@@ -156,12 +176,12 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
     try {
       final response = await _supabaseClient
           .from('garment_categories')
-          .select('id, name')
+          .select('category_id, name')
           .order('name');
 
       return (response as List)
           .map((c) => {
-                'id': c['id'] as String,
+                'id': c['category_id'] as String,
                 'name': c['name'] as String,
               })
           .toList();
@@ -175,12 +195,12 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
     try {
       final response = await _supabaseClient
           .from('tags')
-          .select('id, name')
+          .select('tag_id, name')
           .order('name');
 
       return (response as List)
           .map((t) => {
-                'id': t['id'] as String,
+                'id': t['tag_id'] as String,
                 'name': t['name'] as String,
               })
           .toList();
@@ -203,13 +223,13 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       // Check if tag already exists (case-insensitive)
       final existing = await _supabaseClient
           .from('tags')
-          .select('id, name')
+          .select('tag_id, name')
           .ilike('name', normalized)
           .maybeSingle();
 
       if (existing != null) {
         return {
-          'id': existing['id'] as String,
+          'id': existing['tag_id'] as String,
           'name': existing['name'] as String,
         };
       }
@@ -218,11 +238,11 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       final newTag = await _supabaseClient
           .from('tags')
           .insert({'name': trimmedName})
-          .select('id, name')
+          .select('tag_id, name')
           .single();
 
       return {
-        'id': newTag['id'] as String,
+        'id': newTag['tag_id'] as String,
         'name': newTag['name'] as String,
       };
     } catch (e) {
