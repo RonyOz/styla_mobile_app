@@ -42,7 +42,8 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
     context.read<WardrobeBloc>().add(
           AddGarmentRequested(
             imagePath: _selectedImagePath!,
-            category: _selectedCategory,
+            categoryId: _selectedCategory, // TODO: Usar ID real de categoría
+            tagIds: const [], // TODO: Implementar selección de tags
           ),
         );
   }

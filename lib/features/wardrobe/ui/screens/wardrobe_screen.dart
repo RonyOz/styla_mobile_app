@@ -34,7 +34,10 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const AddGarmentScreen(),
+                  builder: (_) => BlocProvider.value(
+                    value: context.read<WardrobeBloc>(),
+                    child: const AddGarmentScreen(),
+                  ),
                 ),
               );
             },
@@ -44,9 +47,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
       body: BlocBuilder<WardrobeBloc, WardrobeState>(
         builder: (context, state) {
           if (state is WardrobeLoadingState) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (state is WardrobeErrorState) {
@@ -54,17 +55,11 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: AppColors.error,
-                  ),
+                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
                   AppSpacing.verticalMedium,
                   Text(
                     state.message,
-                    style: AppTypography.body.copyWith(
-                      color: AppColors.error,
-                    ),
+                    style: AppTypography.body.copyWith(color: AppColors.error),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -127,10 +122,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                               top: Radius.circular(12),
                             ),
                           ),
-                          child: const Icon(
-                            Icons.checkroom,
-                            size: 48,
-                          ),
+                          child: const Icon(Icons.checkroom, size: 48),
                         ),
                       ),
                       Padding(
@@ -139,14 +131,14 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              garment.category,
+                              garment.categoryName,
                               style: AppTypography.body.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            if (garment.tags.isNotEmpty)
+                            if (garment.tagNames.isNotEmpty)
                               Text(
-                                garment.tags.join(', '),
+                                garment.tagNames.join(', '),
                                 style: AppTypography.caption.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
