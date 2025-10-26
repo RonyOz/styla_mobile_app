@@ -8,7 +8,6 @@ import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_1.dart';
 import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_2.dart';
 import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_3.dart';
 
-
 import 'package:styla_mobile_app/features/profile/ui/bloc/profile_bloc.dart';
 import 'package:styla_mobile_app/features/profile/ui/screens/profile_screen.dart';
 
@@ -27,18 +26,21 @@ class AppRouter {
       AppRoutes.onboarding2: (context) => const OnboardingPage2(),
       AppRoutes.onboarding3: (context) => const OnboardingPage3(),
       AppRoutes.welcome: (context) => const WelcomePage(),
+
       AppRoutes.onboardingSetup: (_) => const OnboardingSetupPage(),
-      AppRoutes.home: (context) => const HomePage(),
       AppRoutes.onboarding: (context) => OnboardingScreen(),
-      AppRoutes.profile: (context) => BlocProvider(
-        create: (_) => ProfileBloc(),
-        child: const ProfileScreen(),
-      ),
+
       AppRoutes.login: (context) => BlocProvider(
         create: (_) => SigninBloc(),
         child: const SigninScreen(),
       ),
-      // TODO: Agregar rutas de features (auth, profile, etc)
+
+      AppRoutes.home: (context) => const HomePage(),
+
+      AppRoutes.profile: (context) => BlocProvider(
+        create: (_) => ProfileBloc(),
+        child: const ProfileScreen(),
+      ),
     };
   }
 
