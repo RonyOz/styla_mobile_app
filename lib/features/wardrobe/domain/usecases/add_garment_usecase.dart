@@ -11,11 +11,17 @@ class AddGarmentUsecase {
     required String imagePath,
     required String categoryId,
     required List<String> tagIds,
+    required String color,
+    required String style,
+    required String occasion,
   }) {
     return _wardrobeRepository.addGarment(
       imagePath: imagePath,
       categoryId: categoryId,
       tagIds: tagIds,
+      color: color,
+      style: style,
+      occasion: occasion,
     );
   }
 }
