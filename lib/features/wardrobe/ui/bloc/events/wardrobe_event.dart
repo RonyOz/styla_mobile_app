@@ -4,11 +4,13 @@ abstract class WardrobeEvent {}
 
 class AddGarmentRequested extends WardrobeEvent {
   final String imagePath;
-  final String category;
+  final String categoryId;
+  final List<String> tagIds;
 
   AddGarmentRequested({
     required this.imagePath,
-    required this.category,
+    required this.categoryId,
+    this.tagIds = const [],
   });
 }
 

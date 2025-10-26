@@ -28,7 +28,8 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     try {
       final garment = await _addGarmentUsecase.execute(
         imagePath: event.imagePath,
-        category: event.category,
+        categoryId: event.categoryId,
+        tagIds: event.tagIds,
       );
       emit(GarmentAddedState(garment: garment));
     } catch (e) {
