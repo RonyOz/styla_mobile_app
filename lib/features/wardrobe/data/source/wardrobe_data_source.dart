@@ -10,8 +10,9 @@ class WardrobeException implements Exception {
 }
 
 abstract class WardrobeDataSource {
-  Future<Garment> addGarment({
-    required String imagePath,
+  /// Add garment with imageUrl already uploaded
+  Future<Garment> addGarmentWithImageUrl({
+    required String imageUrl,
     required String categoryId,
     required List<String> tagIds,
     required String color,
@@ -32,17 +33,28 @@ abstract class WardrobeDataSource {
   /// Find existing tag by name or create new one (for hybrid approach)
   /// Returns DTO with 'id' and 'name'
   Future<Map<String, String>> findOrCreateTag(String tagName);
+
 }
 
 class WardrobeDataSourceImpl extends WardrobeDataSource {
   final SupabaseClient _supabaseClient;
 
-  WardrobeDataSourceImpl({SupabaseClient? supabaseClient})
-      : _supabaseClient = supabaseClient ?? Supabase.instance.client;
+  WardrobeDataSourceImpl({
+    SupabaseClient? supabaseClient,
+  }) : _supabaseClient = supabaseClient ?? Supabase.instance.client;
 
   @override
-  Future<Garment> addGarment({
-    required String imagePath,
+  String getCurrentUserId() {
+    final userId = _supabaseClient.auth.currentUser?.id;
+    if (userId == null) {
+      throw WardrobeException('User not authenticated');
+    }
+    return userId;
+  }
+
+  @override
+  Future<Garment> addGarmentWithImageUrl({
+    required String imageUrl,
     required String categoryId,
     required List<String> tagIds,
     required String color,
@@ -50,15 +62,9 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
     required String occasion,
   }) async {
     try {
-      final userId = _supabaseClient.auth.currentUser?.id;
-      if (userId == null) {
-        throw WardrobeException('User not authenticated');
-      }
+      final userId = getCurrentUserId();
 
-      // 1. Upload image to Supabase Storage
-      final imageUrl = await _uploadImage(imagePath);
-
-      // 2. Insert garment with garment_category_id
+      // 1. Insert garment with garment_category_id
       final garmentResponse = await _supabaseClient
           .from('garments')
           .insert({
@@ -75,7 +81,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
 
       final garmentId = garmentResponse['id'] as String;
 
-      // 3. Insert tags in garment_tags junction table
+      // 2. Insert tags in garment_tags junction table
       if (tagIds.isNotEmpty) {
         final garmentTagsData = tagIds
             .map((tagId) => {
@@ -87,7 +93,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
         await _supabaseClient.from('garment_tags').insert(garmentTagsData);
       }
 
-      // 4. Fetch complete garment with JOINs to get names
+      // 3. Fetch complete garment with JOINs to get names
       return await _getGarmentById(garmentId);
     } catch (e) {
       print(e.toString());
@@ -284,12 +290,5 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
     } catch (e) {
       throw WardrobeException('Failed to update garment: ${e.toString()}');
     }
-  }
-
-  Future<String> _uploadImage(String imagePath) async {
-    // TODO: Implement actual image upload to Supabase Storage
-    // For now, return placeholder
-    print("Uploading image: $imagePath");
-    return 'https://placeholder.com/image.jpg';
   }
 }

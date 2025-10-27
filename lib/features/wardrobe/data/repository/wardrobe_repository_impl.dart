@@ -2,13 +2,19 @@ import 'package:styla_mobile_app/core/domain/model/garment.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/category.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
 import 'package:styla_mobile_app/features/wardrobe/data/source/wardrobe_data_source.dart';
+import 'package:styla_mobile_app/features/wardrobe/data/source/storage_data_source.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/repository/wardrobe_repository.dart';
 
 class WardrobeRepositoryImpl extends WardrobeRepository {
   final WardrobeDataSource _wardrobeDataSource;
+  final StorageDataSource _storageDataSource;
 
-  WardrobeRepositoryImpl({WardrobeDataSource? wardrobeDataSource})
-      : _wardrobeDataSource = wardrobeDataSource ?? WardrobeDataSourceImpl();
+  WardrobeRepositoryImpl({
+    WardrobeDataSource? wardrobeDataSource,
+    StorageDataSource? storageDataSource,
+  }) : _wardrobeDataSource = wardrobeDataSource ?? WardrobeDataSourceImpl(),
+       _storageDataSource =
+           storageDataSource ?? StorageDataSourceImpl();
 
   @override
   Future<Garment> addGarment({
@@ -18,15 +24,28 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
     required String color,
     required String style,
     required String occasion,
-  }) {
-    return _wardrobeDataSource.addGarment(
-      imagePath: imagePath,
-      categoryId: categoryId,
-      tagIds: tagIds,
-      color: color,
-      style: style,
-      occasion: occasion,
-    );
+  }) async {
+    try {
+      // 1. Primero subir la imagen al Storage
+      final imageUrl = await _storageDataSource.uploadImage(
+        imagePath: imagePath,
+        userId: "",// ___.getCurrentUserId(), TODO: pensar en el verdadero datasource respectivo
+      );
+
+      // 2. Luego guardar el garment en la DB con la URL de la imagen
+      return await _wardrobeDataSource.addGarmentWithImageUrl(
+        imageUrl: imageUrl,
+        categoryId: categoryId,
+        tagIds: tagIds,
+        color: color,
+        style: style,
+        occasion: occasion,
+      );
+    } on StorageException catch (e) {
+      throw Exception('Failed to upload image: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed to add garment: ${e.toString()}');
+    }
   }
 
   @override
@@ -49,10 +68,7 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
     // DataSource retorna DTOs (Map), Repository transforma a Domain Models
     final dtos = await _wardrobeDataSource.getAvailableCategories();
     return dtos
-        .map((dto) => Category(
-              id: dto['id']!,
-              name: dto['name']!,
-            ))
+        .map((dto) => Category(id: dto['id']!, name: dto['name']!))
         .toList();
   }
 
@@ -60,21 +76,13 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
   Future<List<Tag>> getAvailableTags() async {
     // DataSource retorna DTOs (Map), Repository transforma a Domain Models
     final dtos = await _wardrobeDataSource.getAvailableTags();
-    return dtos
-        .map((dto) => Tag(
-              id: dto['id']!,
-              name: dto['name']!,
-            ))
-        .toList();
+    return dtos.map((dto) => Tag(id: dto['id']!, name: dto['name']!)).toList();
   }
 
   @override
   Future<Tag> findOrCreateTag(String tagName) async {
     // DataSource retorna DTO (Map), Repository transforma a Domain Model
     final dto = await _wardrobeDataSource.findOrCreateTag(tagName);
-    return Tag(
-      id: dto['id']!,
-      name: dto['name']!,
-    );
+    return Tag(id: dto['id']!, name: dto['name']!);
   }
 }
