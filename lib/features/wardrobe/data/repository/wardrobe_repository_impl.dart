@@ -24,12 +24,13 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
     required String color,
     required String style,
     required String occasion,
+    required String userId,
   }) async {
     try {
       // 1. Primero subir la imagen al Storage
       final imageUrl = await _storageDataSource.uploadImage(
         imagePath: imagePath,
-        userId: "",// ___.getCurrentUserId(), TODO: pensar en el verdadero datasource respectivo
+        userId: userId,
       );
 
       // 2. Luego guardar el garment en la DB con la URL de la imagen
