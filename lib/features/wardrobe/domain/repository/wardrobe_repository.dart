@@ -10,6 +10,7 @@ abstract class WardrobeRepository {
     required String color,
     required String style,
     required String occasion,
+    required String userId,
   });
 
   Future<List<Garment>> getGarments();

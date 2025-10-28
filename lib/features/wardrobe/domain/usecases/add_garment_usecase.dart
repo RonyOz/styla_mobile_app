@@ -14,6 +14,7 @@ class AddGarmentUsecase {
     required String color,
     required String style,
     required String occasion,
+    required String userId,
   }) {
     return _wardrobeRepository.addGarment(
       imagePath: imagePath,
@@ -22,6 +23,7 @@ class AddGarmentUsecase {
       color: color,
       style: style,
       occasion: occasion,
+      userId: userId,
     );
   }
 }
