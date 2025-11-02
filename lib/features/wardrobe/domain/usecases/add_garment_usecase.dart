@@ -9,11 +9,21 @@ class AddGarmentUsecase {
 
   Future<Garment> execute({
     required String imagePath,
-    required String category,
+    required String categoryId,
+    required List<String> tagIds,
+    required String color,
+    required String style,
+    required String occasion,
+    required String userId,
   }) {
     return _wardrobeRepository.addGarment(
       imagePath: imagePath,
-      category: category,
+      categoryId: categoryId,
+      tagIds: tagIds,
+      color: color,
+      style: style,
+      occasion: occasion,
+      userId: userId,
     );
   }
 }

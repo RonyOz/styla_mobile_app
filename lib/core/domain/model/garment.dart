@@ -2,17 +2,23 @@ class Garment {
   final String id;
   final String userId;
   final String imageUrl;
-  final String category;
-  final List<String> tags;
+  final String categoryName;
+  final List<String> tagNames;
   final DateTime createdAt;
+  final String color;
+  final String style;
+  final String occasion;
 
   Garment({
     required this.id,
     required this.userId,
     required this.imageUrl,
-    required this.category,
-    required this.tags,
+    required this.categoryName,
+    required this.tagNames,
     required this.createdAt,
+    required this.color,
+    required this.style,
+    required this.occasion,
   });
 
   factory Garment.empty() {
@@ -20,9 +26,12 @@ class Garment {
       id: '',
       userId: '',
       imageUrl: '',
-      category: '',
-      tags: [],
+      categoryName: '',
+      tagNames: [],
       createdAt: DateTime.now(),
+      color: '',
+      style: '',
+      occasion: '',
     );
   }
 
@@ -31,9 +40,12 @@ class Garment {
       'id': id,
       'user_id': userId,
       'image_url': imageUrl,
-      'category': category,
-      'tags': tags,
+      'category_name': categoryName,
+      'tag_names': tagNames,
       'created_at': createdAt.toIso8601String(),
+      'color': color,
+      'style': style,
+      'occasion': occasion,
     };
   }
 
@@ -42,9 +54,12 @@ class Garment {
       id: json['id'] as String,
       userId: json['user_id'] as String,
       imageUrl: json['image_url'] as String,
-      category: json['category'] as String,
-      tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? [],
+      categoryName: json['category_name'] as String,
+      tagNames: (json['tag_names'] as List<dynamic>?)?.cast<String>() ?? [],
       createdAt: DateTime.parse(json['created_at'] as String),
+      color: json['color'] as String? ?? '',
+      style: json['style'] as String? ?? '',
+      occasion: json['occasion'] as String? ?? '',
     );
   }
 
@@ -52,22 +67,28 @@ class Garment {
     String? id,
     String? userId,
     String? imageUrl,
-    String? category,
-    List<String>? tags,
+    String? categoryName,
+    List<String>? tagNames,
     DateTime? createdAt,
+    String? color,
+    String? style,
+    String? occasion,
   }) {
     return Garment(
       id: id ?? this.id,
       userId: userId ?? this.userId,
       imageUrl: imageUrl ?? this.imageUrl,
-      category: category ?? this.category,
-      tags: tags ?? this.tags,
+      categoryName: categoryName ?? this.categoryName,
+      tagNames: tagNames ?? this.tagNames,
       createdAt: createdAt ?? this.createdAt,
+      color: color ?? this.color,
+      style: style ?? this.style,
+      occasion: occasion ?? this.occasion,
     );
   }
 
   @override
   String toString() {
-    return 'Garment(id: $id, userId: $userId, category: $category, tags: $tags)';
+    return 'Garment(id: $id, userId: $userId, categoryName: $categoryName, tagNames: $tagNames, color: $color, style: $style, occasion: $occasion)';
   }
 }

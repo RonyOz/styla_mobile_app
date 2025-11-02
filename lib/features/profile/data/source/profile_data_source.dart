@@ -11,6 +11,9 @@ class ProfileException implements Exception {
 
 abstract class ProfileDataSource {
   Future<Profile> getProfile();
+  
+  /// Get current authenticated user ID
+  String getCurrentUserId();
 }
 
 class ProfileDataSourceImpl extends ProfileDataSource {
@@ -18,6 +21,15 @@ class ProfileDataSourceImpl extends ProfileDataSource {
 
   ProfileDataSourceImpl({SupabaseClient? supabaseClient})
       : _supabaseClient = supabaseClient ?? Supabase.instance.client;
+
+  @override
+  String getCurrentUserId() {
+    final userId = _supabaseClient.auth.currentUser?.id;
+    if (userId == null) {
+      throw ProfileException('User not authenticated');
+    }
+    return userId;
+  }
 
   @override
   Future<Profile> getProfile() async {

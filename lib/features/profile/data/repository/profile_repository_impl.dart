@@ -4,9 +4,15 @@ import 'package:styla_mobile_app/features/profile/domain/repository/profile_repo
 
 class ProfileRepositoryImpl extends ProfileRepository {
   final ProfileDataSource _profileDataSource = ProfileDataSourceImpl();
+  
   @override
   Future<Profile> getProfile() {
     return _profileDataSource.getProfile();
+  }
+
+  @override
+  String getCurrentUserId() {
+    return _profileDataSource.getCurrentUserId();
   }
 }
 
