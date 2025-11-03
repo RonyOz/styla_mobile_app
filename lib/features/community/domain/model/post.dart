@@ -6,6 +6,9 @@ class Post {
   final DateTime? updatedAt;
   final String authorUserId;
   final int likesAmount;
+  
+  // TODO: Cuando implementemos Outfits, este campo será requerido y 'image' se obtendrá del outfit
+  final String? outfitId;
 
   // Información del autor (join con profiles)
   final String? authorNickname;
@@ -19,6 +22,7 @@ class Post {
     this.updatedAt,
     required this.authorUserId,
     required this.likesAmount,
+    this.outfitId,
     this.authorNickname,
     this.authorPhoto,
   });
@@ -34,6 +38,7 @@ class Post {
           : null,
       authorUserId: json['users_user_id'] as String,
       likesAmount: (json['likesamount'] as num?)?.toInt() ?? 0,
+      outfitId: json['outfit_id'] as String?,
       authorNickname: json['author_nickname'] as String?,
       authorPhoto: json['author_photo'] as String?,
     );
@@ -48,6 +53,7 @@ class Post {
       'updatedat': updatedAt?.toIso8601String(),
       'users_user_id': authorUserId,
       'likesamount': likesAmount,
+      'outfit_id': outfitId,
     };
   }
 
@@ -59,6 +65,7 @@ class Post {
     DateTime? updatedAt,
     String? authorUserId,
     int? likesAmount,
+    String? outfitId,
     String? authorNickname,
     String? authorPhoto,
   }) {
@@ -70,6 +77,7 @@ class Post {
       updatedAt: updatedAt ?? this.updatedAt,
       authorUserId: authorUserId ?? this.authorUserId,
       likesAmount: likesAmount ?? this.likesAmount,
+      outfitId: outfitId ?? this.outfitId,
       authorNickname: authorNickname ?? this.authorNickname,
       authorPhoto: authorPhoto ?? this.authorPhoto,
     );
