@@ -19,7 +19,7 @@ class Comment {
     this.authorPhoto,
   });
 
-  factory Comment.fromJson(Map<String, dynamic> json) {q
+  factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment(
       commentId: json['comment_id'] as String,
       content: json['content'] as String,
