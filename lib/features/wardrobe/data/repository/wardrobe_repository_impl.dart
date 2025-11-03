@@ -13,8 +13,7 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
     WardrobeDataSource? wardrobeDataSource,
     StorageDataSource? storageDataSource,
   }) : _wardrobeDataSource = wardrobeDataSource ?? WardrobeDataSourceImpl(),
-       _storageDataSource =
-           storageDataSource ?? StorageDataSourceImpl();
+       _storageDataSource = storageDataSource ?? StorageDataSourceImpl();
 
   @override
   Future<Garment> addGarment({
@@ -85,5 +84,15 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
     // DataSource retorna DTO (Map), Repository transforma a Domain Model
     final dto = await _wardrobeDataSource.findOrCreateTag(tagName);
     return Tag(id: dto['id']!, name: dto['name']!);
+  }
+
+  Future<List<Garment>> getFilteredGarments({
+    String? category,
+    List<String>? tags,
+  }) {
+    return _wardrobeDataSource.getFilteredGarments(
+      category: category,
+      tags: tags,
+    );
   }
 }

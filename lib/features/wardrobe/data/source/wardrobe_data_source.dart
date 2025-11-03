@@ -21,27 +21,30 @@ abstract class WardrobeDataSource {
   });
 
   Future<List<Garment>> getGarments();
-  
+
   Future<void> deleteGarment(String garmentId);
-  
+
   Future<Garment> updateGarment(Garment garment);
-  
+
   Future<List<Map<String, String>>> getAvailableCategories();
-  
+
   Future<List<Map<String, String>>> getAvailableTags();
-  
+
   /// Find existing tag by name or create new one (for hybrid approach)
   /// Returns DTO with 'id' and 'name'
   Future<Map<String, String>> findOrCreateTag(String tagName);
 
+  Future<List<Garment>> getFilteredGarments({
+    String? category,
+    List<String>? tags,
+  });
 }
 
 class WardrobeDataSourceImpl extends WardrobeDataSource {
   final SupabaseClient _supabaseClient;
 
-  WardrobeDataSourceImpl({
-    SupabaseClient? supabaseClient,
-  }) : _supabaseClient = supabaseClient ?? Supabase.instance.client;
+  WardrobeDataSourceImpl({SupabaseClient? supabaseClient})
+    : _supabaseClient = supabaseClient ?? Supabase.instance.client;
 
   @override
   String getCurrentUserId() {
@@ -73,7 +76,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
             'garment_category_id': categoryId,
             'color': color,
             'style': style,
-            'ocasion': occasion, 
+            'ocasion': occasion,
             'created_at': DateTime.now().toIso8601String().split('T')[0],
           })
           .select()
@@ -84,10 +87,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       // 2. Insert tags in garment_tags junction table
       if (tagIds.isNotEmpty) {
         final garmentTagsData = tagIds
-            .map((tagId) => {
-                  'garment_id': garmentId,
-                  'tag_id': tagId,
-                })
+            .map((tagId) => {'garment_id': garmentId, 'tag_id': tagId})
             .toList();
 
         await _supabaseClient.from('garment_tags').insert(garmentTagsData);
@@ -159,7 +159,8 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
         : '';
 
     // Extract tag names from nested array
-    final tagNames = (json['tags'] as List?)
+    final tagNames =
+        (json['tags'] as List?)
             ?.map((t) => (t['tag'] as Map<String, dynamic>)['name'] as String)
             .toList() ??
         <String>[];
@@ -173,7 +174,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       createdAt: DateTime.parse(json['created_at'] as String),
       color: json['color'] as String? ?? '',
       style: json['style'] as String? ?? '',
-      occasion: json['ocasion'] as String? ?? '', 
+      occasion: json['ocasion'] as String? ?? '',
     );
   }
 
@@ -186,10 +187,12 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           .order('name');
 
       return (response as List)
-          .map((c) => {
-                'id': c['category_id'] as String,
-                'name': c['name'] as String,
-              })
+          .map(
+            (c) => {
+              'id': c['category_id'] as String,
+              'name': c['name'] as String,
+            },
+          )
           .toList();
     } catch (e) {
       throw WardrobeException('Failed to fetch categories: ${e.toString()}');
@@ -205,10 +208,9 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           .order('name');
 
       return (response as List)
-          .map((t) => {
-                'id': t['tag_id'] as String,
-                'name': t['name'] as String,
-              })
+          .map(
+            (t) => {'id': t['tag_id'] as String, 'name': t['name'] as String},
+          )
           .toList();
     } catch (e) {
       throw WardrobeException('Failed to fetch tags: ${e.toString()}');
@@ -279,9 +281,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       // Only image_url can be updated
       final response = await _supabaseClient
           .from('garments')
-          .update({
-            'image_url': garment.imageUrl,
-          })
+          .update({'image_url': garment.imageUrl})
           .eq('id', garment.id)
           .select()
           .single();
@@ -289,6 +289,66 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       return await _getGarmentById(response['id']);
     } catch (e) {
       throw WardrobeException('Failed to update garment: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Garment>> getFilteredGarments({
+    String? category,
+    List<String>? tags,
+  }) async {
+    try {
+      final userId = _supabaseClient.auth.currentUser?.id;
+      if (userId == null) throw WardrobeException("User not authenticated");
+
+      var query = _supabaseClient
+          .from('garments')
+          .select()
+          .eq('user_id', userId);
+
+      // ✅ Filtro por categoría
+      if (category != null && category.isNotEmpty) {
+        final categoryData = await _supabaseClient
+            .from('garment_categories')
+            .select('category_id')
+            .eq('name', category)
+            .maybeSingle();
+        if (categoryData != null) {
+          query = query.eq('garment_category_id', categoryData['category_id']);
+        }
+      }
+
+      // ✅ Filtro por tags (uno o varios)
+      if (tags != null && tags.isNotEmpty) {
+        final tagRows = await _supabaseClient
+            .from('tags')
+            .select('tag_id')
+            .inFilter('name', tags); // usar in_ para múltiples
+
+        final tagIds = (tagRows as List).map((e) => e['tag_id']).toList();
+        if (tagIds.isNotEmpty) {
+          final garmentTagRows = await _supabaseClient
+              .from('garment_tags')
+              .select('garment_id')
+              .inFilter('tag_id', tagIds);
+
+          final garmentIds = (garmentTagRows as List)
+              .map((e) => e['garment_id'])
+              .toList();
+
+          if (garmentIds.isEmpty) {
+            return []; // no hay matching tags → devolvemos vacío
+          }
+
+          query = query.inFilter('id', garmentIds);
+        }
+      }
+
+      // Finalmente ordenar y ejecutar
+      final result = await query.order('created_at', ascending: false);
+      return (result as List).map((json) => Garment.fromJson(json)).toList();
+    } catch (e) {
+      throw WardrobeException("Failed to filter garments: $e");
     }
   }
 }

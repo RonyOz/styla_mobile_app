@@ -37,3 +37,10 @@ class UpdateGarmentRequested extends WardrobeEvent {
 class LoadCategoriesRequested extends WardrobeEvent {}
 
 class LoadTagsRequested extends WardrobeEvent {}
+
+class GetFilteredGarmentsRequested extends WardrobeEvent {
+  final String? category;
+  final List<String>? tags;
+
+  GetFilteredGarmentsRequested({this.category, this.tags});
+}

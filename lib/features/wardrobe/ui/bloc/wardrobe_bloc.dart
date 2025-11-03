@@ -1,5 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:styla_mobile_app/features/wardrobe/domain/repository/wardrobe_repository.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/usecases/add_garment_usecase.dart';
+import 'package:styla_mobile_app/features/wardrobe/data/repository/wardrobe_repository_impl.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/usecases/get_filtered_usecase.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 
@@ -13,6 +16,7 @@ import 'package:styla_mobile_app/features/profile/data/repository/profile_reposi
 import 'package:styla_mobile_app/features/profile/domain/usescases/who_am_i_usecase.dart';
 
 class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
+  final GetFilteredUsecase _getFilteredUsecase = GetFilteredUsecase();
   final WardrobeRepository _wardrobeRepository;
   final ProfileRepository _profileRepository;
   late final GetAvailableCategoriesUsecase _getAvailableCategoriesUsecase;
@@ -29,12 +33,24 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
   }) : _wardrobeRepository = wardrobeRepository ?? WardrobeRepositoryImpl(),
        _profileRepository = profileRepository ?? ProfileRepositoryImpl(),
        super(WardrobeIdleState()) {
-    _addGarmentUsecase = AddGarmentUsecase(wardrobeRepository: _wardrobeRepository);
-    _getAvailableCategoriesUsecase = GetAvailableCategoriesUsecase(wardrobeRepository: _wardrobeRepository);
-    _getAvailableTagsUsecase = GetAvailableTagsUsecase(wardrobeRepository: _wardrobeRepository);
-    _getGarmentsUsecase = GetGarmentsUsecase(wardrobeRepository: _wardrobeRepository);
-    _deleteGarmentUsecase = DeleteGarmentUsecase(wardrobeRepository: _wardrobeRepository);
-    _updateGarmentUsecase = UpdateGarmentUsecase(wardrobeRepository: _wardrobeRepository);
+    _addGarmentUsecase = AddGarmentUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _getAvailableCategoriesUsecase = GetAvailableCategoriesUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _getAvailableTagsUsecase = GetAvailableTagsUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _getGarmentsUsecase = GetGarmentsUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _deleteGarmentUsecase = DeleteGarmentUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _updateGarmentUsecase = UpdateGarmentUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
     _whoAmIUsecase = WhoAmIUsecase(profileRepository: _profileRepository);
 
     on<AddGarmentRequested>(_onAddGarmentRequested);
@@ -43,6 +59,7 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     on<UpdateGarmentRequested>(_onUpdateGarmentRequested);
     on<LoadCategoriesRequested>(_onLoadCategoriesRequested);
     on<LoadTagsRequested>(_onLoadTagsRequested);
+    on<GetFilteredGarmentsRequested>(_onGetFilteredGarmentsRequested);
   }
 
   Future<void> _onAddGarmentRequested(
@@ -53,7 +70,7 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     try {
       // Obtener userId del usuario autenticado
       final userId = _whoAmIUsecase.execute();
-      
+
       final garment = await _addGarmentUsecase.execute(
         imagePath: event.imagePath,
         categoryId: event.categoryId,
@@ -129,6 +146,22 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     try {
       final tags = await _getAvailableTagsUsecase.execute();
       emit(TagsLoadedState(tags: tags));
+    } catch (e) {
+      emit(WardrobeErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onGetFilteredGarmentsRequested(
+    GetFilteredGarmentsRequested event,
+    Emitter<WardrobeState> emit,
+  ) async {
+    emit(WardrobeLoadingState());
+    try {
+      final garments = await _getFilteredUsecase.execute(
+        category: event.category,
+        tags: event.tags,
+      );
+      emit(WardrobeLoadedState(garments: garments));
     } catch (e) {
       emit(WardrobeErrorState(message: e.toString()));
     }
