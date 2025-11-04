@@ -19,7 +19,8 @@ class AddGarmentScreen extends StatefulWidget {
 }
 
 class _AddGarmentScreenState extends State<AddGarmentScreen> {
-  final imgPicker = ImagePicker(); // TODO: va fuera del dominio, es otro datasource 
+  final imgPicker =
+      ImagePicker(); // TODO: va fuera del dominio, es otro datasource
   String? _selectedImagePath;
 
   Category? _selectedCategory;
@@ -82,12 +83,13 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
 
   void _pickImage(ImageSource source) async {
     try {
-      final picked = await imgPicker.pickImage( //TODO: XFILE va fuera del dominio, por lo que es otro ds. Debería ser un String
+      final picked = await imgPicker.pickImage(
+        //TODO: XFILE va fuera del dominio, por lo que es otro ds. Debería ser un String
         source: source,
         imageQuality: 80, // Comprimir al 80% para reducir tamaño
         maxWidth: 1200, // Límite de ancho
       );
-      
+
       if (picked == null) return;
 
       setState(() {
@@ -117,9 +119,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
             children: [
               Text(
                 'Seleccionar imagen',
-                style: AppTypography.title.copyWith(
-                  color: AppColors.primary,
-                ),
+                style: AppTypography.title.copyWith(color: AppColors.primary),
               ),
               AppSpacing.verticalMedium,
               ListTile(

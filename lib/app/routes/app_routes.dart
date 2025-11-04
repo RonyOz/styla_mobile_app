@@ -24,5 +24,6 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
   static const String onboarding = '/onboarding';
-
+  static const String addGarment = '/wardrobe/add-garment';
+  static const String wardrobe = '/wardrobe';
 }
