@@ -305,8 +305,8 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           .from('garments')
           .select()
           .eq('user_id', userId);
-
       // ✅ Filtro por categoría
+
       if (category != null && category.isNotEmpty) {
         final categoryData = await _supabaseClient
             .from('garment_categories')
@@ -346,6 +346,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
 
       // Finalmente ordenar y ejecutar
       final result = await query.order('created_at', ascending: false);
+      print("Final result : ${result}");
       return (result as List).map((json) => Garment.fromJson(json)).toList();
     } catch (e) {
       throw WardrobeException("Failed to filter garments: $e");

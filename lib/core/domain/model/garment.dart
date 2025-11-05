@@ -2,8 +2,8 @@ class Garment {
   final String id;
   final String userId;
   final String imageUrl;
-  final String categoryName;
-  final List<String> tagNames;
+  String? categoryName;
+  List<String>? tagNames;
   final DateTime createdAt;
   final String color;
   final String style;
@@ -13,8 +13,8 @@ class Garment {
     required this.id,
     required this.userId,
     required this.imageUrl,
-    required this.categoryName,
-    required this.tagNames,
+    this.categoryName,
+    this.tagNames,
     required this.createdAt,
     required this.color,
     required this.style,
@@ -40,8 +40,6 @@ class Garment {
       'id': id,
       'user_id': userId,
       'image_url': imageUrl,
-      'category_name': categoryName,
-      'tag_names': tagNames,
       'created_at': createdAt.toIso8601String(),
       'color': color,
       'style': style,
@@ -54,8 +52,6 @@ class Garment {
       id: json['id'] as String,
       userId: json['user_id'] as String,
       imageUrl: json['image_url'] as String,
-      categoryName: json['category_name'] as String,
-      tagNames: (json['tag_names'] as List<dynamic>?)?.cast<String>() ?? [],
       createdAt: DateTime.parse(json['created_at'] as String),
       color: json['color'] as String? ?? '',
       style: json['style'] as String? ?? '',

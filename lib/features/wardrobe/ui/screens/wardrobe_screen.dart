@@ -14,28 +14,9 @@ class WardrobeScreen extends StatefulWidget {
 }
 
 class _WardrobeScreenState extends State<WardrobeScreen> {
+  bool _showFilters = false;
   String? _selectedCategory;
-  final List<String> _selectedTags = [];
-
-  // Lista de categorías disponibles
-  final List<String> _categories = [
-    'Camisas',
-    'Pantalones',
-    'Gorras',
-    'Zapatos',
-    'Chaquetas',
-    'Vestidos',
-  ];
-
-  // Lista de tags disponibles
-  final List<String> _availableTags = [
-    'Casual',
-    'Formal',
-    'Deportivo',
-    'Elegante',
-    'Verano',
-    'Invierno',
-  ];
+  List<String> _selectedTags = [];
 
   @override
   void initState() {
@@ -50,7 +31,9 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
         tags: _selectedTags,
       ),
     );
-    Navigator.pop(context);
+    setState(() {
+      _showFilters = false;
+    });
   }
 
   void _clearFilters() {
@@ -59,165 +42,40 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
       _selectedTags.clear();
     });
     context.read<WardrobeBloc>().add(LoadGarmentsRequested());
-    Navigator.pop(context);
-  }
-
-  void _showFilterDialog() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return Container(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [Text('Filtros', style: AppTypography.subtitle)],
-                  ),
-                  AppSpacing.verticalMedium,
-                  Text(
-                    'Categoría',
-                    style: AppTypography.subtitle.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  AppSpacing.verticalSmall,
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _categories.map((category) {
-                      final isSelected = _selectedCategory == category;
-                      return FilterChip(
-                        label: Text(category),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setModalState(() {
-                            setState(() {
-                              _selectedCategory = selected ? category : null;
-                            });
-                          });
-                        },
-                        backgroundColor: AppColors.background,
-                        selectedColor: AppColors.primary.withOpacity(0.2),
-                        checkmarkColor: AppColors.primary,
-                      );
-                    }).toList(),
-                  ),
-                  AppSpacing.verticalMedium,
-                  Text(
-                    'Etiquetas',
-                    style: AppTypography.subtitle.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  AppSpacing.verticalSmall,
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _availableTags.map((tag) {
-                      final isSelected = _selectedTags.contains(tag);
-                      return FilterChip(
-                        label: Text(tag),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setModalState(() {
-                            setState(() {
-                              if (selected) {
-                                _selectedTags.add(tag);
-                              } else {
-                                _selectedTags.remove(tag);
-                              }
-                            });
-                          });
-                        },
-                        backgroundColor: AppColors.background,
-                        selectedColor: AppColors.primary.withOpacity(0.2),
-                        checkmarkColor: AppColors.primary,
-                      );
-                    }).toList(),
-                  ),
-                  AppSpacing.verticalLarge,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: _clearFilters,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                          child: const Text('Limpiar'),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _applyFilters,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: AppColors.primary,
-                          ),
-                          child: const Text('Aplicar'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final hasActiveFilters =
-        _selectedCategory != null || _selectedTags.isNotEmpty;
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Mi Guardarropa'),
         backgroundColor: AppColors.background,
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.filter_list),
-                onPressed: _showFilterDialog,
-              ),
-              if (hasActiveFilters)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-            ],
+          IconButton(
+            icon: Icon(
+              Icons.filter_list,
+              color: (_selectedCategory != null || _selectedTags.isNotEmpty)
+                  ? AppColors.primary
+                  : null,
+            ),
+            onPressed: () {
+              setState(() {
+                _showFilters = !_showFilters;
+              });
+            },
           ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const AddGarmentScreen()),
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider.value(
+                    value: context.read<WardrobeBloc>(),
+                    child: const AddGarmentScreen(),
+                  ),
+                ),
               );
             },
           ),
@@ -225,29 +83,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
       ),
       body: Column(
         children: [
-          if (hasActiveFilters)
-            Container(
-              width: double.infinity,
-              padding: AppSpacing.paddingMedium,
-              color: AppColors.surface,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (_selectedCategory != null)
-                    Chip(
-                      label: Text(_selectedCategory!),
-                      backgroundColor: AppColors.primary.withOpacity(0.1),
-                    ),
-                  ..._selectedTags.map(
-                    (tag) => Chip(
-                      label: Text(tag),
-                      backgroundColor: AppColors.primary.withOpacity(0.1),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          if (_showFilters) _buildFilterSection(),
           Expanded(
             child: BlocBuilder<WardrobeBloc, WardrobeState>(
               builder: (context, state) {
@@ -291,18 +127,14 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                           ),
                           AppSpacing.verticalMedium,
                           Text(
-                            hasActiveFilters
-                                ? 'No se encontraron prendas'
-                                : 'No tienes prendas aún',
+                            'No tienes prendas aún',
                             style: AppTypography.subtitle.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           ),
                           AppSpacing.verticalSmall,
                           Text(
-                            hasActiveFilters
-                                ? 'Intenta con otros filtros'
-                                : 'Agrega tu primera prenda',
+                            'Agrega tu primera prenda',
                             style: AppTypography.body.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -338,30 +170,47 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                                     top: Radius.circular(12),
                                   ),
                                 ),
-                                child: const Icon(Icons.checkroom, size: 48),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(12),
+                                  ),
+                                  child: Image.network(
+                                    garment.imageUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(Icons.checkroom, size: 48);
+                                    },
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
                             ),
                             Padding(
                               padding: AppSpacing.paddingSmall,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    garment.categoryName,
-                                    style: AppTypography.body.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  if (garment.tagNames.isNotEmpty)
-                                    Text(
-                                      garment.tagNames.join(', '),
-                                      style: AppTypography.caption.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                ],
+                                // children: [
+                                //   Text(
+                                //     garment.categoryName,
+                                //     style: AppTypography.body.copyWith(
+                                //       fontWeight: FontWeight.bold,
+                                //     ),
+                                //   ),
+                                //   if (garment.tagNames.isNotEmpty)
+                                //     Text(
+                                //       garment.tagNames.join(', '),
+                                //       style: AppTypography.caption.copyWith(
+                                //         color: AppColors.textSecondary,
+                                //       ),
+                                //       maxLines: 1,
+                                //       overflow: TextOverflow.ellipsis,
+                                //     ),
+                                // ],
                               ),
                             ),
                           ],
@@ -373,6 +222,121 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
 
                 return const SizedBox.shrink();
               },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterSection() {
+    // Aquí debes definir las categorías y tags disponibles
+    // Idealmente vendrían de un repositorio o estado
+    final categories = ['Prendas Superiores', 'Calzado', 'Prendas Inferiores'];
+
+    final tags = ['Old Money', 'emo', 'oversized', 'Street wear', 'Fresco'];
+
+    return Container(
+      padding: AppSpacing.paddingMedium,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Filtros',
+                style: AppTypography.subtitle.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                onPressed: _clearFilters,
+                child: Text(
+                  'Limpiar',
+                  style: AppTypography.body.copyWith(color: AppColors.primary),
+                ),
+              ),
+            ],
+          ),
+          AppSpacing.verticalSmall,
+          Text(
+            'Categoría',
+            style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+          ),
+          AppSpacing.verticalSmall,
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: categories.map((category) {
+              final isSelected = _selectedCategory == category;
+              return FilterChip(
+                label: Text(category),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    _selectedCategory = selected ? category : null;
+                  });
+                },
+                selectedColor: AppColors.primary.withOpacity(0.2),
+                checkmarkColor: AppColors.primary,
+              );
+            }).toList(),
+          ),
+          AppSpacing.verticalMedium,
+          Text(
+            'Etiquetas',
+            style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+          ),
+          AppSpacing.verticalSmall,
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: tags.map((tag) {
+              final isSelected = _selectedTags.contains(tag);
+              return FilterChip(
+                label: Text(tag),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    if (selected) {
+                      _selectedTags.add(tag);
+                    } else {
+                      _selectedTags.remove(tag);
+                    }
+                  });
+                },
+                selectedColor: AppColors.primary.withOpacity(0.2),
+                checkmarkColor: AppColors.primary,
+              );
+            }).toList(),
+          ),
+          AppSpacing.verticalMedium,
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _applyFilters,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: Text(
+                'Aplicar filtros',
+                style: AppTypography.body.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ],
