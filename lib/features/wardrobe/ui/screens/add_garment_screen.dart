@@ -19,7 +19,8 @@ class AddGarmentScreen extends StatefulWidget {
 }
 
 class _AddGarmentScreenState extends State<AddGarmentScreen> {
-  final imgPicker = ImagePicker(); // TODO: va fuera del dominio, es otro datasource 
+  final imgPicker =
+      ImagePicker(); // TODO: va fuera del dominio, es otro datasource
   String? _selectedImagePath;
 
   Category? _selectedCategory;
@@ -82,12 +83,13 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
 
   void _pickImage(ImageSource source) async {
     try {
-      final picked = await imgPicker.pickImage( //TODO: XFILE va fuera del dominio, por lo que es otro ds. Debería ser un String
+      final picked = await imgPicker.pickImage(
+        //TODO: XFILE va fuera del dominio, por lo que es otro ds. Debería ser un String
         source: source,
         imageQuality: 80, // Comprimir al 80% para reducir tamaño
         maxWidth: 1200, // Límite de ancho
       );
-      
+
       if (picked == null) return;
 
       setState(() {
@@ -117,9 +119,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
             children: [
               Text(
                 'Seleccionar imagen',
-                style: AppTypography.title.copyWith(
-                  color: AppColors.primary,
-                ),
+                style: AppTypography.title.copyWith(color: AppColors.primary),
               ),
               AppSpacing.verticalMedium,
               ListTile(
@@ -212,6 +212,8 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                 backgroundColor: Colors.green,
               ),
             );
+            // Recargar la lista de prendas antes de salir
+            context.read<WardrobeBloc>().add(LoadGarmentsRequested());
             Navigator.pop(context);
           } else if (state is WardrobeErrorState) {
             setState(() {
@@ -225,14 +227,15 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
             );
           }
         },
-        child: SafeArea(
-          child: _isLoadingData
-              ? const Center(child: CircularProgressIndicator())
-              : Padding(
-                  padding: AppSpacing.paddingLarge,
+        child: _isLoadingData
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      const SizedBox(height: 20),
                       Text(
                         'Selecciona una foto de tu prenda',
                         style: AppTypography.title.copyWith(
@@ -240,7 +243,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      AppSpacing.verticalLarge,
+                      const SizedBox(height: 24),
 
                       // Image Picker
                       GestureDetector(
@@ -251,7 +254,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                             color: AppColors.surface,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: AppColors.primary.withOpacity(0.3),
+                              color: AppColors.primary,
                               width: 2,
                             ),
                           ),
@@ -259,16 +262,16 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                               ? Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.add_photo_alternate,
                                       size: 64,
                                       color: AppColors.primary,
                                     ),
-                                    AppSpacing.verticalSmall,
+                                    const SizedBox(height: 8),
                                     Text(
                                       'Toca para seleccionar',
                                       style: AppTypography.body.copyWith(
-                                        color: AppColors.textSecondary,
+                                        color: AppColors.textPrimary,
                                       ),
                                     ),
                                   ],
@@ -284,11 +287,16 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                                 ),
                         ),
                       ),
-                      AppSpacing.verticalLarge,
+                      const SizedBox(height: 24),
 
                       // Category Selector
-                      Text('Categoría', style: AppTypography.subtitle),
-                      AppSpacing.verticalSmall,
+                      Text(
+                        'Categoría',
+                        style: AppTypography.subtitle.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       DropdownButtonFormField<Category>(
                         value: _selectedCategory,
                         decoration: InputDecoration(
@@ -299,13 +307,18 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                             borderSide: BorderSide.none,
                           ),
                         ),
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
                         dropdownColor: AppColors.surface,
                         items: _categories.map((category) {
                           return DropdownMenuItem(
                             value: category,
                             child: Text(
                               category.name,
-                              style: AppTypography.body,
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.textPrimary,
+                              ),
                             ),
                           );
                         }).toList(),
@@ -317,11 +330,16 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                           }
                         },
                       ),
-                      AppSpacing.verticalLarge,
+                      const SizedBox(height: 24),
 
                       // Color Selector
-                      Text('Color', style: AppTypography.subtitle),
-                      AppSpacing.verticalSmall,
+                      Text(
+                        'Color',
+                        style: AppTypography.subtitle.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _selectedColor,
                         decoration: InputDecoration(
@@ -332,11 +350,19 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                             borderSide: BorderSide.none,
                           ),
                         ),
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
                         dropdownColor: AppColors.surface,
                         items: _colors.map((color) {
                           return DropdownMenuItem(
                             value: color,
-                            child: Text(color, style: AppTypography.body),
+                            child: Text(
+                              color,
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -347,11 +373,16 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                           }
                         },
                       ),
-                      AppSpacing.verticalLarge,
+                      const SizedBox(height: 24),
 
                       // Style Selector
-                      Text('Estilo', style: AppTypography.subtitle),
-                      AppSpacing.verticalSmall,
+                      Text(
+                        'Estilo',
+                        style: AppTypography.subtitle.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _selectedStyle,
                         decoration: InputDecoration(
@@ -362,11 +393,19 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                             borderSide: BorderSide.none,
                           ),
                         ),
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
                         dropdownColor: AppColors.surface,
                         items: _styles.map((style) {
                           return DropdownMenuItem(
                             value: style,
-                            child: Text(style, style: AppTypography.body),
+                            child: Text(
+                              style,
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -377,11 +416,16 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                           }
                         },
                       ),
-                      AppSpacing.verticalLarge,
+                      const SizedBox(height: 24),
 
                       // Occasion Selector
-                      Text('Ocasión', style: AppTypography.subtitle),
-                      AppSpacing.verticalSmall,
+                      Text(
+                        'Ocasión',
+                        style: AppTypography.subtitle.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _selectedOccasion,
                         decoration: InputDecoration(
@@ -392,11 +436,19 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                             borderSide: BorderSide.none,
                           ),
                         ),
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
                         dropdownColor: AppColors.surface,
                         items: _occasions.map((occasion) {
                           return DropdownMenuItem(
                             value: occasion,
-                            child: Text(occasion, style: AppTypography.body),
+                            child: Text(
+                              occasion,
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -407,11 +459,16 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                           }
                         },
                       ),
-                      AppSpacing.verticalLarge,
+                      const SizedBox(height: 24),
 
                       // Tags Selector
-                      Text('Tags (opcional)', style: AppTypography.subtitle),
-                      AppSpacing.verticalSmall,
+                      Text(
+                        'Tags (opcional)',
+                        style: AppTypography.subtitle.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -437,36 +494,72 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                                     selected: isSelected,
                                     onSelected: (_) => _toggleTag(tag.id),
                                     backgroundColor: AppColors.surface,
-                                    selectedColor: AppColors.primary
-                                        .withOpacity(0.2),
-                                    checkmarkColor: AppColors.primary,
+                                    selectedColor: AppColors.primary,
+                                    checkmarkColor: Colors.black,
                                     labelStyle: AppTypography.body.copyWith(
                                       color: isSelected
-                                          ? AppColors.primary
+                                          ? Colors.black
                                           : AppColors.textPrimary,
+                                    ),
+                                    side: BorderSide(
+                                      color: isSelected
+                                          ? AppColors.primary
+                                          : AppColors.border,
                                     ),
                                   );
                                 }).toList(),
                               ),
                       ),
-                      const Spacer(),
+                      const SizedBox(height: 32),
 
                       // Add Button
                       BlocBuilder<WardrobeBloc, WardrobeState>(
                         builder: (context, state) {
                           final isLoading = state is WardrobeLoadingState;
-                          return AppButton.primary(
-                            text: 'Agregar Prenda',
-                            onPressed: isLoading ? null : _handleAddGarment,
-                            isLoading: isLoading,
+                          return SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: isLoading ? null : _handleAddGarment,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                disabledBackgroundColor: AppColors.primary
+                                    .withOpacity(0.5),
+                              ),
+                              child: isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.black,
+                                            ),
+                                      ),
+                                    )
+                                  : Text(
+                                      'Agregar Prenda',
+                                      style: AppTypography.button.copyWith(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
                           );
                         },
                       ),
-                      AppSpacing.verticalLarge,
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
-        ),
+              ),
       ),
     );
   }

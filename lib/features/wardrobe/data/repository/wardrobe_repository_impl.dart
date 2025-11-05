@@ -13,8 +13,7 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
     WardrobeDataSource? wardrobeDataSource,
     StorageDataSource? storageDataSource,
   }) : _wardrobeDataSource = wardrobeDataSource ?? WardrobeDataSourceImpl(),
-       _storageDataSource =
-           storageDataSource ?? StorageDataSourceImpl();
+       _storageDataSource = storageDataSource ?? StorageDataSourceImpl();
 
   @override
   Future<Garment> addGarment({
@@ -62,6 +61,59 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
   @override
   Future<Garment> updateGarment(Garment garment) {
     return _wardrobeDataSource.updateGarment(garment);
+  }
+
+  @override
+  Future<Garment> updateGarmentImage({
+    required String garmentId,
+    required String newImagePath,
+  }) async {
+    try {
+      // 1. Get current garment to get old image URL
+      final garments = await _wardrobeDataSource.getGarments();
+      final currentGarment = garments.firstWhere((g) => g.id == garmentId);
+
+      // 2. Upload new image
+      final newImageUrl = await _storageDataSource.uploadImage(
+        imagePath: newImagePath,
+        userId: currentGarment.userId,
+      );
+
+      // 3. Delete old image from storage (optional, to save space)
+      if (currentGarment.imageUrl.isNotEmpty) {
+        try {
+          await _storageDataSource.deleteImage(currentGarment.imageUrl);
+        } catch (e) {
+          // Log but don't fail if old image can't be deleted
+          print('Warning: Could not delete old image: $e');
+        }
+      }
+
+      // 4. Update garment with new image URL
+      return await _wardrobeDataSource.updateGarmentImage(
+        garmentId: garmentId,
+        newImageUrl: newImageUrl,
+      );
+    } on StorageException catch (e) {
+      throw Exception('Failed to upload new image: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed to update garment image: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Garment> updateGarmentCategory({
+    required String garmentId,
+    required String categoryId,
+  }) async {
+    try {
+      return await _wardrobeDataSource.updateGarmentCategory(
+        garmentId: garmentId,
+        categoryId: categoryId,
+      );
+    } catch (e) {
+      throw Exception('Failed to update garment category: ${e.toString()}');
+    }
   }
 
   @override

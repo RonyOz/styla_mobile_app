@@ -23,18 +23,39 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
   late final UpdateGarmentUsecase _updateGarmentUsecase;
   late final WhoAmIUsecase _whoAmIUsecase;
 
+  late final UpdateGarmentImageUsecase _updateGarmentImageUsecase;
+  late final UpdateGarmentCategoryUsecase _updateGarmentCategoryUsecase;
+
   WardrobeBloc({
     WardrobeRepository? wardrobeRepository,
     ProfileRepository? profileRepository,
   }) : _wardrobeRepository = wardrobeRepository ?? WardrobeRepositoryImpl(),
        _profileRepository = profileRepository ?? ProfileRepositoryImpl(),
        super(WardrobeIdleState()) {
-    _addGarmentUsecase = AddGarmentUsecase(wardrobeRepository: _wardrobeRepository);
-    _getAvailableCategoriesUsecase = GetAvailableCategoriesUsecase(wardrobeRepository: _wardrobeRepository);
-    _getAvailableTagsUsecase = GetAvailableTagsUsecase(wardrobeRepository: _wardrobeRepository);
-    _getGarmentsUsecase = GetGarmentsUsecase(wardrobeRepository: _wardrobeRepository);
-    _deleteGarmentUsecase = DeleteGarmentUsecase(wardrobeRepository: _wardrobeRepository);
-    _updateGarmentUsecase = UpdateGarmentUsecase(wardrobeRepository: _wardrobeRepository);
+    _addGarmentUsecase = AddGarmentUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _getAvailableCategoriesUsecase = GetAvailableCategoriesUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _getAvailableTagsUsecase = GetAvailableTagsUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _getGarmentsUsecase = GetGarmentsUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _deleteGarmentUsecase = DeleteGarmentUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _updateGarmentUsecase = UpdateGarmentUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _updateGarmentImageUsecase = UpdateGarmentImageUsecase(
+      repository: _wardrobeRepository,
+    );
+    _updateGarmentCategoryUsecase = UpdateGarmentCategoryUsecase(
+      repository: _wardrobeRepository,
+    );
     _whoAmIUsecase = WhoAmIUsecase(profileRepository: _profileRepository);
 
     on<AddGarmentRequested>(_onAddGarmentRequested);
@@ -43,6 +64,8 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     on<UpdateGarmentRequested>(_onUpdateGarmentRequested);
     on<LoadCategoriesRequested>(_onLoadCategoriesRequested);
     on<LoadTagsRequested>(_onLoadTagsRequested);
+    on<UpdateGarmentImageRequested>(_onUpdateGarmentImageRequested);
+    on<UpdateGarmentCategoryRequested>(_onUpdateGarmentCategoryRequested);
   }
 
   Future<void> _onAddGarmentRequested(
@@ -53,7 +76,7 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     try {
       // Obtener userId del usuario autenticado
       final userId = _whoAmIUsecase.execute();
-      
+
       final garment = await _addGarmentUsecase.execute(
         imagePath: event.imagePath,
         categoryId: event.categoryId,
@@ -129,6 +152,38 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     try {
       final tags = await _getAvailableTagsUsecase.execute();
       emit(TagsLoadedState(tags: tags));
+    } catch (e) {
+      emit(WardrobeErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateGarmentImageRequested(
+    UpdateGarmentImageRequested event,
+    Emitter<WardrobeState> emit,
+  ) async {
+    emit(WardrobeLoadingState());
+    try {
+      final updatedGarment = await _updateGarmentImageUsecase.execute(
+        garmentId: event.garmentId,
+        newImagePath: event.newImagePath,
+      );
+      emit(GarmentUpdatedState(garment: updatedGarment));
+    } catch (e) {
+      emit(WardrobeErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateGarmentCategoryRequested(
+    UpdateGarmentCategoryRequested event,
+    Emitter<WardrobeState> emit,
+  ) async {
+    emit(WardrobeLoadingState());
+    try {
+      final updatedGarment = await _updateGarmentCategoryUsecase.execute(
+        garmentId: event.garmentId,
+        categoryId: event.categoryId,
+      );
+      emit(GarmentUpdatedState(garment: updatedGarment));
     } catch (e) {
       emit(WardrobeErrorState(message: e.toString()));
     }

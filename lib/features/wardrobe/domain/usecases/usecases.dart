@@ -5,3 +5,5 @@ export 'get_available_tags_usecase.dart';
 export 'get_garments_usecase.dart';
 export 'delete_garment_usecase.dart';
 export 'update_garment_usecase.dart';
+export 'update_garment_image_usecase.dart';
+export 'update_garment_category_usecase.dart';

@@ -21,29 +21,36 @@ abstract class WardrobeDataSource {
   });
 
   Future<List<Garment>> getGarments();
-  
+
   Future<void> deleteGarment(String garmentId);
-  
+
   Future<Garment> updateGarment(Garment garment);
-  
+
+  Future<Garment> updateGarmentImage({
+    required String garmentId,
+    required String newImageUrl,
+  });
+
+  Future<Garment> updateGarmentCategory({
+    required String garmentId,
+    required String categoryId,
+  });
+
   Future<List<Map<String, String>>> getAvailableCategories();
-  
+
   Future<List<Map<String, String>>> getAvailableTags();
-  
+
   /// Find existing tag by name or create new one (for hybrid approach)
   /// Returns DTO with 'id' and 'name'
   Future<Map<String, String>> findOrCreateTag(String tagName);
-
 }
 
 class WardrobeDataSourceImpl extends WardrobeDataSource {
   final SupabaseClient _supabaseClient;
 
-  WardrobeDataSourceImpl({
-    SupabaseClient? supabaseClient,
-  }) : _supabaseClient = supabaseClient ?? Supabase.instance.client;
+  WardrobeDataSourceImpl({SupabaseClient? supabaseClient})
+    : _supabaseClient = supabaseClient ?? Supabase.instance.client;
 
-  @override
   String getCurrentUserId() {
     final userId = _supabaseClient.auth.currentUser?.id;
     if (userId == null) {
@@ -73,7 +80,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
             'garment_category_id': categoryId,
             'color': color,
             'style': style,
-            'ocasion': occasion, 
+            'ocasion': occasion,
             'created_at': DateTime.now().toIso8601String().split('T')[0],
           })
           .select()
@@ -84,10 +91,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       // 2. Insert tags in garment_tags junction table
       if (tagIds.isNotEmpty) {
         final garmentTagsData = tagIds
-            .map((tagId) => {
-                  'garment_id': garmentId,
-                  'tag_id': tagId,
-                })
+            .map((tagId) => {'garment_id': garmentId, 'tag_id': tagId})
             .toList();
 
         await _supabaseClient.from('garment_tags').insert(garmentTagsData);
@@ -159,7 +163,8 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
         : '';
 
     // Extract tag names from nested array
-    final tagNames = (json['tags'] as List?)
+    final tagNames =
+        (json['tags'] as List?)
             ?.map((t) => (t['tag'] as Map<String, dynamic>)['name'] as String)
             .toList() ??
         <String>[];
@@ -173,7 +178,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       createdAt: DateTime.parse(json['created_at'] as String),
       color: json['color'] as String? ?? '',
       style: json['style'] as String? ?? '',
-      occasion: json['ocasion'] as String? ?? '', 
+      occasion: json['ocasion'] as String? ?? '',
     );
   }
 
@@ -186,10 +191,12 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           .order('name');
 
       return (response as List)
-          .map((c) => {
-                'id': c['category_id'] as String,
-                'name': c['name'] as String,
-              })
+          .map(
+            (c) => {
+              'id': c['category_id'] as String,
+              'name': c['name'] as String,
+            },
+          )
           .toList();
     } catch (e) {
       throw WardrobeException('Failed to fetch categories: ${e.toString()}');
@@ -205,10 +212,9 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           .order('name');
 
       return (response as List)
-          .map((t) => {
-                'id': t['tag_id'] as String,
-                'name': t['name'] as String,
-              })
+          .map(
+            (t) => {'id': t['tag_id'] as String, 'name': t['name'] as String},
+          )
           .toList();
     } catch (e) {
       throw WardrobeException('Failed to fetch tags: ${e.toString()}');
@@ -279,9 +285,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       // Only image_url can be updated
       final response = await _supabaseClient
           .from('garments')
-          .update({
-            'image_url': garment.imageUrl,
-          })
+          .update({'image_url': garment.imageUrl})
           .eq('id', garment.id)
           .select()
           .single();
@@ -289,6 +293,44 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       return await _getGarmentById(response['id']);
     } catch (e) {
       throw WardrobeException('Failed to update garment: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Garment> updateGarmentImage({
+    required String garmentId,
+    required String newImageUrl,
+  }) async {
+    try {
+      await _supabaseClient
+          .from('garments')
+          .update({'image_url': newImageUrl})
+          .eq('id', garmentId);
+
+      return await _getGarmentById(garmentId);
+    } catch (e) {
+      throw WardrobeException(
+        'Failed to update garment image: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<Garment> updateGarmentCategory({
+    required String garmentId,
+    required String categoryId,
+  }) async {
+    try {
+      await _supabaseClient
+          .from('garments')
+          .update({'garment_category_id': categoryId})
+          .eq('id', garmentId);
+
+      return await _getGarmentById(garmentId);
+    } catch (e) {
+      throw WardrobeException(
+        'Failed to update garment category: ${e.toString()}',
+      );
     }
   }
 }
