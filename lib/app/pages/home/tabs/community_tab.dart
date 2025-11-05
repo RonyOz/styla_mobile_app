@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styla_mobile_app/features/community/ui/bloc/community_bloc.dart';
+import 'package:styla_mobile_app/features/community/ui/screens/feed_screen.dart';
 
 /// Community tab - Social features, posts, and user interactions
 class CommunityTab extends StatelessWidget {
@@ -6,8 +9,9 @@ class CommunityTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Comunidad'),
+    return BlocProvider(
+      create: (context) => CommunityBloc(),
+      child: const FeedScreen(),
     );
   }
 }
