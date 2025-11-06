@@ -310,12 +310,24 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       final userId = _supabaseClient.auth.currentUser?.id;
       if (userId == null) throw WardrobeException("User not authenticated");
 
+      // Start with base query including JOINs for category and tags
       var query = _supabaseClient
           .from('garments')
-          .select()
+          .select('''
+            id,
+            user_id,
+            image_url,
+            created_at,
+            color,
+            style,
+            ocasion,
+            garment_category_id,
+            category:garment_categories(name),
+            tags:garment_tags(tag:tags(name))
+          ''')
           .eq('user_id', userId);
-      // ✅ Filtro por categoría
 
+      // ✅ Filtro por categoría
       if (category != null && category.isNotEmpty) {
         final categoryData = await _supabaseClient
             .from('garment_categories')
@@ -355,8 +367,8 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
 
       // Finalmente ordenar y ejecutar
       final result = await query.order('created_at', ascending: false);
-      print("Final result : ${result}");
-      return (result as List).map((json) => Garment.fromJson(json)).toList();
+      print("Resultado final: $result");
+      return (result as List).map((json) => _mapToGarment(json)).toList();
     } catch (e) {
       throw WardrobeException("Failed to filter garments: $e");
     }

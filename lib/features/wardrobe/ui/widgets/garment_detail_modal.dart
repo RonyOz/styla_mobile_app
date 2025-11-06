@@ -291,7 +291,7 @@ class _GarmentDetailModalState extends State<GarmentDetailModal> {
                     const SizedBox(height: 20),
 
                     // Etiquetas (solo lectura)
-                    if (widget.garment.tagNames.isNotEmpty) ...[
+                    if (widget.garment.tagNames?.isNotEmpty ?? false) ...[
                       Text(
                         'Etiquetas',
                         style: AppTypography.body.copyWith(
@@ -303,7 +303,7 @@ class _GarmentDetailModalState extends State<GarmentDetailModal> {
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: widget.garment.tagNames.map((tag) {
+                        children: widget.garment.tagNames!.map((tag) {
                           return Chip(
                             label: Text(tag),
                             backgroundColor: AppColors.secondaryLightest,

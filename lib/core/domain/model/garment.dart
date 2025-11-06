@@ -56,6 +56,10 @@ class Garment {
       color: json['color'] as String? ?? '',
       style: json['style'] as String? ?? '',
       occasion: json['occasion'] as String? ?? '',
+      categoryName: json['garment_category_id'] as String? ?? '',
+      tagNames: (json['tag_names'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
   }
 

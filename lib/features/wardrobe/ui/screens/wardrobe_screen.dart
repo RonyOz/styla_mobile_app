@@ -215,23 +215,23 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                               padding: AppSpacing.paddingSmall,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                // children: [
-                                //   Text(
-                                //     garment.categoryName,
-                                //     style: AppTypography.body.copyWith(
-                                //       fontWeight: FontWeight.bold,
-                                //     ),
-                                //   ),
-                                //   if (garment.tagNames.isNotEmpty)
-                                //     Text(
-                                //       garment.tagNames.join(', '),
-                                //       style: AppTypography.caption.copyWith(
-                                //         color: AppColors.textSecondary,
-                                //       ),
-                                //       maxLines: 1,
-                                //       overflow: TextOverflow.ellipsis,
-                                //     ),
-                                // ],
+                                children: [
+                                  Text(
+                                    garment?.categoryName ?? '',
+                                    style: AppTypography.body.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  if (garment?.tagNames?.isNotEmpty ?? false)
+                                    Text(
+                                      garment?.tagNames?.join(', ') ?? '',
+                                      style: AppTypography.caption.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                ],
                               ),
                             ),
                           ],
