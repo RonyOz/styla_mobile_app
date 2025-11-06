@@ -43,3 +43,7 @@ class ProfileInfoUpdated extends OnboardingEvent {
 }
 
 class SubmitOnboarding extends OnboardingEvent {}
+
+class LoadColorsRequested extends OnboardingEvent {}
+
+class LoadStylesRequested extends OnboardingEvent {}

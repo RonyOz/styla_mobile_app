@@ -5,6 +5,8 @@ import 'package:styla_mobile_app/core/ui/design/app_colors.dart';
 import 'package:styla_mobile_app/features/onboarding/data/repository/onboarding_repository_impl.dart';
 import 'package:styla_mobile_app/features/onboarding/data/source/onboarding_data_source.dart';
 import 'package:styla_mobile_app/features/onboarding/domain/usecases/complete_onboarding_usecase.dart';
+import 'package:styla_mobile_app/features/onboarding/domain/usecases/get_available_colors_usecase.dart';
+import 'package:styla_mobile_app/features/onboarding/domain/usecases/get_available_styles_usecase.dart';
 import 'package:styla_mobile_app/features/onboarding/ui/bloc/onboarding_bloc.dart';
 import 'package:styla_mobile_app/features/onboarding/ui/bloc/onboarding_state.dart';
 import 'package:styla_mobile_app/features/onboarding/ui/widgets/onboarding_step_additional_info.dart';
@@ -19,13 +21,13 @@ class OnboardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final repository = OnboardingRepositoryImpl(OnboardingDataSourceImpl());
+
     return BlocProvider(
       create: (context) => OnboardingBloc(
-        CompleteOnboardingUseCase(
-          OnboardingRepositoryImpl(
-            OnboardingDataSourceImpl(),
-          ),
-        ),
+        CompleteOnboardingUseCase(repository),
+        GetAvailableColorsUsecase(repository: repository),
+        GetAvailableStylesUsecase(repository: repository),
       ),
       child: OnboardingView(),
     );

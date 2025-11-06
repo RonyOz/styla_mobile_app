@@ -1,6 +1,9 @@
 import 'package:styla_mobile_app/core/domain/model/garment.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/category.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/color_option.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/style_option.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/occasion_option.dart';
 
 abstract class WardrobeState {}
 
@@ -48,4 +51,22 @@ class TagsLoadedState extends WardrobeState {
   final List<Tag> tags;
 
   TagsLoadedState({required this.tags});
+}
+
+class ColorsLoadedState extends WardrobeState {
+  final List<ColorOption> colors;
+
+  ColorsLoadedState({required this.colors});
+}
+
+class StylesLoadedState extends WardrobeState {
+  final List<StyleOption> styles;
+
+  StylesLoadedState({required this.styles});
+}
+
+class OccasionsLoadedState extends WardrobeState {
+  final List<OccasionOption> occasions;
+
+  OccasionsLoadedState({required this.occasions});
 }

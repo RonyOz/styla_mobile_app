@@ -1,16 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/repository/wardrobe_repository.dart';
-import 'package:styla_mobile_app/features/wardrobe/domain/usecases/add_garment_usecase.dart';
 import 'package:styla_mobile_app/features/wardrobe/data/repository/wardrobe_repository_impl.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/usecases/get_filtered_usecase.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
-
 import 'package:styla_mobile_app/features/wardrobe/domain/usecases/usecases.dart';
-import 'package:styla_mobile_app/features/wardrobe/domain/repository/wardrobe_repository.dart';
-
-import 'package:styla_mobile_app/features/wardrobe/data/repository/wardrobe_repository_impl.dart';
-
 import 'package:styla_mobile_app/features/profile/domain/repository/profile_repository.dart';
 import 'package:styla_mobile_app/features/profile/data/repository/profile_repository_impl.dart';
 import 'package:styla_mobile_app/features/profile/domain/usescases/who_am_i_usecase.dart';
@@ -29,6 +23,11 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
 
   late final UpdateGarmentImageUsecase _updateGarmentImageUsecase;
   late final UpdateGarmentCategoryUsecase _updateGarmentCategoryUsecase;
+  late final UpdateGarmentFieldUsecase _updateGarmentFieldUsecase;
+  late final UpdateGarmentTagsUsecase _updateGarmentTagsUsecase;
+  late final GetAvailableColorsUsecase _getAvailableColorsUsecase;
+  late final GetAvailableStylesUsecase _getAvailableStylesUsecase;
+  late final GetAvailableOccasionsUsecase _getAvailableOccasionsUsecase;
 
   WardrobeBloc({
     WardrobeRepository? wardrobeRepository,
@@ -60,6 +59,17 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     _updateGarmentCategoryUsecase = UpdateGarmentCategoryUsecase(
       repository: _wardrobeRepository,
     );
+    _updateGarmentFieldUsecase = UpdateGarmentFieldUsecase(_wardrobeRepository);
+    _updateGarmentTagsUsecase = UpdateGarmentTagsUsecase(_wardrobeRepository);
+    _getAvailableColorsUsecase = GetAvailableColorsUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _getAvailableStylesUsecase = GetAvailableStylesUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _getAvailableOccasionsUsecase = GetAvailableOccasionsUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
     _whoAmIUsecase = WhoAmIUsecase(profileRepository: _profileRepository);
 
     on<AddGarmentRequested>(_onAddGarmentRequested);
@@ -71,6 +81,11 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     on<GetFilteredGarmentsRequested>(_onGetFilteredGarmentsRequested);
     on<UpdateGarmentImageRequested>(_onUpdateGarmentImageRequested);
     on<UpdateGarmentCategoryRequested>(_onUpdateGarmentCategoryRequested);
+    on<UpdateGarmentFieldRequested>(_onUpdateGarmentFieldRequested);
+    on<UpdateGarmentTagsRequested>(_onUpdateGarmentTagsRequested);
+    on<LoadColorsRequested>(_onLoadColorsRequested);
+    on<LoadStylesRequested>(_onLoadStylesRequested);
+    on<LoadOccasionsRequested>(_onLoadOccasionsRequested);
   }
 
   Future<void> _onAddGarmentRequested(
@@ -205,6 +220,75 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
         categoryId: event.categoryId,
       );
       emit(GarmentUpdatedState(garment: updatedGarment));
+    } catch (e) {
+      emit(WardrobeErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateGarmentFieldRequested(
+    UpdateGarmentFieldRequested event,
+    Emitter<WardrobeState> emit,
+  ) async {
+    emit(WardrobeLoadingState());
+    try {
+      final updatedGarment = await _updateGarmentFieldUsecase.execute(
+        garmentId: event.garmentId,
+        field: event.field,
+        value: event.value,
+      );
+      emit(GarmentUpdatedState(garment: updatedGarment));
+    } catch (e) {
+      emit(WardrobeErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateGarmentTagsRequested(
+    UpdateGarmentTagsRequested event,
+    Emitter<WardrobeState> emit,
+  ) async {
+    emit(WardrobeLoadingState());
+    try {
+      final updatedGarment = await _updateGarmentTagsUsecase.execute(
+        garmentId: event.garmentId,
+        tagIds: event.tagIds,
+      );
+      emit(GarmentUpdatedState(garment: updatedGarment));
+    } catch (e) {
+      emit(WardrobeErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onLoadColorsRequested(
+    LoadColorsRequested event,
+    Emitter<WardrobeState> emit,
+  ) async {
+    try {
+      final colors = await _getAvailableColorsUsecase.execute();
+      emit(ColorsLoadedState(colors: colors));
+    } catch (e) {
+      emit(WardrobeErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onLoadStylesRequested(
+    LoadStylesRequested event,
+    Emitter<WardrobeState> emit,
+  ) async {
+    try {
+      final styles = await _getAvailableStylesUsecase.execute();
+      emit(StylesLoadedState(styles: styles));
+    } catch (e) {
+      emit(WardrobeErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onLoadOccasionsRequested(
+    LoadOccasionsRequested event,
+    Emitter<WardrobeState> emit,
+  ) async {
+    try {
+      final occasions = await _getAvailableOccasionsUsecase.execute();
+      emit(OccasionsLoadedState(occasions: occasions));
     } catch (e) {
       emit(WardrobeErrorState(message: e.toString()));
     }

@@ -5,7 +5,7 @@ import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/screens/add_garment_screen.dart';
-import 'package:styla_mobile_app/features/wardrobe/ui/widgets/garment_detail_modal.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/screens/garment_detail_screen.dart';
 
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({super.key});
@@ -46,18 +46,21 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
   }
 
   void _showGarmentDetail(BuildContext context, dynamic garment) {
-    // Capturar el BLoC antes de abrir el modal
+    // Capturar el BLoC antes de abrir la pantalla
     final wardrobeBloc = context.read<WardrobeBloc>();
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (modalContext) => BlocProvider.value(
-        value: wardrobeBloc,
-        child: GarmentDetailModal(garment: garment),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: wardrobeBloc,
+          child: GarmentDetailScreen(garment: garment),
+        ),
       ),
-    );
+    ).then((_) {
+      // Recargar prendas cuando se regresa de la pantalla de detalles
+      context.read<WardrobeBloc>().add(LoadGarmentsRequested());
+    });
   }
 
   @override
@@ -92,7 +95,10 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                     child: const AddGarmentScreen(),
                   ),
                 ),
-              );
+              ).then((_) {
+                // Recargar prendas cuando se regresa de la pantalla de agregar
+                context.read<WardrobeBloc>().add(LoadGarmentsRequested());
+              });
             },
           ),
         ],
@@ -172,69 +178,75 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                     itemCount: state.garments.length,
                     itemBuilder: (context, index) {
                       final garment = state.garments[index];
-                      return Card(
-                        color: AppColors.surface,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: AppColors.background,
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(12),
+                      return InkWell(
+                        onTap: () => _showGarmentDetail(context, garment),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Card(
+                          color: AppColors.surface,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.background,
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
                                   ),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(12),
-                                  ),
-                                  child: Image.network(
-                                    garment.imageUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(
-                                        Icons.checkroom,
-                                        size: 48,
-                                      );
-                                    },
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                          if (loadingProgress == null)
-                                            return child;
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
-                                          );
-                                        },
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
+                                    child: Image.network(
+                                      garment.imageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return const Icon(
+                                              Icons.checkroom,
+                                              size: 48,
+                                            );
+                                          },
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            );
+                                          },
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: AppSpacing.paddingSmall,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    garment?.categoryName ?? '',
-                                    style: AppTypography.body.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  if (garment?.tagNames?.isNotEmpty ?? false)
+                              Padding(
+                                padding: AppSpacing.paddingSmall,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Text(
-                                      garment?.tagNames?.join(', ') ?? '',
-                                      style: AppTypography.caption.copyWith(
-                                        color: AppColors.textSecondary,
+                                      garment.categoryName ?? '',
+                                      style: AppTypography.body.copyWith(
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                ],
+                                    if (garment.tagNames?.isNotEmpty ?? false)
+                                      Text(
+                                        garment.tagNames?.join(', ') ?? '',
+                                        style: AppTypography.caption.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },

@@ -1,6 +1,9 @@
 import 'package:styla_mobile_app/core/domain/model/garment.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/category.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/color_option.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/style_option.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/occasion_option.dart';
 import 'package:styla_mobile_app/features/wardrobe/data/source/wardrobe_data_source.dart';
 import 'package:styla_mobile_app/features/wardrobe/data/source/storage_data_source.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/repository/wardrobe_repository.dart';
@@ -117,6 +120,38 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
   }
 
   @override
+  Future<Garment> updateGarmentField({
+    required String garmentId,
+    required String field,
+    required String value,
+  }) async {
+    try {
+      return await _wardrobeDataSource.updateGarmentField(
+        garmentId: garmentId,
+        field: field,
+        value: value,
+      );
+    } catch (e) {
+      throw Exception('Failed to update garment $field: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Garment> updateGarmentTags({
+    required String garmentId,
+    required List<String> tagIds,
+  }) async {
+    try {
+      return await _wardrobeDataSource.updateGarmentTags(
+        garmentId: garmentId,
+        tagIds: tagIds,
+      );
+    } catch (e) {
+      throw Exception('Failed to update garment tags: ${e.toString()}');
+    }
+  }
+
+  @override
   Future<List<Category>> getAvailableCategories() async {
     // DataSource retorna DTOs (Map), Repository transforma a Domain Models
     final dtos = await _wardrobeDataSource.getAvailableCategories();
@@ -147,5 +182,29 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
       category: category,
       tags: tags,
     );
+  }
+
+  @override
+  Future<List<ColorOption>> getAvailableColors() async {
+    final dtos = await _wardrobeDataSource.getAvailableColors();
+    return dtos
+        .map((dto) => ColorOption(id: dto['id']!, name: dto['name']!))
+        .toList();
+  }
+
+  @override
+  Future<List<StyleOption>> getAvailableStyles() async {
+    final dtos = await _wardrobeDataSource.getAvailableStyles();
+    return dtos
+        .map((dto) => StyleOption(id: dto['id']!, name: dto['name']!))
+        .toList();
+  }
+
+  @override
+  Future<List<OccasionOption>> getAvailableOccasions() async {
+    final dtos = await _wardrobeDataSource.getAvailableOccasions();
+    return dtos
+        .map((dto) => OccasionOption(id: dto['id']!, name: dto['name']!))
+        .toList();
   }
 }
