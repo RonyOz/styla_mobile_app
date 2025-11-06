@@ -215,14 +215,32 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
         } else if (state is ColorsLoadedState) {
           setState(() {
             _colors = state.colors;
+            // Validar que el color seleccionado existe en la lista
+            final colorNames = _colors.map((c) => c.name).toList();
+            if (_selectedColor != null &&
+                !colorNames.contains(_selectedColor)) {
+              _selectedColor = null; // Limpiar si no existe
+            }
           });
         } else if (state is StylesLoadedState) {
           setState(() {
             _styles = state.styles;
+            // Validar que el estilo seleccionado existe en la lista
+            final styleNames = _styles.map((s) => s.name).toList();
+            if (_selectedStyle != null &&
+                !styleNames.contains(_selectedStyle)) {
+              _selectedStyle = null; // Limpiar si no existe
+            }
           });
         } else if (state is OccasionsLoadedState) {
           setState(() {
             _occasions = state.occasions;
+            // Validar que la ocasión seleccionada existe en la lista
+            final occasionNames = _occasions.map((o) => o.name).toList();
+            if (_selectedOccasion != null &&
+                !occasionNames.contains(_selectedOccasion)) {
+              _selectedOccasion = null; // Limpiar si no existe
+            }
           });
         } else if (state is GarmentUpdatedState) {
           ScaffoldMessenger.of(context).showSnackBar(
