@@ -44,3 +44,23 @@ class GetFilteredGarmentsRequested extends WardrobeEvent {
 
   GetFilteredGarmentsRequested({this.category, this.tags});
 }
+
+class UpdateGarmentImageRequested extends WardrobeEvent {
+  final String garmentId;
+  final String newImagePath;
+
+  UpdateGarmentImageRequested({
+    required this.garmentId,
+    required this.newImagePath,
+  });
+}
+
+class UpdateGarmentCategoryRequested extends WardrobeEvent {
+  final String garmentId;
+  final String categoryId;
+
+  UpdateGarmentCategoryRequested({
+    required this.garmentId,
+    required this.categoryId,
+  });
+}

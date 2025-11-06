@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:styla_mobile_app/app/pages/home/home_tab_navigator.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/community_tab.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/dashboard_tab.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/dress_up_tab.dart';
@@ -19,14 +18,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-
-  // Navigator keys for each tab to maintain independent navigation stacks
-  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
-    GlobalKey<NavigatorState>(), // Inicio
-    GlobalKey<NavigatorState>(), // Closet
-    GlobalKey<NavigatorState>(), // Vestirse
-    GlobalKey<NavigatorState>(), // Comunidad
-  ];
 
   late final List<StylaBottomNavItem> _items = [
     const StylaBottomNavItem(
@@ -51,23 +42,11 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  late final List<Widget> _pages = [
-    HomeTabNavigator.build(
-      key: _navigatorKeys[0],
-      child: const DashboardTab(),
-    ),
-    HomeTabNavigator.build(
-      key: _navigatorKeys[1],
-      child: const WardrobeTab(),
-    ),
-    HomeTabNavigator.build(
-      key: _navigatorKeys[2],
-      child: const DressUpTab(),
-    ),
-    HomeTabNavigator.build(
-      key: _navigatorKeys[3],
-      child: const CommunityTab(),
-    ),
+  late final List<Widget> _pages = const [
+    DashboardTab(),
+    WardrobeTab(),
+    DressUpTab(),
+    CommunityTab(),
   ];
 
   void _onItemTapped(int index) {
@@ -93,7 +72,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: IndexedStack(index: _currentIndex, children: _pages), // Puede consumir mas recursos si las pages son pesadas.
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ), // Puede consumir mas recursos si las pages son pesadas.
       bottomNavigationBar: StylaBottomNavigationBar(
         items: _items,
         currentIndex: _currentIndex,

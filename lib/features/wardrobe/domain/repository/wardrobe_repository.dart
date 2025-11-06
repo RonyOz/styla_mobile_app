@@ -19,6 +19,18 @@ abstract class WardrobeRepository {
 
   Future<Garment> updateGarment(Garment garment);
 
+  /// Update garment image
+  Future<Garment> updateGarmentImage({
+    required String garmentId,
+    required String newImagePath,
+  });
+
+  /// Update garment category
+  Future<Garment> updateGarmentCategory({
+    required String garmentId,
+    required String categoryId,
+  });
+
   /// Get available categories for dropdown selection
   /// Returns list of Category domain models
   Future<List<Category>> getAvailableCategories();

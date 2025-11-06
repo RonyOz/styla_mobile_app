@@ -5,6 +5,7 @@ import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/screens/add_garment_screen.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/garment_detail_modal.dart';
 
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({super.key});
@@ -42,6 +43,21 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
       _selectedTags.clear();
     });
     context.read<WardrobeBloc>().add(LoadGarmentsRequested());
+  }
+
+  void _showGarmentDetail(BuildContext context, dynamic garment) {
+    // Capturar el BLoC antes de abrir el modal
+    final wardrobeBloc = context.read<WardrobeBloc>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) => BlocProvider.value(
+        value: wardrobeBloc,
+        child: GarmentDetailModal(garment: garment),
+      ),
+    );
   }
 
   @override
@@ -178,14 +194,19 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                                     garment.imageUrl,
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(Icons.checkroom, size: 48);
-                                    },
-                                    loadingBuilder: (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
+                                      return const Icon(
+                                        Icons.checkroom,
+                                        size: 48,
                                       );
                                     },
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                          if (loadingProgress == null)
+                                            return child;
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        },
                                   ),
                                 ),
                               ),

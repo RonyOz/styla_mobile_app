@@ -26,6 +26,16 @@ abstract class WardrobeDataSource {
 
   Future<Garment> updateGarment(Garment garment);
 
+  Future<Garment> updateGarmentImage({
+    required String garmentId,
+    required String newImageUrl,
+  });
+
+  Future<Garment> updateGarmentCategory({
+    required String garmentId,
+    required String categoryId,
+  });
+
   Future<List<Map<String, String>>> getAvailableCategories();
 
   Future<List<Map<String, String>>> getAvailableTags();
@@ -46,7 +56,6 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
   WardrobeDataSourceImpl({SupabaseClient? supabaseClient})
     : _supabaseClient = supabaseClient ?? Supabase.instance.client;
 
-  @override
   String getCurrentUserId() {
     final userId = _supabaseClient.auth.currentUser?.id;
     if (userId == null) {
@@ -350,6 +359,44 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       return (result as List).map((json) => Garment.fromJson(json)).toList();
     } catch (e) {
       throw WardrobeException("Failed to filter garments: $e");
+    }
+  }
+
+  @override
+  Future<Garment> updateGarmentImage({
+    required String garmentId,
+    required String newImageUrl,
+  }) async {
+    try {
+      await _supabaseClient
+          .from('garments')
+          .update({'image_url': newImageUrl})
+          .eq('id', garmentId);
+
+      return await _getGarmentById(garmentId);
+    } catch (e) {
+      throw WardrobeException(
+        'Failed to update garment image: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<Garment> updateGarmentCategory({
+    required String garmentId,
+    required String categoryId,
+  }) async {
+    try {
+      await _supabaseClient
+          .from('garments')
+          .update({'garment_category_id': categoryId})
+          .eq('id', garmentId);
+
+      return await _getGarmentById(garmentId);
+    } catch (e) {
+      throw WardrobeException(
+        'Failed to update garment category: ${e.toString()}',
+      );
     }
   }
 }
