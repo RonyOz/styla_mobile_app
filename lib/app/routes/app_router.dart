@@ -10,6 +10,9 @@ import 'package:styla_mobile_app/app/pages/welcome/onboarding_page_3.dart';
 
 import 'package:styla_mobile_app/features/profile/ui/bloc/profile_bloc.dart';
 import 'package:styla_mobile_app/features/profile/ui/screens/profile_screen.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/screens/add_garment_screen.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/screens/wardrobe_screen.dart';
 
 import '../pages/home_page.dart';
 import '../pages/splash_page.dart';
@@ -40,6 +43,16 @@ class AppRouter {
       AppRoutes.profile: (context) => BlocProvider(
         create: (_) => ProfileBloc(),
         child: const ProfileScreen(),
+      ),
+
+      AppRoutes.wardrobe: (context) => BlocProvider(
+        create: (_) => WardrobeBloc(),
+        child: const WardrobeScreen(),
+      ),
+
+      AppRoutes.addGarment: (context) => BlocProvider(
+        create: (_) => WardrobeBloc(),
+        child: const AddGarmentScreen(),
       ),
     };
   }

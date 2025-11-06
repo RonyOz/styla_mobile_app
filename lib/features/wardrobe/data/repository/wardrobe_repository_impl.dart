@@ -138,4 +138,14 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
     final dto = await _wardrobeDataSource.findOrCreateTag(tagName);
     return Tag(id: dto['id']!, name: dto['name']!);
   }
+
+  Future<List<Garment>> getFilteredGarments({
+    String? category,
+    List<String>? tags,
+  }) {
+    return _wardrobeDataSource.getFilteredGarments(
+      category: category,
+      tags: tags,
+    );
+  }
 }

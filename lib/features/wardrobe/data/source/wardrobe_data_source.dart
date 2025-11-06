@@ -43,6 +43,11 @@ abstract class WardrobeDataSource {
   /// Find existing tag by name or create new one (for hybrid approach)
   /// Returns DTO with 'id' and 'name'
   Future<Map<String, String>> findOrCreateTag(String tagName);
+
+  Future<List<Garment>> getFilteredGarments({
+    String? category,
+    List<String>? tags,
+  });
 }
 
 class WardrobeDataSourceImpl extends WardrobeDataSource {
@@ -293,6 +298,67 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       return await _getGarmentById(response['id']);
     } catch (e) {
       throw WardrobeException('Failed to update garment: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Garment>> getFilteredGarments({
+    String? category,
+    List<String>? tags,
+  }) async {
+    try {
+      final userId = _supabaseClient.auth.currentUser?.id;
+      if (userId == null) throw WardrobeException("User not authenticated");
+
+      var query = _supabaseClient
+          .from('garments')
+          .select()
+          .eq('user_id', userId);
+      // ✅ Filtro por categoría
+
+      if (category != null && category.isNotEmpty) {
+        final categoryData = await _supabaseClient
+            .from('garment_categories')
+            .select('category_id')
+            .eq('name', category)
+            .maybeSingle();
+        if (categoryData != null) {
+          query = query.eq('garment_category_id', categoryData['category_id']);
+        }
+      }
+
+      // ✅ Filtro por tags (uno o varios)
+      if (tags != null && tags.isNotEmpty) {
+        final tagRows = await _supabaseClient
+            .from('tags')
+            .select('tag_id')
+            .inFilter('name', tags); // usar in_ para múltiples
+
+        final tagIds = (tagRows as List).map((e) => e['tag_id']).toList();
+        if (tagIds.isNotEmpty) {
+          final garmentTagRows = await _supabaseClient
+              .from('garment_tags')
+              .select('garment_id')
+              .inFilter('tag_id', tagIds);
+
+          final garmentIds = (garmentTagRows as List)
+              .map((e) => e['garment_id'])
+              .toList();
+
+          if (garmentIds.isEmpty) {
+            return []; // no hay matching tags → devolvemos vacío
+          }
+
+          query = query.inFilter('id', garmentIds);
+        }
+      }
+
+      // Finalmente ordenar y ejecutar
+      final result = await query.order('created_at', ascending: false);
+      print("Final result : ${result}");
+      return (result as List).map((json) => Garment.fromJson(json)).toList();
+    } catch (e) {
+      throw WardrobeException("Failed to filter garments: $e");
     }
   }
 

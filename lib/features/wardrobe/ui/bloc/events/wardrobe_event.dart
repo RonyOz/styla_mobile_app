@@ -38,6 +38,13 @@ class LoadCategoriesRequested extends WardrobeEvent {}
 
 class LoadTagsRequested extends WardrobeEvent {}
 
+class GetFilteredGarmentsRequested extends WardrobeEvent {
+  final String? category;
+  final List<String>? tags;
+
+  GetFilteredGarmentsRequested({this.category, this.tags});
+}
+
 class UpdateGarmentImageRequested extends WardrobeEvent {
   final String garmentId;
   final String newImagePath;

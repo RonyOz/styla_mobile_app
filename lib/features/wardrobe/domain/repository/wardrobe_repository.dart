@@ -42,4 +42,8 @@ abstract class WardrobeRepository {
   /// Find existing tag by name or create new one (for hybrid approach)
   /// Returns the Tag domain model
   Future<Tag> findOrCreateTag(String tagName);
+  Future<List<Garment>> getFilteredGarments({
+    String? category,
+    List<String>? tags,
+  });
 }
