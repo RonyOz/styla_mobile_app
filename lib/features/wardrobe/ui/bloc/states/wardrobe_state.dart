@@ -14,6 +14,12 @@ class WardrobeLoadedState extends WardrobeState {
   WardrobeLoadedState({required this.garments});
 }
 
+class WardrobeLoadedOneState extends WardrobeState {
+  final Garment garment;
+
+  WardrobeLoadedOneState({required this.garment});
+}
+
 class GarmentAddedState extends WardrobeState {
   final Garment garment;
 

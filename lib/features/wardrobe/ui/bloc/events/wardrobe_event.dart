@@ -64,3 +64,9 @@ class UpdateGarmentCategoryRequested extends WardrobeEvent {
     required this.categoryId,
   });
 }
+
+class GetGarmentByIdRequested extends WardrobeEvent {
+  final String garmentId;
+
+  GetGarmentByIdRequested({required this.garmentId});
+}

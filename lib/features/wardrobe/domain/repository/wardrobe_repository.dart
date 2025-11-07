@@ -46,4 +46,6 @@ abstract class WardrobeRepository {
     String? category,
     List<String>? tags,
   });
+
+  Future<Garment> getGarmentById(String garmentId);
 }

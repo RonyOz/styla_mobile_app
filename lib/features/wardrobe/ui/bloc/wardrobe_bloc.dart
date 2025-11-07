@@ -3,6 +3,7 @@ import 'package:styla_mobile_app/features/wardrobe/domain/repository/wardrobe_re
 import 'package:styla_mobile_app/features/wardrobe/domain/usecases/add_garment_usecase.dart';
 import 'package:styla_mobile_app/features/wardrobe/data/repository/wardrobe_repository_impl.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/usecases/get_filtered_usecase.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/usecases/get_one_garment.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 
@@ -26,6 +27,7 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
   late final DeleteGarmentUsecase _deleteGarmentUsecase;
   late final UpdateGarmentUsecase _updateGarmentUsecase;
   late final WhoAmIUsecase _whoAmIUsecase;
+  late final GetOneGarmentUsecase _getOneGarmentUsecase;
 
   late final UpdateGarmentImageUsecase _updateGarmentImageUsecase;
   late final UpdateGarmentCategoryUsecase _updateGarmentCategoryUsecase;
@@ -40,6 +42,9 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
       wardrobeRepository: _wardrobeRepository,
     );
     _getAvailableCategoriesUsecase = GetAvailableCategoriesUsecase(
+      wardrobeRepository: _wardrobeRepository,
+    );
+    _getOneGarmentUsecase = GetOneGarmentUsecase(
       wardrobeRepository: _wardrobeRepository,
     );
     _getAvailableTagsUsecase = GetAvailableTagsUsecase(
@@ -71,6 +76,7 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     on<GetFilteredGarmentsRequested>(_onGetFilteredGarmentsRequested);
     on<UpdateGarmentImageRequested>(_onUpdateGarmentImageRequested);
     on<UpdateGarmentCategoryRequested>(_onUpdateGarmentCategoryRequested);
+    on<GetGarmentByIdRequested>(_onLoadOneGarmentRequested);
   }
 
   Future<void> _onAddGarmentRequested(
@@ -105,6 +111,19 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     try {
       final garments = await _getGarmentsUsecase.execute();
       emit(WardrobeLoadedState(garments: garments));
+    } catch (e) {
+      emit(WardrobeErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onLoadOneGarmentRequested(
+    GetGarmentByIdRequested event,
+    Emitter<WardrobeState> emit,
+  ) async {
+    emit(WardrobeLoadingState());
+    try {
+      final garment = await _getOneGarmentUsecase.execute(event.garmentId);
+      emit(WardrobeLoadedOneState(garment: garment));
     } catch (e) {
       emit(WardrobeErrorState(message: e.toString()));
     }

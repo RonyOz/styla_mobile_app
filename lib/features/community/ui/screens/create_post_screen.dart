@@ -4,6 +4,8 @@ import 'package:styla_mobile_app/features/community/ui/bloc/community_bloc.dart'
 import 'package:styla_mobile_app/features/community/ui/bloc/events/community_event.dart';
 import 'package:styla_mobile_app/features/profile/domain/usescases/who_am_i_usecase.dart';
 import 'package:styla_mobile_app/features/profile/data/repository/profile_repository_impl.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -15,7 +17,7 @@ class CreatePostScreen extends StatefulWidget {
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final _contentController = TextEditingController();
   late final WhoAmIUsecase _whoAmIUsecase;
-  
+
   // TODO: Cambiar este hardcoded por un selector para mostrar los outfits del usuario
   static const String _MOCK_OUTFIT_ID = 'be5a2500-73fd-4dbe-a890-b95441fadb33';
 
@@ -23,6 +25,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   void initState() {
     super.initState();
     _whoAmIUsecase = WhoAmIUsecase(profileRepository: ProfileRepositoryImpl());
+    context.read<WardrobeBloc>().add(LoadGarmentsRequested());
   }
 
   @override
@@ -36,20 +39,20 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       final userId = _whoAmIUsecase.execute();
 
       context.read<CommunityBloc>().add(
-            CreatePostRequested(
-              userId: userId,
-              outfitId: _MOCK_OUTFIT_ID,
-              content: _contentController.text.trim().isEmpty 
-                  ? null 
-                  : _contentController.text.trim(),
-            ),
-          );
+        CreatePostRequested(
+          userId: userId,
+          outfitId: _MOCK_OUTFIT_ID,
+          content: _contentController.text.trim().isEmpty
+              ? null
+              : _contentController.text.trim(),
+        ),
+      );
 
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -59,10 +62,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       appBar: AppBar(
         title: const Text('Crear Post'),
         actions: [
-          TextButton(
-            onPressed: _createPost,
-            child: const Text('Publicar'),
-          ),
+          TextButton(onPressed: _createPost, child: const Text('Publicar')),
         ],
       ),
       body: Padding(
@@ -90,7 +90,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               controller: _contentController,
               maxLines: 5,
               decoration: const InputDecoration(
-                hintText: '¿Qué quieres compartir sobre este outfit? (opcional)',
+                hintText:
+                    '¿Qué quieres compartir sobre este outfit? (opcional)',
                 border: OutlineInputBorder(),
               ),
             ),

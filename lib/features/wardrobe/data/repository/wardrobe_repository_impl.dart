@@ -54,6 +54,11 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
   }
 
   @override
+  Future<Garment> getGarmentById(String garmentId) {
+    return _wardrobeDataSource.getGarmentById(garmentId);
+  }
+
+  @override
   Future<void> deleteGarment(String garmentId) {
     return _wardrobeDataSource.deleteGarment(garmentId);
   }

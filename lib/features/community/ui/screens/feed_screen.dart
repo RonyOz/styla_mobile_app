@@ -22,9 +22,7 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Comunidad'),
-      ),
+      appBar: AppBar(title: const Text('Comunidad')),
       body: BlocConsumer<CommunityBloc, CommunityState>(
         listener: (context, state) {
           if (state is PostCreatedState) {
@@ -34,9 +32,9 @@ class _FeedScreenState extends State<FeedScreen> {
             context.read<CommunityBloc>().add(LoadFeedRequested());
           }
           if (state is CommunityErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
