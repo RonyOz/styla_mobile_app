@@ -25,7 +25,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   void initState() {
     super.initState();
     _whoAmIUsecase = WhoAmIUsecase(profileRepository: ProfileRepositoryImpl());
-    context.read<WardrobeBloc>().add(LoadGarmentsRequested());
   }
 
   @override
