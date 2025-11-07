@@ -64,6 +64,8 @@ abstract class WardrobeRepository {
     List<String>? tags,
   });
 
+  Future<Garment> getGarmentById(String garmentId);
+
   /// Get available color options from database
   Future<List<ColorOption>> getAvailableColors();
 

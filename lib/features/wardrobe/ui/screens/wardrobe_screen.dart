@@ -128,7 +128,21 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
           if (mounted) {
             context.read<WardrobeBloc>().add(LoadGarmentsRequested());
           }
-        });
+  });
+    
+  void _navigateToGarmentDetail(dynamic garment) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<WardrobeBloc>(),
+          child: GarmentDetailScreen(garment: garment),
+        ),
+      ),
+    ).then((_) {
+      // Recargar prendas cuando se regresa de la pantalla de detalles
+      context.read<WardrobeBloc>().add(LoadGarmentsRequested());
+    });
   }
 
   @override

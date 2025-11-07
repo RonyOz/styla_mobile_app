@@ -30,9 +30,9 @@ class _FeedScreenState extends State<FeedScreen> {
             context.read<CommunityBloc>().add(LoadFeedRequested());
           }
           if (state is CommunityErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
