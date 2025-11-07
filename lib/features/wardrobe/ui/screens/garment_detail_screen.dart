@@ -267,23 +267,27 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
               expandedHeight: 300,
               pinned: true,
               backgroundColor: AppColors.background,
-              automaticallyImplyLeading: false,
               leading: IconButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back_ios, size: 20),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.black54,
-                  foregroundColor: Colors.white,
-                ),
+                style: IconButton.styleFrom(backgroundColor: Colors.black54),
               ),
               actions: [
                 IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    // TODO: Implementar búsqueda
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.favorite_border),
+                  onPressed: () {
+                    // TODO: Implementar favoritos
+                  },
+                ),
+                IconButton(
                   icon: const Icon(Icons.more_vert),
                   onPressed: _showDeleteConfirmation,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.black54,
-                    foregroundColor: Colors.white,
-                  ),
                 ),
               ],
               flexibleSpace: FlexibleSpaceBar(
@@ -599,7 +603,7 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          initialValue: value,
+          value: value,
           items: items.map((item) {
             return DropdownMenuItem(
               value: item,

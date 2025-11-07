@@ -78,8 +78,6 @@ class _ImageSelector extends StatelessWidget {
 }
 
 class OnboardingStepAdditionalInfo extends StatefulWidget {
-  const OnboardingStepAdditionalInfo({super.key});
-
   @override
   State<OnboardingStepAdditionalInfo> createState() =>
       _OnboardingStepAdditionalInfoState();
