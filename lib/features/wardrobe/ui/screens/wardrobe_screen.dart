@@ -45,15 +45,12 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
     context.read<WardrobeBloc>().add(LoadGarmentsRequested());
   }
 
-  void _showGarmentDetail(BuildContext context, dynamic garment) {
-    // Capturar el BLoC antes de abrir la pantalla
-    final wardrobeBloc = context.read<WardrobeBloc>();
-
+  void _navigateToGarmentDetail(dynamic garment) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
-          value: wardrobeBloc,
+          value: context.read<WardrobeBloc>(),
           child: GarmentDetailScreen(garment: garment),
         ),
       ),
@@ -185,9 +182,8 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                       itemCount: state.garments.length,
                       itemBuilder: (context, index) {
                         final garment = state.garments[index];
-                        return InkWell(
-                          onTap: () => _showGarmentDetail(context, garment),
-                          borderRadius: BorderRadius.circular(12),
+                        return GestureDetector(
+                          onTap: () => _navigateToGarmentDetail(garment),
                           child: Card(
                             color: AppColors.surface,
                             child: Column(
@@ -218,8 +214,9 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                                             },
                                         loadingBuilder:
                                             (context, child, loadingProgress) {
-                                              if (loadingProgress == null)
+                                              if (loadingProgress == null) {
                                                 return child;
+                                              }
                                               return const Center(
                                                 child:
                                                     CircularProgressIndicator(),
@@ -241,9 +238,9 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      if (garment.tagNames?.isNotEmpty ?? false)
+                                      if (garment.tagNames!.isNotEmpty)
                                         Text(
-                                          garment.tagNames?.join(', ') ?? '',
+                                          garment.tagNames!.join(', '),
                                           style: AppTypography.caption.copyWith(
                                             color: AppColors.textSecondary,
                                           ),
@@ -272,10 +269,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
   }
 
   Widget _buildFilterSection() {
-    // Aquí debes definir las categorías y tags disponibles
-    // Idealmente vendrían de un repositorio o estado
     final categories = ['Prendas Superiores', 'Calzado', 'Prendas Inferiores'];
-
     final tags = ['Old Money', 'emo', 'oversized', 'Street wear', 'Fresco'];
 
     return Container(

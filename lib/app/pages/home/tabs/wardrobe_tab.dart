@@ -16,7 +16,9 @@ class WardrobeTab extends StatelessWidget {
       create: (_) {
         final supabase = Supabase.instance.client;
         final dataSource = WardrobeDataSourceImpl(supabaseClient: supabase);
-        final repository = WardrobeRepositoryImpl(wardrobeDataSource: dataSource);
+        final repository = WardrobeRepositoryImpl(
+          wardrobeDataSource: dataSource,
+        );
         return WardrobeBloc(wardrobeRepository: repository);
       },
       child: const WardrobeScreen(),

@@ -60,6 +60,8 @@ abstract class WardrobeDataSource {
     List<String>? tags,
   });
 
+  Future<Garment> getGarmentById(String garmentId);
+
   Future<List<Map<String, String>>> getAvailableColors();
 
   Future<List<Map<String, String>>> getAvailableStyles();
@@ -120,7 +122,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       }
 
       // 3. Fetch complete garment with JOINs to get names
-      return await _getGarmentById(garmentId);
+      return await getGarmentById(garmentId);
     } catch (e) {
       print(e.toString());
       throw WardrobeException('Failed to add garment: ${e.toString()}');
@@ -158,7 +160,8 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
     }
   }
 
-  Future<Garment> _getGarmentById(String garmentId) async {
+  @override
+  Future<Garment> getGarmentById(String garmentId) async {
     final response = await _supabaseClient
         .from('garments')
         .select('''
@@ -312,7 +315,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           .select()
           .single();
 
-      return await _getGarmentById(response['id']);
+      return await getGarmentById(response['id']);
     } catch (e) {
       throw WardrobeException('Failed to update garment: ${e.toString()}');
     }
@@ -402,7 +405,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           .update({'image_url': newImageUrl})
           .eq('id', garmentId);
 
-      return await _getGarmentById(garmentId);
+      return await getGarmentById(garmentId);
     } catch (e) {
       throw WardrobeException(
         'Failed to update garment image: ${e.toString()}',
@@ -421,7 +424,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           .update({'garment_category_id': categoryId})
           .eq('id', garmentId);
 
-      return await _getGarmentById(garmentId);
+      return await getGarmentById(garmentId);
     } catch (e) {
       throw WardrobeException(
         'Failed to update garment category: ${e.toString()}',
@@ -446,7 +449,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           .update({field: value})
           .eq('id', garmentId);
 
-      return await _getGarmentById(garmentId);
+      return await getGarmentById(garmentId);
     } catch (e) {
       throw WardrobeException(
         'Failed to update garment $field: ${e.toString()}',
@@ -476,7 +479,7 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       }
 
       // 3. Retornar el garment actualizado con las nuevas tags
-      return await _getGarmentById(garmentId);
+      return await getGarmentById(garmentId);
     } catch (e) {
       throw WardrobeException('Failed to update garment tags: ${e.toString()}');
     }
