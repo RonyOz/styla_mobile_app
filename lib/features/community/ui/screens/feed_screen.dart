@@ -21,11 +21,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Comunidad'),
-      ),
-      body: BlocConsumer<CommunityBloc, CommunityState>(
+    return BlocConsumer<CommunityBloc, CommunityState>(
         listener: (context, state) {
           if (state is PostCreatedState) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -117,25 +113,6 @@ class _FeedScreenState extends State<FeedScreen> {
 
           return const Center(child: Text('Cargando feed...'));
         },
-      ),
-      floatingActionButton: Builder(
-        builder: (context) {
-          return FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (newContext) => BlocProvider.value(
-                    value: context.read<CommunityBloc>(),
-                    child: const CreatePostScreen(),
-                  ),
-                ),
-              );
-            },
-            child: const Icon(Icons.add),
-          );
-        },
-      ),
     );
   }
 
