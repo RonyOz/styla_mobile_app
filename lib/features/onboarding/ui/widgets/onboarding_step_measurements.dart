@@ -126,8 +126,6 @@ class OnboardingStepMeasurements extends StatelessWidget {
   static const int minWeight = 40;
   static const int maxWeight = 120;
 
-  const OnboardingStepMeasurements({super.key});
-
   List<int> _generateValues(int min, int max) {
     return List<int>.generate(max - min + 1, (i) => min + i);
   }

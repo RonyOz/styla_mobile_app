@@ -318,7 +318,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<Category>(
-                        initialValue: _selectedCategory,
+                        value: _selectedCategory,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: AppColors.surface,
@@ -361,7 +361,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedColor,
+                        value: _selectedColor,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: AppColors.surface,
@@ -404,7 +404,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedStyle,
+                        value: _selectedStyle,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: AppColors.surface,
@@ -447,7 +447,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedOccasion,
+                        value: _selectedOccasion,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: AppColors.surface,

@@ -64,7 +64,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       emit(
         state.copyWith(
           preferences: state.preferences.copyWith(
-            name: '${event.color} ${event.imagePreference}',
+            name: event.color + ' ' + event.imagePreference,
           ),
         ),
       );

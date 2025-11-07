@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/community_tab.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/dashboard_tab.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/dress_up_tab.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/wardrobe_tab.dart';
 import 'package:styla_mobile_app/app/routes/app_routes.dart';
 import 'package:styla_mobile_app/app/widgets/styla_bottom_nav.dart';
-import 'package:styla_mobile_app/core/core.dart';
 
 import '../layouts/main_layout.dart';
 
@@ -63,17 +61,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return MainLayout(
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
-          statusBarColor: AppColors.background,
-          statusBarIconBrightness: Brightness.light,
-          statusBarBrightness: Brightness.dark,
-        ),
         title: Text(_items[_currentIndex].label),
-        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.person_outline),
