@@ -15,9 +15,9 @@ class AppColors {
 
   
   // Colores de fondo
-  static const Color background = Color.fromARGB(255, 33, 33, 33);
-  static const Color surface = Color(0x44444444);
-  static const Color surfaceVariant = Color(0xFF2D2D2D);
+  static const Color background = Color(0xFF111016);
+  static const Color surface = Color(0xFF191920);
+  static const Color surfaceVariant = Color(0xFF23232B);
   
   // Colores de texto
   static const Color textPrimary = Color(0xF2F2F2F2);

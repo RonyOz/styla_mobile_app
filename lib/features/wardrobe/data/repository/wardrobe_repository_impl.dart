@@ -179,6 +179,7 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
     return Tag(id: dto['id']!, name: dto['name']!);
   }
 
+  @override
   Future<List<Garment>> getFilteredGarments({
     String? category,
     List<String>? tags,
