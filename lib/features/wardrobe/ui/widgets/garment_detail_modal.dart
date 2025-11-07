@@ -254,7 +254,7 @@ class _GarmentDetailModalState extends State<GarmentDetailModal> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: DropdownButtonFormField<String>(
-                        value: _selectedCategoryId,
+                        initialValue: _selectedCategoryId,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(vertical: 12),

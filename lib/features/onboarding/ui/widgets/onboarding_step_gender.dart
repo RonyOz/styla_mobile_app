@@ -61,6 +61,8 @@ class _GenderOption extends StatelessWidget {
 }
 
 class OnboardingStepGender extends StatelessWidget {
+  const OnboardingStepGender({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<OnboardingBloc, OnboardingState>(
