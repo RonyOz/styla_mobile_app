@@ -2,15 +2,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/core/domain/model/preferences.dart';
 import 'package:styla_mobile_app/core/domain/model/profile.dart';
 import 'package:styla_mobile_app/features/onboarding/domain/usecases/complete_onboarding_usecase.dart';
+import 'package:styla_mobile_app/features/onboarding/domain/usecases/get_available_colors_usecase.dart';
+import 'package:styla_mobile_app/features/onboarding/domain/usecases/get_available_styles_usecase.dart';
 import 'package:styla_mobile_app/features/onboarding/ui/bloc/onboarding_event.dart';
 import 'package:styla_mobile_app/features/onboarding/ui/bloc/onboarding_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   final CompleteOnboardingUseCase _completeOnboardingUseCase;
+  final GetAvailableColorsUsecase _getAvailableColorsUsecase;
+  final GetAvailableStylesUsecase _getAvailableStylesUsecase;
 
-  OnboardingBloc(this._completeOnboardingUseCase)
-    : super(
+  OnboardingBloc(
+    this._completeOnboardingUseCase,
+    this._getAvailableColorsUsecase,
+    this._getAvailableStylesUsecase,
+  ) : super(
         OnboardingState(
           data: Profile.empty(),
           preferences: Preferences.empty(),
@@ -46,7 +53,6 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     );
 
     on<StyleSelected>((event, emit) {
-      final prefs = state.preferences;
       emit(
         state.copyWith(
           preferences: state.preferences.copyWith(name: event.style),
@@ -55,7 +61,6 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     });
 
     on<AdditionalInfoUpdated>((event, emit) {
-      final prefs = state.preferences;
       emit(
         state.copyWith(
           preferences: state.preferences.copyWith(
@@ -94,6 +99,34 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
           state.copyWith(
             status: OnboardingStatus.failure,
             errorMessage: e.toString(),
+          ),
+        );
+      }
+    });
+
+    on<LoadColorsRequested>((event, emit) async {
+      try {
+        final colors = await _getAvailableColorsUsecase.execute();
+        emit(state.copyWith(availableColors: colors));
+      } catch (e) {
+        emit(
+          state.copyWith(
+            status: OnboardingStatus.failure,
+            errorMessage: 'Error loading colors: $e',
+          ),
+        );
+      }
+    });
+
+    on<LoadStylesRequested>((event, emit) async {
+      try {
+        final styles = await _getAvailableStylesUsecase.execute();
+        emit(state.copyWith(availableStyles: styles));
+      } catch (e) {
+        emit(
+          state.copyWith(
+            status: OnboardingStatus.failure,
+            errorMessage: 'Error loading styles: $e',
           ),
         );
       }

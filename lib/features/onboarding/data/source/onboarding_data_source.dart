@@ -8,6 +8,9 @@ abstract class OnboardingDataSource {
     Profile data,
     Preferences preferences,
   );
+
+  Future<List<Map<String, String>>> getAvailableColors();
+  Future<List<Map<String, String>>> getAvailableStyles();
 }
 
 class OnboardingDataSourceImpl implements OnboardingDataSource {
@@ -57,6 +60,38 @@ class OnboardingDataSourceImpl implements OnboardingDataSource {
     } catch (e) {
       // Manejar el error apropiadamente
       throw Exception('Failed to save onboarding data: $e');
+    }
+  }
+
+  @override
+  Future<List<Map<String, String>>> getAvailableColors() async {
+    try {
+      final response = await _supabaseClient
+          .from('colors')
+          .select('id, name')
+          .order('name');
+
+      return (response as List).map((item) {
+        return {'id': item['id'].toString(), 'name': item['name'].toString()};
+      }).toList();
+    } catch (e) {
+      throw Exception('Failed to load colors: $e');
+    }
+  }
+
+  @override
+  Future<List<Map<String, String>>> getAvailableStyles() async {
+    try {
+      final response = await _supabaseClient
+          .from('styles')
+          .select('id, name')
+          .order('name');
+
+      return (response as List).map((item) {
+        return {'id': item['id'].toString(), 'name': item['name'].toString()};
+      }).toList();
+    } catch (e) {
+      throw Exception('Failed to load styles: $e');
     }
   }
 }

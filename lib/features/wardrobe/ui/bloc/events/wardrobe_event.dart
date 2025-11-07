@@ -70,3 +70,28 @@ class GetGarmentByIdRequested extends WardrobeEvent {
 
   GetGarmentByIdRequested({required this.garmentId});
 }
+
+class UpdateGarmentFieldRequested extends WardrobeEvent {
+  final String garmentId;
+  final String field; // 'color', 'style', 'occasion'
+  final String value;
+
+  UpdateGarmentFieldRequested({
+    required this.garmentId,
+    required this.field,
+    required this.value,
+  });
+}
+
+class UpdateGarmentTagsRequested extends WardrobeEvent {
+  final String garmentId;
+  final List<String> tagIds;
+
+  UpdateGarmentTagsRequested({required this.garmentId, required this.tagIds});
+}
+
+class LoadColorsRequested extends WardrobeEvent {}
+
+class LoadStylesRequested extends WardrobeEvent {}
+
+class LoadOccasionsRequested extends WardrobeEvent {}

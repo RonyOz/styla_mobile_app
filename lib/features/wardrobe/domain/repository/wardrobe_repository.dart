@@ -1,6 +1,9 @@
 import 'package:styla_mobile_app/core/domain/model/garment.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/category.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/color_option.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/style_option.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/occasion_option.dart';
 
 abstract class WardrobeRepository {
   Future<Garment> addGarment({
@@ -31,6 +34,19 @@ abstract class WardrobeRepository {
     required String categoryId,
   });
 
+  /// Update a specific field of a garment (color, style, occasion)
+  Future<Garment> updateGarmentField({
+    required String garmentId,
+    required String field,
+    required String value,
+  });
+
+  /// Update garment tags
+  Future<Garment> updateGarmentTags({
+    required String garmentId,
+    required List<String> tagIds,
+  });
+
   /// Get available categories for dropdown selection
   /// Returns list of Category domain models
   Future<List<Category>> getAvailableCategories();
@@ -42,10 +58,20 @@ abstract class WardrobeRepository {
   /// Find existing tag by name or create new one (for hybrid approach)
   /// Returns the Tag domain model
   Future<Tag> findOrCreateTag(String tagName);
+
   Future<List<Garment>> getFilteredGarments({
     String? category,
     List<String>? tags,
   });
 
   Future<Garment> getGarmentById(String garmentId);
+
+  /// Get available color options from database
+  Future<List<ColorOption>> getAvailableColors();
+
+  /// Get available style options from database
+  Future<List<StyleOption>> getAvailableStyles();
+
+  /// Get available occasion options from database
+  Future<List<OccasionOption>> getAvailableOccasions();
 }

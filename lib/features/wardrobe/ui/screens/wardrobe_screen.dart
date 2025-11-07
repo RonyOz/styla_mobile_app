@@ -5,8 +5,7 @@ import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/screens/add_garment_screen.dart';
-import 'package:styla_mobile_app/features/wardrobe/ui/screens/wardropeone_screen.dart';
-import 'package:styla_mobile_app/features/wardrobe/ui/widgets/garment_detail_modal.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/screens/garment_detail_screen.dart';
 
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({super.key});
@@ -46,31 +45,19 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
     context.read<WardrobeBloc>().add(LoadGarmentsRequested());
   }
 
-  void _showGarmentDetail(BuildContext context, dynamic garment) {
-    // Capturar el BLoC antes de abrir el modal
-    final wardrobeBloc = context.read<WardrobeBloc>();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (modalContext) => BlocProvider.value(
-        value: wardrobeBloc,
-        child: GarmentDetailModal(garment: garment),
-      ),
-    );
-  }
-
-  void _navigateToGarmentDetail(String garmentId) {
+  void _navigateToGarmentDetail(dynamic garment) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
           value: context.read<WardrobeBloc>(),
-          child: GarmentDetailScreen(garmentId: garmentId),
+          child: GarmentDetailScreen(garment: garment),
         ),
       ),
-    );
+    ).then((_) {
+      // Recargar prendas cuando se regresa de la pantalla de detalles
+      context.read<WardrobeBloc>().add(LoadGarmentsRequested());
+    });
   }
 
   @override
@@ -105,174 +92,184 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                     child: const AddGarmentScreen(),
                   ),
                 ),
-              );
+              ).then((_) {
+                // Recargar prendas cuando se regresa de la pantalla de agregar
+                context.read<WardrobeBloc>().add(LoadGarmentsRequested());
+              });
             },
           ),
         ],
       ),
-      body: Column(
-        children: [
-          if (_showFilters) _buildFilterSection(),
-          Expanded(
-            child: BlocBuilder<WardrobeBloc, WardrobeState>(
-              builder: (context, state) {
-                if (state is WardrobeLoadingState) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+      body: BlocListener<WardrobeBloc, WardrobeState>(
+        listener: (context, state) {
+          // Recargar la lista cuando se actualiza o elimina una prenda
+          if (state is GarmentUpdatedState || state is GarmentDeletedState) {
+            context.read<WardrobeBloc>().add(LoadGarmentsRequested());
+          }
+        },
+        child: Column(
+          children: [
+            if (_showFilters) _buildFilterSection(),
+            Expanded(
+              child: BlocBuilder<WardrobeBloc, WardrobeState>(
+                builder: (context, state) {
+                  if (state is WardrobeLoadingState) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                if (state is WardrobeErrorState) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: AppColors.error,
-                        ),
-                        AppSpacing.verticalMedium,
-                        Text(
-                          state.message,
-                          style: AppTypography.body.copyWith(
-                            color: AppColors.error,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (state is WardrobeLoadedState) {
-                  if (state.garments.isEmpty) {
+                  if (state is WardrobeErrorState) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.checkroom,
+                            Icons.error_outline,
                             size: 64,
-                            color: AppColors.textSecondary,
+                            color: AppColors.error,
                           ),
                           AppSpacing.verticalMedium,
                           Text(
-                            'No tienes prendas aún',
-                            style: AppTypography.subtitle.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          AppSpacing.verticalSmall,
-                          Text(
-                            'Agrega tu primera prenda',
+                            state.message,
                             style: AppTypography.body.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.error,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
                     );
                   }
 
-                  return GridView.builder(
-                    padding: AppSpacing.paddingMedium,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.75,
-                        ),
-                    itemCount: state.garments.length,
-                    itemBuilder: (context, index) {
-                      final garment = state.garments[index];
-                      return GestureDetector(
-                        onTap: () => _navigateToGarmentDetail(garment.id),
-                        child: Card(
-                          color: AppColors.surface,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.background,
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12),
-                                    ),
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12),
-                                    ),
-                                    child: Image.network(
-                                      garment.imageUrl,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                            return const Icon(
-                                              Icons.checkroom,
-                                              size: 48,
-                                            );
-                                          },
-                                      loadingBuilder:
-                                          (context, child, loadingProgress) {
-                                            if (loadingProgress == null)
-                                              return child;
-                                            return const Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          },
-                                    ),
-                                  ),
-                                ),
+                  if (state is WardrobeLoadedState) {
+                    if (state.garments.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.checkroom,
+                              size: 64,
+                              color: AppColors.textSecondary,
+                            ),
+                            AppSpacing.verticalMedium,
+                            Text(
+                              'No tienes prendas aún',
+                              style: AppTypography.subtitle.copyWith(
+                                color: AppColors.textSecondary,
                               ),
-                              Padding(
-                                padding: AppSpacing.paddingSmall,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      garment?.categoryName ?? '',
-                                      style: AppTypography.body.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    if (garment?.tagNames?.isNotEmpty ?? false)
-                                      Text(
-                                        garment?.tagNames?.join(', ') ?? '',
-                                        style: AppTypography.caption.copyWith(
-                                          color: AppColors.textSecondary,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                  ],
-                                ),
+                            ),
+                            AppSpacing.verticalSmall,
+                            Text(
+                              'Agrega tu primera prenda',
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.textSecondary,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       );
-                    },
-                  );
-                }
+                    }
 
-                return const SizedBox.shrink();
-              },
+                    return GridView.builder(
+                      padding: AppSpacing.paddingMedium,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.75,
+                          ),
+                      itemCount: state.garments.length,
+                      itemBuilder: (context, index) {
+                        final garment = state.garments[index];
+                        return GestureDetector(
+                          onTap: () => _navigateToGarmentDetail(garment),
+                          child: Card(
+                            color: AppColors.surface,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.background,
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(12),
+                                      ),
+                                      child: Image.network(
+                                        garment.imageUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return const Icon(
+                                                Icons.checkroom,
+                                                size: 48,
+                                              );
+                                            },
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                              if (loadingProgress == null) {
+                                                return child;
+                                              }
+                                              return const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: AppSpacing.paddingSmall,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        garment.categoryName ?? '',
+                                        style: AppTypography.body.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      if (garment.tagNames!.isNotEmpty)
+                                        Text(
+                                          garment.tagNames!.join(', '),
+                                          style: AppTypography.caption.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
+
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildFilterSection() {
-    // Aquí debes definir las categorías y tags disponibles
-    // Idealmente vendrían de un repositorio o estado
     final categories = ['Prendas Superiores', 'Calzado', 'Prendas Inferiores'];
-
     final tags = ['Old Money', 'emo', 'oversized', 'Street wear', 'Fresco'];
 
     return Container(

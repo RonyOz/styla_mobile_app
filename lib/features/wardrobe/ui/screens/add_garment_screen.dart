@@ -6,6 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/category.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/color_option.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/style_option.dart';
+import 'package:styla_mobile_app/features/wardrobe/domain/model/occasion_option.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
@@ -26,48 +29,16 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
   Category? _selectedCategory;
   final Set<String> _selectedTagIds = {};
 
-  String _selectedColor = 'Negro';
-  String _selectedStyle = 'Casual';
-  String _selectedOccasion = 'Diario';
+  String? _selectedColor;
+  String? _selectedStyle;
+  String? _selectedOccasion;
 
   List<Category> _categories = [];
   List<Tag> _availableTags = [];
+  List<ColorOption> _colors = [];
+  List<StyleOption> _styles = [];
+  List<OccasionOption> _occasions = [];
   bool _isLoadingData = true;
-
-  // Opciones predefinidas
-  final List<String> _colors = [
-    'Negro',
-    'Blanco',
-    'Gris',
-    'Azul',
-    'Rojo',
-    'Verde',
-    'Amarillo',
-    'Naranja',
-    'Rosa',
-    'Morado',
-    'Café',
-    'Beige',
-  ];
-
-  final List<String> _styles = [
-    'Casual',
-    'Formal',
-    'Deportivo',
-    'Elegante',
-    'Vintage',
-    'Moderno',
-    'Clásico',
-  ];
-
-  final List<String> _occasions = [
-    'Diario',
-    'Trabajo',
-    'Fiesta',
-    'Deporte',
-    'Viaje',
-    'Especial',
-  ];
 
   @override
   void initState() {
@@ -76,9 +47,23 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
   }
 
   void _loadInitialData() {
-    // Cargar categorías y tags al iniciar
+    // Cargar categorías, tags, colores, estilos y ocasiones al iniciar
     context.read<WardrobeBloc>().add(LoadCategoriesRequested());
     context.read<WardrobeBloc>().add(LoadTagsRequested());
+    context.read<WardrobeBloc>().add(LoadColorsRequested());
+    context.read<WardrobeBloc>().add(LoadStylesRequested());
+    context.read<WardrobeBloc>().add(LoadOccasionsRequested());
+  }
+
+  void _checkIfDataLoaded() {
+    // Marca como cargado cuando todas las listas tienen datos
+    if (_categories.isNotEmpty &&
+        _availableTags.isNotEmpty &&
+        _colors.isNotEmpty &&
+        _styles.isNotEmpty &&
+        _occasions.isNotEmpty) {
+      _isLoadingData = false;
+    }
   }
 
   void _pickImage(ImageSource source) async {
@@ -161,14 +146,25 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
       return;
     }
 
+    if (_selectedColor == null ||
+        _selectedStyle == null ||
+        _selectedOccasion == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor espera a que se carguen todos los datos'),
+        ),
+      );
+      return;
+    }
+
     context.read<WardrobeBloc>().add(
       AddGarmentRequested(
         imagePath: _selectedImagePath!,
         categoryId: _selectedCategory!.id,
         tagIds: _selectedTagIds.toList(),
-        color: _selectedColor,
-        style: _selectedStyle,
-        occasion: _selectedOccasion,
+        color: _selectedColor!,
+        style: _selectedStyle!,
+        occasion: _selectedOccasion!,
       ),
     );
   }
@@ -203,7 +199,31 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
           } else if (state is TagsLoadedState) {
             setState(() {
               _availableTags = state.tags;
-              _isLoadingData = false;
+              _checkIfDataLoaded();
+            });
+          } else if (state is ColorsLoadedState) {
+            setState(() {
+              _colors = state.colors;
+              if (_colors.isNotEmpty) {
+                _selectedColor = _colors.first.name;
+              }
+              _checkIfDataLoaded();
+            });
+          } else if (state is StylesLoadedState) {
+            setState(() {
+              _styles = state.styles;
+              if (_styles.isNotEmpty) {
+                _selectedStyle = _styles.first.name;
+              }
+              _checkIfDataLoaded();
+            });
+          } else if (state is OccasionsLoadedState) {
+            setState(() {
+              _occasions = state.occasions;
+              if (_occasions.isNotEmpty) {
+                _selectedOccasion = _occasions.first.name;
+              }
+              _checkIfDataLoaded();
             });
           } else if (state is GarmentAddedState) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -356,9 +376,9 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                         dropdownColor: AppColors.surface,
                         items: _colors.map((color) {
                           return DropdownMenuItem(
-                            value: color,
+                            value: color.name,
                             child: Text(
-                              color,
+                              color.name,
                               style: AppTypography.body.copyWith(
                                 color: AppColors.textPrimary,
                               ),
@@ -399,9 +419,9 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                         dropdownColor: AppColors.surface,
                         items: _styles.map((style) {
                           return DropdownMenuItem(
-                            value: style,
+                            value: style.name,
                             child: Text(
-                              style,
+                              style.name,
                               style: AppTypography.body.copyWith(
                                 color: AppColors.textPrimary,
                               ),
@@ -442,9 +462,9 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                         dropdownColor: AppColors.surface,
                         items: _occasions.map((occasion) {
                           return DropdownMenuItem(
-                            value: occasion,
+                            value: occasion.name,
                             child: Text(
-                              occasion,
+                              occasion.name,
                               style: AppTypography.body.copyWith(
                                 color: AppColors.textPrimary,
                               ),

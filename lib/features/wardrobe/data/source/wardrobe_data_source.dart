@@ -36,6 +36,17 @@ abstract class WardrobeDataSource {
     required String categoryId,
   });
 
+  Future<Garment> updateGarmentField({
+    required String garmentId,
+    required String field,
+    required String value,
+  });
+
+  Future<Garment> updateGarmentTags({
+    required String garmentId,
+    required List<String> tagIds,
+  });
+
   Future<List<Map<String, String>>> getAvailableCategories();
 
   Future<List<Map<String, String>>> getAvailableTags();
@@ -50,6 +61,12 @@ abstract class WardrobeDataSource {
   });
 
   Future<Garment> getGarmentById(String garmentId);
+
+  Future<List<Map<String, String>>> getAvailableColors();
+
+  Future<List<Map<String, String>>> getAvailableStyles();
+
+  Future<List<Map<String, String>>> getAvailableOccasions();
 }
 
 class WardrobeDataSourceImpl extends WardrobeDataSource {
@@ -412,6 +429,122 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
       throw WardrobeException(
         'Failed to update garment category: ${e.toString()}',
       );
+    }
+  }
+
+  @override
+  Future<Garment> updateGarmentField({
+    required String garmentId,
+    required String field,
+    required String value,
+  }) async {
+    try {
+      // Validar que el campo sea uno de los permitidos
+      if (!['color', 'style', 'occasion'].contains(field)) {
+        throw WardrobeException('Invalid field: $field');
+      }
+
+      await _supabaseClient
+          .from('garments')
+          .update({field: value})
+          .eq('id', garmentId);
+
+      return await getGarmentById(garmentId);
+    } catch (e) {
+      throw WardrobeException(
+        'Failed to update garment $field: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<Garment> updateGarmentTags({
+    required String garmentId,
+    required List<String> tagIds,
+  }) async {
+    try {
+      // 1. Eliminar todas las tags actuales del garment
+      await _supabaseClient
+          .from('garment_tags')
+          .delete()
+          .eq('garment_id', garmentId);
+
+      // 2. Insertar las nuevas tags
+      if (tagIds.isNotEmpty) {
+        final garmentTags = tagIds
+            .map((tagId) => {'garment_id': garmentId, 'tag_id': tagId})
+            .toList();
+
+        await _supabaseClient.from('garment_tags').insert(garmentTags);
+      }
+
+      // 3. Retornar el garment actualizado con las nuevas tags
+      return await getGarmentById(garmentId);
+    } catch (e) {
+      throw WardrobeException('Failed to update garment tags: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Map<String, String>>> getAvailableColors() async {
+    try {
+      final response = await _supabaseClient
+          .from('colors')
+          .select('id, name')
+          .order('name');
+
+      return (response as List)
+          .map(
+            (item) => {
+              'id': item['id'].toString(),
+              'name': item['name'].toString(),
+            },
+          )
+          .toList();
+    } catch (e) {
+      throw WardrobeException('Failed to fetch colors: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Map<String, String>>> getAvailableStyles() async {
+    try {
+      final response = await _supabaseClient
+          .from('styles')
+          .select('id, name')
+          .order('name');
+
+      return (response as List)
+          .map(
+            (item) => {
+              'id': item['id'].toString(),
+              'name': item['name'].toString(),
+            },
+          )
+          .toList();
+    } catch (e) {
+      throw WardrobeException('Failed to fetch styles: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Map<String, String>>> getAvailableOccasions() async {
+    try {
+      final response = await _supabaseClient
+          .from('occasions')
+          .select('id, name')
+          .order('name');
+
+      return (response as List)
+          .map(
+            (item) => {
+              'id': item['id'].toString(),
+              'name': item['name'].toString(),
+            },
+          )
+          .toList();
+    } catch (e) {
+      throw WardrobeException('Failed to fetch occasions: ${e.toString()}');
     }
   }
 }
