@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:styla_mobile_app/core/core.dart';
 
 /// Layout principal de la aplicación
 /// Contiene la estructura base: AppBar, Drawer, BottomNavigationBar, etc.
@@ -21,7 +22,12 @@ class MainLayout extends StatelessWidget {
     return Scaffold(
       appBar: appBar ??
           AppBar(
-            title: const Text('Styla Mobile App'),
+            title: Text(
+              'Styla Mobile App',
+              style: AppTypography.subtitle.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
           ),
       body: body,
       floatingActionButton: floatingActionButton,
