@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../design/app_colors.dart';
 import '../design/app_typography.dart';
 import '../design/app_spacing.dart';
+import '../design/app_radius.dart';
 
 /// Campo de texto simple de la aplicación
 class AppTextField extends StatelessWidget {
@@ -51,19 +52,19 @@ class AppTextField extends StatelessWidget {
             filled: true,
             fillColor: AppColors.surface,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppRadius.borderRadiusSmall,
               borderSide: BorderSide(color: AppColors.border),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppRadius.borderRadiusSmall,
               borderSide: BorderSide(color: AppColors.border),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppRadius.borderRadiusSmall,
               borderSide: BorderSide(color: AppColors.primary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppRadius.borderRadiusSmall,
               borderSide: BorderSide(color: AppColors.error),
             ),
             contentPadding: AppSpacing.paddingMedium,

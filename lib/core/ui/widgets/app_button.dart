@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../design/app_colors.dart';
 import '../design/app_typography.dart';
 import '../design/app_spacing.dart';
+import '../design/app_radius.dart';
 
 /// Botón simple de la aplicación
 class AppButton extends StatelessWidget {
@@ -69,7 +70,7 @@ class AppButton extends StatelessWidget {
           foregroundColor: AppColors.textOnPrimary,
           padding: AppSpacing.paddingLarge,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadius.borderRadiusMedium,
           ),
           textStyle: AppTypography.button,
         ),
@@ -83,7 +84,7 @@ class AppButton extends StatelessWidget {
           side: BorderSide(color: AppColors.secondaryLight),
           padding: AppSpacing.paddingLarge,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadius.borderRadiusMedium,
           ),
           textStyle: AppTypography.button,
         ),
