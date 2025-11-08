@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/community_bloc.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/events/community_event.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/states/community_state.dart';
-import 'package:styla_mobile_app/features/community/ui/screens/create_post_screen.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
