@@ -42,23 +42,6 @@ class GarmentGridTile extends StatelessWidget {
                       )
                     : const GarmentPlaceholder(),
               ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black.withOpacity(0.45),
-                    border: Border.all(color: Colors.white24),
-                  ),
-                  child: const Icon(
-                    Icons.favorite_border,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
               Align(
                 alignment: Alignment.bottomLeft,
                 child: Container(
