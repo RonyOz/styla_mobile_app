@@ -380,7 +380,7 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: AppColors.secondary.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.borderRadiusLarge,
                         border: Border.all(
                           color: AppColors.secondary.withOpacity(0.3),
                           width: 1,

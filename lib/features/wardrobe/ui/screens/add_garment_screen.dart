@@ -405,7 +405,7 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                                   vertical: 16,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: AppRadius.borderRadiusLarge,
                                 ),
                                 disabledBackgroundColor: AppColors.primary
                                     .withOpacity(0.5),
