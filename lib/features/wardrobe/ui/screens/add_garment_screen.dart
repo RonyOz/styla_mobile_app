@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/category.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
@@ -68,6 +70,46 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
 
   void _pickImage(ImageSource source) async {
     try {
+      // Solicitar permisos según la fuente
+      bool permissionGranted = false;
+      
+      if (source == ImageSource.camera) {
+        // Solicitar permiso de cámara
+        final cameraStatus = await Permission.camera.request();
+        permissionGranted = cameraStatus.isGranted;
+        
+        if (!permissionGranted) {
+          if (mounted) {
+            _showPermissionDeniedDialog('cámara');
+          }
+          return;
+        }
+      } else {
+        // Solicitar permiso de galería (diferente según la versión de Android)
+        PermissionStatus status;
+        if (Platform.isAndroid) {
+          // Para Android 13+ (API 33+) usar photos, para versiones anteriores usar storage
+          final androidInfo = await DeviceInfoPlugin().androidInfo;
+          if (androidInfo.version.sdkInt >= 33) {
+            status = await Permission.photos.request();
+          } else {
+            status = await Permission.storage.request();
+          }
+        } else {
+          // Para iOS
+          status = await Permission.photos.request();
+        }
+        
+        permissionGranted = status.isGranted;
+        
+        if (!permissionGranted) {
+          if (mounted) {
+            _showPermissionDeniedDialog('galería');
+          }
+          return;
+        }
+      }
+
       final picked = await imgPicker.pickImage(
         //TODO: XFILE va fuera del dominio, por lo que es otro ds. Debería ser un String
         source: source,
@@ -87,6 +129,43 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
         );
       }
     }
+  }
+
+  void _showPermissionDeniedDialog(String permissionType) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(
+          'Permiso requerido',
+          style: AppTypography.title.copyWith(color: AppColors.primary),
+        ),
+        content: Text(
+          'Necesitamos acceso a tu $permissionType para continuar. '
+          'Por favor, habilita el permiso en la configuración de la app.',
+          style: AppTypography.body.copyWith(color: AppColors.textPrimary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancelar',
+              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              openAppSettings();
+            },
+            child: Text(
+              'Abrir Configuración',
+              style: AppTypography.body.copyWith(color: AppColors.primary),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showImageSourceBottomSheet() {
