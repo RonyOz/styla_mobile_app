@@ -8,6 +8,14 @@ import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/screens/add_garment_screen.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/screens/garment_detail_screen.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/wardrobe_toolbar.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/wardrobe_controls.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/wardrobe_filter_section.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/garment_grid_tile.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/garment_list_tile.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/wardrobe_empty_state.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/wardrobe_loading_state.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/wardrobe_error_state.dart' as error_widget;
 
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({super.key});
@@ -17,8 +25,6 @@ class WardrobeScreen extends StatefulWidget {
 }
 
 enum ViewMode { grid, list }
-
-enum _WardrobeMenuAction { addGarment, manageTags }
 
 class _WardrobeScreenState extends State<WardrobeScreen> {
   bool _showFilters = false;
@@ -69,12 +75,12 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
     });
   }
 
-  void _onMenuSelected(_WardrobeMenuAction action) {
+  void _onMenuSelected(WardrobeMenuAction action) {
     switch (action) {
-      case _WardrobeMenuAction.addGarment:
+      case WardrobeMenuAction.addGarment:
         _openAddGarmentFlow();
         break;
-      case _WardrobeMenuAction.manageTags:
+      case WardrobeMenuAction.manageTags:
         _showComingSoon();
         break;
     }
@@ -148,7 +154,11 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildToolbar(),
+                WardrobeToolbar(
+                  onSearchTap: _showComingSoon,
+                  onFavoritesTap: _showComingSoon,
+                  onMenuSelected: _onMenuSelected,
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'Mi closet',
@@ -158,12 +168,38 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                _buildControlsRow(),
+                WardrobeControls(
+                  hasActiveFilters: _selectedCategory != null || _selectedTags.isNotEmpty,
+                  showFilters: _showFilters,
+                  onFiltersTap: () => setState(() => _showFilters = !_showFilters),
+                  onSortTap: _showComingSoon,
+                  viewMode: _viewMode,
+                  onViewModeChanged: _setViewMode,
+                ),
                 AnimatedCrossFade(
                   firstChild: const SizedBox.shrink(),
                   secondChild: Padding(
                     padding: const EdgeInsets.only(top: 16),
-                    child: _buildFilterSection(),
+                    child: WardrobeFilterSection(
+                      selectedCategory: _selectedCategory,
+                      selectedTags: _selectedTags,
+                      categories: const ['Prendas superiores', 'Calzado', 'Prendas inferiores'],
+                      tags: const ['Old Money', 'Emo', 'Oversized', 'Street wear', 'Fresco'],
+                      onApply: _applyFilters,
+                      onClear: _clearFilters,
+                      onCategoryChanged: (category) {
+                        setState(() => _selectedCategory = category);
+                      },
+                      onTagToggled: (tag) {
+                        setState(() {
+                          if (_selectedTags.contains(tag)) {
+                            _selectedTags.remove(tag);
+                          } else {
+                            _selectedTags.add(tag);
+                          }
+                        });
+                      },
+                    ),
                   ),
                   crossFadeState: _showFilters
                       ? CrossFadeState.showSecond
@@ -189,85 +225,17 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
     );
   }
 
-  Widget _buildToolbar() {
-    return Row(
-      children: [
-        _ToolbarIconButton(
-          icon: Icons.search,
-          tooltip: 'Buscar en tu closet',
-          onTap: _showComingSoon,
-        ),
-        const Spacer(),
-        _ToolbarIconButton(
-          icon: Icons.favorite_border,
-          tooltip: 'Favoritos',
-          onTap: _showComingSoon,
-        ),
-        const SizedBox(width: 12),
-        PopupMenuButton<_WardrobeMenuAction>(
-          onSelected: _onMenuSelected,
-          color: AppColors.surfaceVariant,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          itemBuilder: (context) => const [
-            PopupMenuItem(
-              value: _WardrobeMenuAction.addGarment,
-              child: Text('Agregar prenda'),
-            ),
-            PopupMenuItem(
-              value: _WardrobeMenuAction.manageTags,
-              child: Text('Gestionar etiquetas'),
-            ),
-          ],
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white10),
-            ),
-            child: const Icon(Icons.more_horiz, color: Colors.white),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildControlsRow() {
-    final hasActiveFilters =
-        _selectedCategory != null || _selectedTags.isNotEmpty;
-
-    return Row(
-      children: [
-        _WardrobeFilterChip(
-          label: 'Filtros',
-          icon: Icons.filter_list,
-          isActive: hasActiveFilters || _showFilters,
-          onTap: () {
-            setState(() => _showFilters = !_showFilters);
-          },
-        ),
-        const SizedBox(width: 12),
-        _WardrobeFilterChip(
-          label: 'Ordenar por',
-          icon: Icons.swap_vert,
-          onTap: _showComingSoon,
-        ),
-        const Spacer(),
-        _ViewTogglePill(selected: _viewMode, onChanged: _setViewMode),
-      ],
-    );
-  }
-
   Widget _buildStateContent(WardrobeState state) {
     if (state is WardrobeErrorState) {
-      return _buildErrorState(state.message);
+      return error_widget.WardrobeErrorView(
+        message: state.message,
+        onRetry: () => context.read<WardrobeBloc>().add(LoadGarmentsRequested()),
+      );
     }
 
     if (state is WardrobeLoadedState) {
       if (state.garments.isEmpty) {
-        return _buildEmptyState();
+        return WardrobeEmptyState(onAddGarment: _openAddGarmentFlow);
       }
 
       return _viewMode == ViewMode.grid
@@ -275,7 +243,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
           : _buildListView(state.garments);
     }
 
-    return _buildLoadingState();
+    return const WardrobeLoadingView();
   }
 
   Widget _buildGridView(List<Garment> garments) {
@@ -292,7 +260,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
       itemCount: garments.length,
       itemBuilder: (context, index) {
         final garment = garments[index];
-        return _GarmentGridTile(
+        return GarmentGridTile(
           garment: garment,
           onTap: () => _showGarmentDetail(context, garment),
         );
@@ -309,588 +277,11 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
       separatorBuilder: (_, __) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final garment = garments[index];
-        final tags = garment.tagNames ?? const [];
-
-        return GestureDetector(
+        return GarmentListTile(
+          garment: garment,
           onTap: () => _showGarmentDetail(context, garment),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
-            ),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: SizedBox(
-                    width: 92,
-                    height: 92,
-                    child: garment.imageUrl.isNotEmpty
-                        ? Image.network(
-                            garment.imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                const _GarmentPlaceholder(),
-                            loadingBuilder: (context, child, progress) {
-                              if (progress == null) return child;
-                              return const _GarmentPlaceholder(isLoading: true);
-                            },
-                          )
-                        : const _GarmentPlaceholder(),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        garment.categoryName?.isNotEmpty == true
-                            ? garment.categoryName!
-                            : 'Sin categoria',
-                        style: AppTypography.subtitle.copyWith(
-                          fontSize: 16,
-                          color: AppColors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      if (tags.isNotEmpty)
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
-                          children: tags
-                              .take(3)
-                              .map((tag) => _TagPill(text: tag))
-                              .toList(),
-                        )
-                      else
-                        Text(
-                          'Agrega etiquetas para organizarla',
-                          style: AppTypography.caption.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Estilo: ${garment.style.isNotEmpty ? garment.style : '-'}   |   Ocasion: ${garment.occasion.isNotEmpty ? garment.occasion : '-'}',
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-              ],
-            ),
-          ),
         );
       },
-    );
-  }
-
-  Widget _buildErrorState(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline, size: 64, color: AppColors.error),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            style: AppTypography.body.copyWith(color: AppColors.error),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          TextButton(
-            onPressed: () =>
-                context.read<WardrobeBloc>().add(LoadGarmentsRequested()),
-            child: const Text('Reintentar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        key: const ValueKey('wardrobe_empty'),
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.checkroom_outlined, size: 82, color: AppColors.secondary),
-          const SizedBox(height: 24),
-          Text(
-            'Aun no tienes nada agregado',
-            style: AppTypography.subtitle.copyWith(
-              color: AppColors.secondary,
-              fontSize: 20,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Agrega algo para empezar',
-            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 28),
-          SizedBox(
-            width: 220,
-            child: ElevatedButton(
-              onPressed: _openAddGarmentFlow,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.textOnPrimary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              child: const Text('Agregar ropa'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return GridView.builder(
-      key: const ValueKey('wardrobe_loading'),
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: 100),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 0.68,
-      ),
-      itemCount: 6,
-      itemBuilder: (_, __) => const _WardrobeSkeletonTile(),
-    );
-  }
-
-  Widget _buildFilterSection() {
-    final categories = ['Prendas superiores', 'Calzado', 'Prendas inferiores'];
-    final tags = ['Old Money', 'Emo', 'Oversized', 'Street wear', 'Fresco'];
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Filtros',
-                style: AppTypography.subtitle.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
-                ),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: _clearFilters,
-                child: const Text('Limpiar'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Categorias',
-            style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: categories.map((category) {
-              final isSelected = _selectedCategory == category;
-              return FilterChip(
-                label: Text(category),
-                selected: isSelected,
-                onSelected: (selected) {
-                  setState(() {
-                    _selectedCategory = selected ? category : null;
-                  });
-                },
-                selectedColor: AppColors.secondary.withOpacity(0.25),
-                checkmarkColor: AppColors.white,
-                backgroundColor: AppColors.surface,
-                labelStyle: AppTypography.caption.copyWith(
-                  color: isSelected ? AppColors.white : AppColors.textSecondary,
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Etiquetas',
-            style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: tags.map((tag) {
-              final isSelected = _selectedTags.contains(tag);
-              return FilterChip(
-                label: Text(tag),
-                selected: isSelected,
-                onSelected: (selected) {
-                  setState(() {
-                    if (selected) {
-                      _selectedTags.add(tag);
-                    } else {
-                      _selectedTags.remove(tag);
-                    }
-                  });
-                },
-                selectedColor: AppColors.primary.withOpacity(0.25),
-                checkmarkColor: AppColors.textOnPrimary,
-                backgroundColor: AppColors.surface,
-                labelStyle: AppTypography.caption.copyWith(
-                  color: isSelected ? AppColors.white : AppColors.textSecondary,
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _applyFilters,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: const Text('Aplicar filtros'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ToolbarIconButton extends StatelessWidget {
-  const _ToolbarIconButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: Material(
-        color: Colors.transparent,
-        shape: const CircleBorder(),
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white10),
-            ),
-            child: Icon(icon, color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _WardrobeFilterChip extends StatelessWidget {
-  const _WardrobeFilterChip({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-    this.isActive = false,
-  });
-
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-  final bool isActive;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.secondary.withOpacity(0.18)
-              : AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: isActive
-                ? AppColors.secondary
-                : Colors.white.withOpacity(0.08),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: Colors.white),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: AppTypography.caption.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ViewTogglePill extends StatelessWidget {
-  const _ViewTogglePill({required this.selected, required this.onChanged});
-
-  final ViewMode selected;
-  final ValueChanged<ViewMode> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        children: [
-          _ViewToggleButton(
-            icon: Icons.grid_view,
-            isSelected: selected == ViewMode.grid,
-            onTap: () => onChanged(ViewMode.grid),
-          ),
-          _ViewToggleButton(
-            icon: Icons.view_list,
-            isSelected: selected == ViewMode.list,
-            onTap: () => onChanged(ViewMode.list),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ViewToggleButton extends StatelessWidget {
-  const _ViewToggleButton({
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.secondary : Colors.transparent,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Icon(
-          icon,
-          size: 18,
-          color: isSelected ? AppColors.textOnSecondary : Colors.white,
-        ),
-      ),
-    );
-  }
-}
-
-class _GarmentGridTile extends StatelessWidget {
-  const _GarmentGridTile({required this.garment, required this.onTap});
-
-  final Garment garment;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final tags = garment.tagNames ?? const [];
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(22),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: garment.imageUrl.isNotEmpty
-                    ? Image.network(
-                        garment.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const _GarmentPlaceholder(),
-                        loadingBuilder: (context, child, progress) {
-                          if (progress == null) return child;
-                          return const _GarmentPlaceholder(isLoading: true);
-                        },
-                      )
-                    : const _GarmentPlaceholder(),
-              ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black.withOpacity(0.45),
-                    border: Border.all(color: Colors.white24),
-                  ),
-                  child: const Icon(
-                    Icons.favorite_border,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [Colors.black87, Colors.transparent],
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        garment.categoryName?.isNotEmpty == true
-                            ? garment.categoryName!
-                            : 'Sin categoria',
-                        style: AppTypography.body.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (tags.isNotEmpty)
-                        Text(
-                          tags.take(2).join(' / '),
-                          style: AppTypography.caption.copyWith(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TagPill extends StatelessWidget {
-  const _TagPill({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        text,
-        style: AppTypography.caption.copyWith(
-          color: AppColors.textSecondary,
-          fontSize: 12,
-        ),
-      ),
-    );
-  }
-}
-
-class _GarmentPlaceholder extends StatelessWidget {
-  const _GarmentPlaceholder({this.isLoading = false});
-
-  final bool isLoading;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.surfaceVariant,
-      child: Center(
-        child: isLoading
-            ? const CircularProgressIndicator(strokeWidth: 2)
-            : Icon(
-                Icons.checkroom_outlined,
-                size: 36,
-                color: Colors.white.withOpacity(0.4),
-              ),
-      ),
-    );
-  }
-}
-
-class _WardrobeSkeletonTile extends StatelessWidget {
-  const _WardrobeSkeletonTile();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(22),
-        gradient: LinearGradient(
-          colors: [
-            Colors.white.withOpacity(0.08),
-            Colors.white.withOpacity(0.02),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
     );
   }
 }

@@ -14,6 +14,10 @@ import 'package:styla_mobile_app/features/wardrobe/domain/model/occasion_option.
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/image_picker_section.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/custom_dropdown_field.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/tag_selector_section.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/image_source_bottom_sheet.dart';
 
 // TODO: fixear diseño. Que el usuario pueda agregar sus propios tags.
 class AddGarmentScreen extends StatefulWidget {
@@ -169,44 +173,10 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
   }
 
   void _showImageSourceBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: AppSpacing.paddingMedium,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Seleccionar imagen',
-                style: AppTypography.title.copyWith(color: AppColors.primary),
-              ),
-              AppSpacing.verticalMedium,
-              ListTile(
-                leading: const Icon(Icons.camera_alt, size: 32),
-                title: Text('Cámara', style: AppTypography.body),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImage(ImageSource.camera);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library, size: 32),
-                title: Text('Galería', style: AppTypography.body),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImage(ImageSource.gallery);
-                },
-              ),
-              AppSpacing.verticalSmall,
-            ],
-          ),
-        ),
-      ),
+    ImageSourceBottomSheet.show(
+      context,
+      onCameraTap: () => _pickImage(ImageSource.camera),
+      onGalleryTap: () => _pickImage(ImageSource.gallery),
     );
   }
 
@@ -345,269 +315,73 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
                       const SizedBox(height: 24),
 
                       // Image Picker
-                      GestureDetector(
+                      ImagePickerSection(
+                        selectedImagePath: _selectedImagePath,
                         onTap: _showImageSourceBottomSheet,
-                        child: Container(
-                          height: 200,
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppColors.primary,
-                              width: 2,
-                            ),
-                          ),
-                          child: _selectedImagePath == null
-                              ? Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.add_photo_alternate,
-                                      size: 64,
-                                      color: AppColors.primary,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Toca para seleccionar',
-                                      style: AppTypography.body.copyWith(
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.file(
-                                    File(_selectedImagePath!),
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                  ),
-                                ),
-                        ),
                       ),
                       const SizedBox(height: 24),
 
                       // Category Selector
-                      Text(
-                        'Categoría',
-                        style: AppTypography.subtitle.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<Category>(
-                        initialValue: _selectedCategory,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        style: AppTypography.body.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                        dropdownColor: AppColors.surface,
-                        items: _categories.map((category) {
-                          return DropdownMenuItem(
-                            value: category,
-                            child: Text(
-                              category.name,
-                              style: AppTypography.body.copyWith(
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                      CustomDropdownField<Category>(
+                        label: 'Categoría',
+                        value: _selectedCategory,
+                        items: _categories,
+                        itemLabel: (category) => category.name,
                         onChanged: (value) {
                           if (value != null) {
-                            setState(() {
-                              _selectedCategory = value;
-                            });
+                            setState(() => _selectedCategory = value);
                           }
                         },
                       ),
                       const SizedBox(height: 24),
 
                       // Color Selector
-                      Text(
-                        'Color',
-                        style: AppTypography.subtitle.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        initialValue: _selectedColor,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        style: AppTypography.body.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                        dropdownColor: AppColors.surface,
-                        items: _colors.map((color) {
-                          return DropdownMenuItem(
-                            value: color.name,
-                            child: Text(
-                              color.name,
-                              style: AppTypography.body.copyWith(
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                      CustomDropdownField<String>(
+                        label: 'Color',
+                        value: _selectedColor,
+                        items: _colors.map((c) => c.name).toList(),
+                        itemLabel: (item) => item,
                         onChanged: (value) {
                           if (value != null) {
-                            setState(() {
-                              _selectedColor = value;
-                            });
+                            setState(() => _selectedColor = value);
                           }
                         },
                       ),
                       const SizedBox(height: 24),
 
                       // Style Selector
-                      Text(
-                        'Estilo',
-                        style: AppTypography.subtitle.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        initialValue: _selectedStyle,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        style: AppTypography.body.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                        dropdownColor: AppColors.surface,
-                        items: _styles.map((style) {
-                          return DropdownMenuItem(
-                            value: style.name,
-                            child: Text(
-                              style.name,
-                              style: AppTypography.body.copyWith(
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                      CustomDropdownField<String>(
+                        label: 'Estilo',
+                        value: _selectedStyle,
+                        items: _styles.map((s) => s.name).toList(),
+                        itemLabel: (item) => item,
                         onChanged: (value) {
                           if (value != null) {
-                            setState(() {
-                              _selectedStyle = value;
-                            });
+                            setState(() => _selectedStyle = value);
                           }
                         },
                       ),
                       const SizedBox(height: 24),
 
                       // Occasion Selector
-                      Text(
-                        'Ocasión',
-                        style: AppTypography.subtitle.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        initialValue: _selectedOccasion,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        style: AppTypography.body.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                        dropdownColor: AppColors.surface,
-                        items: _occasions.map((occasion) {
-                          return DropdownMenuItem(
-                            value: occasion.name,
-                            child: Text(
-                              occasion.name,
-                              style: AppTypography.body.copyWith(
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                      CustomDropdownField<String>(
+                        label: 'Ocasión',
+                        value: _selectedOccasion,
+                        items: _occasions.map((o) => o.name).toList(),
+                        itemLabel: (item) => item,
                         onChanged: (value) {
                           if (value != null) {
-                            setState(() {
-                              _selectedOccasion = value;
-                            });
+                            setState(() => _selectedOccasion = value);
                           }
                         },
                       ),
                       const SizedBox(height: 24),
 
                       // Tags Selector
-                      Text(
-                        'Tags (opcional)',
-                        style: AppTypography.subtitle.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: _availableTags.isEmpty
-                            ? Text(
-                                'No hay tags disponibles',
-                                style: AppTypography.body.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              )
-                            : Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: _availableTags.map((tag) {
-                                  final isSelected = _selectedTagIds.contains(
-                                    tag.id,
-                                  );
-                                  return FilterChip(
-                                    label: Text(tag.name),
-                                    selected: isSelected,
-                                    onSelected: (_) => _toggleTag(tag.id),
-                                    backgroundColor: AppColors.surface,
-                                    selectedColor: AppColors.primary,
-                                    checkmarkColor: Colors.black,
-                                    labelStyle: AppTypography.body.copyWith(
-                                      color: isSelected
-                                          ? Colors.black
-                                          : AppColors.textPrimary,
-                                    ),
-                                    side: BorderSide(
-                                      color: isSelected
-                                          ? AppColors.primary
-                                          : AppColors.border,
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
+                      TagSelectorSection(
+                        availableTags: _availableTags,
+                        selectedTagIds: _selectedTagIds,
+                        onTagToggled: _toggleTag,
                       ),
                       const SizedBox(height: 32),
 
