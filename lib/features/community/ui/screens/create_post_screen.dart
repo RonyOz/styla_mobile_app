@@ -26,7 +26,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   void initState() {
     super.initState();
     _whoAmIUsecase = WhoAmIUsecase(profileRepository: ProfileRepositoryImpl());
-    context.read<WardrobeBloc>().add(LoadGarmentsRequested());
   }
 
   @override
@@ -59,49 +58,107 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Crear Post',
-          style: AppTypography.subtitle.copyWith(
-            color: AppColors.textPrimary,
-          ),
+    return Theme(
+      data: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: AppColors.background,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          iconTheme: IconThemeData(color: AppColors.textPrimary),
         ),
-        actions: [
-          TextButton(onPressed: _createPost, child: const Text('Publicar')),
-        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // TODO: reemplazar con selector de outfits
-            // Ejemplo: DropdownButton, GridView, o ListView de outfits
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.amber.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber),
-              ),
-              child: const Text(
-                'Usando outfit temporal para pruebas',
-                style: TextStyle(fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Crear Nuevo Post',
+            style: TextStyle(
+              fontSize: 28, 
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _contentController,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                hintText:
-                    '¿Qué quieres compartir sobre este outfit? (opcional)',
-                border: OutlineInputBorder(),
+          ),
+          actions: const [], 
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 16), 
+
+              Container(
+                height: MediaQuery.of(context).size.height * 0.45,
+                decoration: BoxDecoration(
+                  color: AppColors.textOnPrimary,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.transparent, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.textPrimary,
+                      blurRadius: 2,
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Outfit Placeholder', style: TextStyle(color: AppColors.grey)),
+                    const SizedBox(height: 4),
+                    Text('ID Mock: $_MOCK_OUTFIT_ID', style: const TextStyle(color: Colors.transparent, fontSize: 10)),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 20),
+
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.textOnPrimary,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.transparent),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: TextField(
+                  controller: _contentController,
+                  maxLines: 5,
+                  style: const TextStyle(color: AppColors.textPrimary),
+                  decoration: const InputDecoration(
+                    hintText: 'Cuentanos un poco',
+                    hintStyle: TextStyle(
+                      color: AppColors.grey, 
+                      fontWeight: FontWeight.w400,
+                      height: 1.5,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 12.0),
+                  ),
+                ),
+              ),
+              
+              const Spacer(), 
+
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: ElevatedButton(
+                  onPressed: _createPost,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.textOnPrimary,
+                    minimumSize: const Size(double.infinity, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  child: const Text('Publicar'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
