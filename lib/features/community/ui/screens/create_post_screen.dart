@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/community_bloc.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/events/community_event.dart';
 import 'package:styla_mobile_app/features/profile/domain/usescases/who_am_i_usecase.dart';
@@ -60,7 +61,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crear Post'),
+        title: Text(
+          'Crear Post',
+          style: AppTypography.subtitle.copyWith(
+            color: AppColors.textPrimary,
+          ),
+        ),
         actions: [
           TextButton(onPressed: _createPost, child: const Text('Publicar')),
         ],

@@ -233,7 +233,12 @@ class _AddGarmentScreenState extends State<AddGarmentScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Agregar Prenda'),
+        title: Text(
+          'Agregar Prenda',
+          style: AppTypography.subtitle.copyWith(
+            color: AppColors.textPrimary,
+          ),
+        ),
         backgroundColor: AppColors.background,
       ),
       body: BlocListener<WardrobeBloc, WardrobeState>(
