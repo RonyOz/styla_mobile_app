@@ -30,7 +30,7 @@ class WardrobeFilterSection extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.borderRadiusLarge,
         border: Border.all(color: Colors.white.withOpacity(0.06)),
       ),
       child: Column(
@@ -103,15 +103,9 @@ class WardrobeFilterSection extends StatelessWidget {
             }).toList(),
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: onApply,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: const Text('Aplicar filtros'),
-            ),
+          AppButton(
+            text: 'Aplicar filtros',
+            onPressed: onApply,
           ),
         ],
       ),

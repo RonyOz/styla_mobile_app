@@ -84,7 +84,7 @@ class WardrobeControls extends StatelessWidget {
       context: context,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: AppRadius.radiusLarge),
       ),
       builder: (context) => SafeArea(
         child: Column(
@@ -96,7 +96,7 @@ class WardrobeControls extends StatelessWidget {
               height: 4,
               decoration: BoxDecoration(
                 color: AppColors.border,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: AppRadius.borderRadiusSmall,
               ),
             ),
             const SizedBox(height: 20),

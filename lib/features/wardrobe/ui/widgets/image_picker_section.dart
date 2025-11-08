@@ -20,7 +20,7 @@ class ImagePickerSection extends StatelessWidget {
         height: 200,
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.borderRadiusLarge,
           border: Border.all(
             color: AppColors.primary,
             width: 2,
@@ -45,7 +45,7 @@ class ImagePickerSection extends StatelessWidget {
                 ],
               )
             : ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.borderRadiusLarge,
                 child: Image.file(
                   File(selectedImagePath!),
                   fit: BoxFit.cover,

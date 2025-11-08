@@ -46,7 +46,7 @@ class GarmentAttributeField extends StatelessWidget {
             filled: true,
             fillColor: AppColors.surfaceVariant,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.borderRadiusLarge,
               borderSide: BorderSide.none,
             ),
           ),

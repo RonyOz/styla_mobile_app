@@ -21,11 +21,11 @@ class GarmentGridTile extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.borderRadiusLarge,
           border: Border.all(color: Colors.white.withOpacity(0.05)),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.borderRadiusLarge,
           child: Stack(
             children: [
               Positioned.fill(

@@ -30,7 +30,7 @@ class TagSelectorSection extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.borderRadiusLarge,
           ),
           child: availableTags.isEmpty
               ? Text(

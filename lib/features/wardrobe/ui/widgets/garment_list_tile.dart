@@ -23,13 +23,13 @@ class GarmentListTile extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: AppRadius.borderRadiusLarge,
           border: Border.all(color: Colors.white.withOpacity(0.05)),
         ),
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppRadius.borderRadiusLarge,
               child: SizedBox(
                 width: 92,
                 height: 92,
@@ -108,7 +108,7 @@ class _TagPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: AppRadius.borderRadiusPill,
       ),
       child: Text(
         text,

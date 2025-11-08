@@ -20,7 +20,7 @@ class ImageSourceBottomSheet extends StatelessWidget {
       context: context,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: AppRadius.radiusLarge),
       ),
       builder: (context) => ImageSourceBottomSheet(
         onCameraTap: onCameraTap,

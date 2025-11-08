@@ -30,7 +30,7 @@ class _WardrobeSkeletonTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: AppRadius.borderRadiusLarge,
         gradient: LinearGradient(
           colors: [
             Colors.white.withOpacity(0.08),
