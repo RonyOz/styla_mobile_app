@@ -67,17 +67,33 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
+        toolbarHeight: 48, // Más delgado (default es 56)
         systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
           statusBarColor: AppColors.background,
           statusBarIconBrightness: Brightness.light,
           statusBarBrightness: Brightness.dark,
         ),
-        title: Text(_items[_currentIndex].label),
+        // Título minimalista
+        title: Text(
+          _items[_currentIndex].label,
+          style: AppTypography.body.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w500,
+            fontSize: 16,
+          ),
+        ),
+        centerTitle: false, // Alineado a la izquierda para look minimalista
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_outline),
+            icon: Icon(
+              Icons.person_outline,
+              size: 22, // Icono más pequeño
+              color: AppColors.textPrimary,
+            ),
             tooltip: 'Ir al perfil',
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            constraints: const BoxConstraints(), // Remover padding extra
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.profile);
             },
