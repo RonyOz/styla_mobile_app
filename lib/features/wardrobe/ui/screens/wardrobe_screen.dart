@@ -8,7 +8,6 @@ import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/screens/add_garment_screen.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/screens/garment_detail_screen.dart';
-import 'package:styla_mobile_app/features/wardrobe/ui/widgets/wardrobe_toolbar.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/widgets/wardrobe_controls.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/widgets/wardrobe_filter_section.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/widgets/garment_grid_tile.dart';
@@ -73,17 +72,6 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
     ).then((_) {
       context.read<WardrobeBloc>().add(LoadGarmentsRequested());
     });
-  }
-
-  void _onMenuSelected(WardrobeMenuAction action) {
-    switch (action) {
-      case WardrobeMenuAction.addGarment:
-        _openAddGarmentFlow();
-        break;
-      case WardrobeMenuAction.manageTags:
-        _showComingSoon();
-        break;
-    }
   }
 
   void _showComingSoon() {
@@ -154,27 +142,15 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                WardrobeToolbar(
-                  onSearchTap: _showComingSoon,
-                  onFavoritesTap: _showComingSoon,
-                  onMenuSelected: _onMenuSelected,
-                ),
-                const SizedBox(height: 12),
-                // Text(
-                //   'Mi closet',
-                //   style: AppTypography.title.copyWith(
-                //     color: AppColors.white,
-                //     fontSize: 26,
-                //   ),
-                // ),
-                const SizedBox(height: 12),
                 WardrobeControls(
                   hasActiveFilters: _selectedCategory != null || _selectedTags.isNotEmpty,
                   showFilters: _showFilters,
                   onFiltersTap: () => setState(() => _showFilters = !_showFilters),
-                  onSortTap: _showComingSoon,
+                  onAddGarmentTap: _openAddGarmentFlow,
+                  onManageTagsTap: _showComingSoon,
                   viewMode: _viewMode,
                   onViewModeChanged: _setViewMode,
+                  activeFiltersCount: (_selectedCategory != null ? 1 : 0) + _selectedTags.length,
                 ),
                 AnimatedCrossFade(
                   firstChild: const SizedBox.shrink(),

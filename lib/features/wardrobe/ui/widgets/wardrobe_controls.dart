@@ -6,87 +6,150 @@ class WardrobeControls extends StatelessWidget {
   final bool hasActiveFilters;
   final bool showFilters;
   final VoidCallback onFiltersTap;
-  final VoidCallback onSortTap;
+  final VoidCallback onAddGarmentTap;
+  final VoidCallback onManageTagsTap;
   final ViewMode viewMode;
   final ValueChanged<ViewMode> onViewModeChanged;
+  final int activeFiltersCount;
 
   const WardrobeControls({
     super.key,
     required this.hasActiveFilters,
     required this.showFilters,
     required this.onFiltersTap,
-    required this.onSortTap,
+    required this.onAddGarmentTap,
+    required this.onManageTagsTap,
     required this.viewMode,
     required this.onViewModeChanged,
+    this.activeFiltersCount = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        WardrobeFilterChip(
-          label: 'Filtros',
-          icon: Icons.filter_list,
-          isActive: hasActiveFilters || showFilters,
+        // Filtros con contador
+        AppChipButton.filter(
+          label: hasActiveFilters ? 'Filtros ($activeFiltersCount)' : 'Filtros',
+          icon: Icons.tune,
+          isActive: showFilters,
           onTap: onFiltersTap,
         ),
-        const SizedBox(width: 12),
-        WardrobeFilterChip(
-          label: 'Ordenar por',
-          icon: Icons.swap_vert,
-          onTap: onSortTap,
-        ),
         const Spacer(),
-        ViewTogglePill(
+        // Toggle de vista
+        AppTogglePill<ViewMode>(
           selected: viewMode,
           onChanged: onViewModeChanged,
+          options: const [
+            AppToggleOption(
+              value: ViewMode.grid,
+              icon: Icons.grid_view,
+            ),
+            AppToggleOption(
+              value: ViewMode.list,
+              icon: Icons.view_list,
+            ),
+          ],
+        ),
+        const SizedBox(width: 8),
+        // Botón agregar
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _showAddMenu(context),
+            borderRadius: AppRadius.borderRadiusMedium,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.15),
+                borderRadius: AppRadius.borderRadiusMedium,
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.3),
+                ),
+              ),
+              child: Icon(
+                Icons.add_circle_outline,
+                color: AppColors.primary,
+                size: 24,
+              ),
+            ),
+          ),
         ),
       ],
     );
   }
+
+  void _showAddMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            _MenuOption(
+              icon: Icons.add_photo_alternate_outlined,
+              label: 'Agregar prenda',
+              onTap: () {
+                Navigator.pop(context);
+                onAddGarmentTap();
+              },
+            ),
+            _MenuOption(
+              icon: Icons.label_outline,
+              label: 'Gestionar tags',
+              onTap: () {
+                Navigator.pop(context);
+                onManageTagsTap();
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class WardrobeFilterChip extends StatelessWidget {
-  const WardrobeFilterChip({
-    super.key,
-    required this.label,
+class _MenuOption extends StatelessWidget {
+  const _MenuOption({
     required this.icon,
+    required this.label,
     required this.onTap,
-    this.isActive = false,
   });
 
-  final String label;
   final IconData icon;
+  final String label;
   final VoidCallback onTap;
-  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.secondary.withOpacity(0.18)
-              : AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: isActive
-                ? AppColors.secondary
-                : Colors.white.withOpacity(0.08),
-          ),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: Colors.white),
-            const SizedBox(width: 6),
+            Icon(icon, color: AppColors.textPrimary, size: 24),
+            const SizedBox(width: 16),
             Text(
               label,
-              style: AppTypography.caption.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
+              style: AppTypography.body.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -96,70 +159,3 @@ class WardrobeFilterChip extends StatelessWidget {
   }
 }
 
-class ViewTogglePill extends StatelessWidget {
-  const ViewTogglePill({
-    super.key,
-    required this.selected,
-    required this.onChanged,
-  });
-
-  final ViewMode selected;
-  final ValueChanged<ViewMode> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        children: [
-          _ViewToggleButton(
-            icon: Icons.grid_view,
-            isSelected: selected == ViewMode.grid,
-            onTap: () => onChanged(ViewMode.grid),
-          ),
-          _ViewToggleButton(
-            icon: Icons.view_list,
-            isSelected: selected == ViewMode.list,
-            onTap: () => onChanged(ViewMode.list),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ViewToggleButton extends StatelessWidget {
-  const _ViewToggleButton({
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.secondary : Colors.transparent,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Icon(
-          icon,
-          size: 18,
-          color: isSelected ? AppColors.textOnSecondary : Colors.white,
-        ),
-      ),
-    );
-  }
-}
