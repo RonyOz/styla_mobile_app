@@ -35,10 +35,10 @@ class GarmentImageHeader extends StatelessWidget {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.more_vert),
+          icon: const Icon(Icons.delete_outline, size: 24),
           onPressed: onMoreOptions,
           style: IconButton.styleFrom(
-            backgroundColor: Colors.black54,
+            backgroundColor: Colors.red,
             foregroundColor: Colors.white,
           ),
         ),
@@ -55,10 +55,7 @@ class GarmentImageHeader extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.3),
-                    Colors.transparent,
-                  ],
+                  colors: [Colors.black.withOpacity(0.3), Colors.transparent],
                 ),
               ),
             ),
@@ -98,10 +95,7 @@ class GarmentImageHeader extends StatelessWidget {
 
   Widget _buildImage() {
     if (localImagePath != null) {
-      return Image.file(
-        File(localImagePath!),
-        fit: BoxFit.cover,
-      );
+      return Image.file(File(localImagePath!), fit: BoxFit.cover);
     }
 
     if (imageUrl.isNotEmpty) {

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styla_mobile_app/app/pages/home/tabs/bloc/dashboard_bloc.dart';
+import 'package:styla_mobile_app/app/pages/home/tabs/bloc/dashboard_event.dart';
+import 'package:styla_mobile_app/app/pages/home/tabs/bloc/dashboard_state.dart';
 import 'package:styla_mobile_app/core/core.dart';
 
 /// Dashboard tab - Home screen showing main content and recommendations
@@ -48,40 +52,91 @@ class DashboardTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateLabel = _formatDate(DateTime.now());
+    return BlocProvider(
+      create: (context) => DashboardBloc()..add(LoadUserProfile()),
+      child: BlocBuilder<DashboardBloc, DashboardState>(
+        builder: (context, state) {
+          final nickname = state is DashboardLoaded
+              ? state.profile.nickname
+              : 'Usuario';
 
-    return ColoredBox(
-      color: AppColors.background,
-      child: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeaderActions(context),
-              const SizedBox(height: 16),
-              _buildStyleAiCard(context, dateLabel),
-              const SizedBox(height: 28),
-              _buildSectionHeader(
-                context,
-                title: 'Outfits recomendados',
-                onTap: () => _showComingSoon(context),
+          final dateLabel = _formatDate(DateTime.now());
+
+          return ColoredBox(
+            color: AppColors.background,
+            child: SafeArea(
+              bottom: false,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Banner de construcción
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.construction,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Página aún en construcción, no esperes que las funcionalidades funcionen en esta página',
+                              style: AppTypography.caption.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildHeaderActions(context),
+                    const SizedBox(height: 16),
+                    _buildStyleAiCard(context, dateLabel, nickname),
+                    const SizedBox(height: 28),
+                    _buildSectionHeader(
+                      context,
+                      title: 'Outfits recomendados',
+                      onTap: () => _showComingSoon(context),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildOutfitCarousel(_recommendedOutfits),
+                    const SizedBox(height: 28),
+                    _buildSectionHeader(
+                      context,
+                      title: 'Outfits destacados',
+                      onTap: () => _showComingSoon(context),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildOutfitCarousel(_highlightedOutfits),
+                    const SizedBox(height: 32),
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
-              _buildOutfitCarousel(_recommendedOutfits),
-              const SizedBox(height: 28),
-              _buildSectionHeader(
-                context,
-                title: 'Outfits destacados',
-                onTap: () => _showComingSoon(context),
-              ),
-              const SizedBox(height: 12),
-              _buildOutfitCarousel(_highlightedOutfits),
-              const SizedBox(height: 32),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -111,7 +166,11 @@ class DashboardTab extends StatelessWidget {
     );
   }
 
-  Widget _buildStyleAiCard(BuildContext context, String dateLabel) {
+  Widget _buildStyleAiCard(
+    BuildContext context,
+    String dateLabel,
+    String nickname,
+  ) {
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
@@ -122,14 +181,9 @@ class DashboardTab extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF181818),
-            Color(0xFF101010),
-          ],
+          colors: [Color(0xFF181818), Color(0xFF101010)],
         ),
-        border: Border.all(
-          color: AppColors.secondary.withOpacity(0.3),
-        ),
+        border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,8 +199,10 @@ class DashboardTab extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.secondary.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(999),
@@ -164,7 +220,7 @@ class DashboardTab extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Text(
-            'Hola Juan!',
+            'Hola $nickname!',
             style: textTheme.headlineSmall?.copyWith(
               color: AppColors.white,
               fontFamily: AppTypography.headingFont,
@@ -174,11 +230,7 @@ class DashboardTab extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              Icon(
-                Icons.place_outlined,
-                size: 16,
-                color: AppColors.secondary,
-              ),
+              Icon(Icons.place_outlined, size: 16, color: AppColors.secondary),
               const SizedBox(width: 4),
               Text(
                 'Cali, $dateLabel',
@@ -187,11 +239,7 @@ class DashboardTab extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Icon(
-                Icons.wb_sunny_outlined,
-                size: 16,
-                color: AppColors.primary,
-              ),
+              Icon(Icons.wb_sunny_outlined, size: 16, color: AppColors.primary),
               const SizedBox(width: 4),
               Text(
                 '27 C',
@@ -208,9 +256,7 @@ class DashboardTab extends StatelessWidget {
             children: _moodTags.map((mood) => _MoodChip(label: mood)).toList(),
           ),
           const SizedBox(height: 16),
-          _MoodPromptField(
-            onTap: () => _showComingSoon(context),
-          ),
+          _MoodPromptField(onTap: () => _showComingSoon(context)),
         ],
       ),
     );
@@ -314,9 +360,7 @@ class _MoodChip extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
         color: Colors.white.withOpacity(0.08),
-        border: Border.all(
-          color: AppColors.secondary.withOpacity(0.4),
-        ),
+        border: Border.all(color: AppColors.secondary.withOpacity(0.4)),
       ),
       child: Text(
         label,
@@ -412,10 +456,7 @@ class _OutfitCard extends StatelessWidget {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF2F2F2F),
-                            Color(0xFF1C1C1C),
-                          ],
+                          colors: [Color(0xFF2F2F2F), Color(0xFF1C1C1C)],
                         ),
                       ),
                       child: const Center(
@@ -441,8 +482,9 @@ class _OutfitCard extends StatelessWidget {
                         data.isFavorite
                             ? Icons.favorite
                             : Icons.favorite_border,
-                        color:
-                            data.isFavorite ? AppColors.secondary : Colors.white,
+                        color: data.isFavorite
+                            ? AppColors.secondary
+                            : Colors.white,
                       ),
                       tooltip: data.isFavorite
                           ? 'Quitar de favoritos'
@@ -471,8 +513,10 @@ class _OutfitCard extends StatelessWidget {
             children: data.tags
                 .map(
                   (tag) => Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceVariant,
                       borderRadius: BorderRadius.circular(12),

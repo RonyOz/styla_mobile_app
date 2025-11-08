@@ -115,7 +115,7 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: Text(
           'Eliminar prenda',
@@ -127,16 +127,16 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Cerrar diálogo
+              Navigator.pop(dialogContext); // Cerrar diálogo
               context.read<WardrobeBloc>().add(
                 DeleteGarmentRequested(garmentId: widget.garment.id),
               );
-              Navigator.pop(context); // Cerrar pantalla
+              // NO cerrar la pantalla aquí, esperar al listener
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Eliminar'),
@@ -253,6 +253,15 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
               backgroundColor: AppColors.success,
             ),
           );
+        } else if (state is GarmentDeletedState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Prenda eliminada'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          // Cerrar la pantalla después de eliminar
+          Navigator.of(context).pop();
         } else if (state is WardrobeErrorState) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
