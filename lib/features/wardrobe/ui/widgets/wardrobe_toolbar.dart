@@ -19,11 +19,11 @@ class WardrobeToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _ToolbarIconButton(
-          icon: Icons.search,
-          tooltip: 'Buscar en tu closet',
-          onTap: onSearchTap,
-        ),
+        // _ToolbarIconButton(
+        //   icon: Icons.search,
+        //   tooltip: 'Buscar en tu closet',
+        //   onTap: onSearchTap,
+        // ),
         const Spacer(),
         _ToolbarIconButton(
           icon: Icons.favorite_border,

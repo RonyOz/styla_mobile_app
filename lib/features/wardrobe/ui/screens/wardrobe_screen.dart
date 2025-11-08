@@ -160,13 +160,13 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                   onMenuSelected: _onMenuSelected,
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  'Mi closet',
-                  style: AppTypography.title.copyWith(
-                    color: AppColors.white,
-                    fontSize: 26,
-                  ),
-                ),
+                // Text(
+                //   'Mi closet',
+                //   style: AppTypography.title.copyWith(
+                //     color: AppColors.white,
+                //     fontSize: 26,
+                //   ),
+                // ),
                 const SizedBox(height: 12),
                 WardrobeControls(
                   hasActiveFilters: _selectedCategory != null || _selectedTags.isNotEmpty,
@@ -183,8 +183,8 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                     child: WardrobeFilterSection(
                       selectedCategory: _selectedCategory,
                       selectedTags: _selectedTags,
-                      categories: const ['Prendas superiores', 'Calzado', 'Prendas inferiores'],
-                      tags: const ['Old Money', 'Emo', 'Oversized', 'Street wear', 'Fresco'],
+                      categories: const ['Prendas superiores', 'Calzado', 'Prendas inferiores'], // TODO: Esta informacion viene del DS
+                      tags: const ['Old Money', 'Emo', 'Oversized', 'Street wear', 'Fresco'], // TODO: Esta informacion viene del DS
                       onApply: _applyFilters,
                       onClear: _clearFilters,
                       onCategoryChanged: (category) {
