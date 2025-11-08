@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/community_tab.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/dashboard_tab.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/dress_up_tab.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/wardrobe_tab.dart';
 import 'package:styla_mobile_app/app/routes/app_routes.dart';
 import 'package:styla_mobile_app/app/widgets/styla_bottom_nav.dart';
+import 'package:styla_mobile_app/core/core.dart';
 
 import '../layouts/main_layout.dart';
 
@@ -61,11 +63,37 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return MainLayout(
       appBar: AppBar(
-        title: Text(_items[_currentIndex].label),
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: 48, // Más delgado (default es 56)
+        systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
+          statusBarColor: AppColors.background,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+        ),
+        // Título minimalista
+        title: Text(
+          _items[_currentIndex].label,
+          style: AppTypography.body.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w500,
+            fontSize: 16,
+          ),
+        ),
+        centerTitle: false, // Alineado a la izquierda para look minimalista
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_outline),
+            icon: Icon(
+              Icons.person_outline,
+              size: 22, // Icono más pequeño
+              color: AppColors.textPrimary,
+            ),
             tooltip: 'Ir al perfil',
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            constraints: const BoxConstraints(), // Remover padding extra
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.profile);
             },

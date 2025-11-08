@@ -444,9 +444,12 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
         throw WardrobeException('Invalid field: $field');
       }
 
+      // Mapear el nombre del campo al nombre de la columna en la BD
+      final dbFieldName = field == 'occasion' ? 'ocasion' : field;
+
       await _supabaseClient
           .from('garments')
-          .update({field: value})
+          .update({dbFieldName: value})
           .eq('id', garmentId);
 
       return await getGarmentById(garmentId);

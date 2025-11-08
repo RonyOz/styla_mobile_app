@@ -95,7 +95,7 @@ class _OnboardingStepStyleState extends State<OnboardingStepStyle> {
   Widget build(BuildContext context) {
     return BlocBuilder<OnboardingBloc, OnboardingState>(
       builder: (context, state) {
-        final String? selectedStyle = state.preferences.name;
+        final String selectedStyle = state.preferences.name;
         final styles = state.availableStyles.map((s) => s.name).toList();
 
         // Si el estilo seleccionado no está en la lista, limpiar la selección
@@ -171,7 +171,7 @@ class _OnboardingStepStyleState extends State<OnboardingStepStyle> {
                   context.read<OnboardingBloc>().add(StyleSelected(style));
                 },
               );
-            }).toList(),
+            }),
 
             const SizedBox(height: 40),
 

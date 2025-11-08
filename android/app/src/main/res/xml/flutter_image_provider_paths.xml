@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Directorio de caché para imágenes temporales de la cámara -->
+    <cache-path name="cache" path="." />
+    <!-- Directorio externo de caché -->
+    <external-cache-path name="external_cache" path="." />
+    <!-- Directorio de archivos externos -->
+    <external-files-path name="external_files" path="." />
+</paths>

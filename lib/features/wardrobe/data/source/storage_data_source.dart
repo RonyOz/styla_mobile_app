@@ -21,7 +21,7 @@ abstract class StorageDataSource {
 
 class StorageDataSourceImpl implements StorageDataSource {
   final SupabaseClient _supabaseClient;
-  static const String _bucketName = 'garments';
+  static const String _bucketName = 'garment-images';
 
   StorageDataSourceImpl({SupabaseClient? supabaseClient})
     : _supabaseClient = supabaseClient ?? Supabase.instance.client;

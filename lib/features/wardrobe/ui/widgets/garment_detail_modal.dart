@@ -60,9 +60,14 @@ class _GarmentDetailModalState extends State<GarmentDetailModal> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar prenda'),
-        content: const Text(
+        backgroundColor: AppColors.surface,
+        title: Text(
+          'Eliminar prenda',
+          style: AppTypography.subtitle.copyWith(color: AppColors.textPrimary),
+        ),
+        content: Text(
           '¿Estás seguro de que deseas eliminar esta prenda?',
+          style: AppTypography.body.copyWith(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -254,7 +259,7 @@ class _GarmentDetailModalState extends State<GarmentDetailModal> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: DropdownButtonFormField<String>(
-                        value: _selectedCategoryId,
+                        initialValue: _selectedCategoryId,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(vertical: 12),

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,6 +11,11 @@ import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/color_option.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/style_option.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/occasion_option.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/garment_image_header.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/category_chips_section.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/editable_tags_section.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/garment_attribute_field.dart';
+import 'package:styla_mobile_app/features/wardrobe/ui/widgets/ai_recommendations_section.dart';
 
 class GarmentDetailScreen extends StatefulWidget {
   final Garment garment;
@@ -111,7 +115,7 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: Text(
           'Eliminar prenda',
@@ -123,16 +127,16 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Cerrar diálogo
+              Navigator.pop(dialogContext); // Cerrar diálogo
               context.read<WardrobeBloc>().add(
                 DeleteGarmentRequested(garmentId: widget.garment.id),
               );
-              Navigator.pop(context); // Cerrar pantalla
+              // NO cerrar la pantalla aquí, esperar al listener
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Eliminar'),
@@ -249,6 +253,15 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
               backgroundColor: AppColors.success,
             ),
           );
+        } else if (state is GarmentDeletedState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Prenda eliminada'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          // Cerrar la pantalla después de eliminar
+          Navigator.of(context).pop();
         } else if (state is WardrobeErrorState) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -263,110 +276,12 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
         body: CustomScrollView(
           slivers: [
             // AppBar con imagen
-            SliverAppBar(
-              expandedHeight: 300,
-              pinned: true,
-              backgroundColor: AppColors.background,
-              leading: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, size: 20),
-                style: IconButton.styleFrom(backgroundColor: Colors.black54),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    // TODO: Implementar búsqueda
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.favorite_border),
-                  onPressed: () {
-                    // TODO: Implementar favoritos
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: _showDeleteConfirmation,
-                ),
-              ],
-              flexibleSpace: FlexibleSpaceBar(
-                background: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Imagen de la prenda
-                    _selectedImagePath != null
-                        ? Image.file(
-                            File(_selectedImagePath!),
-                            fit: BoxFit.cover,
-                          )
-                        : widget.garment.imageUrl.isNotEmpty
-                        ? Image.network(
-                            widget.garment.imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: AppColors.surfaceVariant,
-                                child: const Icon(
-                                  Icons.checkroom,
-                                  size: 80,
-                                  color: AppColors.textSecondary,
-                                ),
-                              );
-                            },
-                          )
-                        : Container(
-                            color: AppColors.surfaceVariant,
-                            child: const Icon(
-                              Icons.checkroom,
-                              size: 80,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                    // Overlay gradient
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.3),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Botón de cambiar imagen
-                    Positioned(
-                      bottom: 16,
-                      right: 16,
-                      child: FloatingActionButton.small(
-                        onPressed: _pickImage,
-                        backgroundColor: AppColors.primary,
-                        child: const Icon(
-                          Icons.camera_alt,
-                          color: AppColors.textOnPrimary,
-                        ),
-                      ),
-                    ),
-                    // Texto "Mi closet"
-                    Positioned(
-                      top: 60,
-                      left: 0,
-                      right: 0,
-                      child: Center(
-                        child: Text(
-                          'Mi closet',
-                          style: AppTypography.subtitle.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            GarmentImageHeader(
+              imageUrl: widget.garment.imageUrl,
+              localImagePath: _selectedImagePath,
+              onEditImage: _pickImage,
+              onBack: () => Navigator.of(context).pop(),
+              onMoreOptions: _showDeleteConfirmation,
             ),
 
             // Contenido
@@ -377,88 +292,40 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Chips de categoría
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _categories.map((category) {
-                        final isSelected = _selectedCategoryId == category.id;
-                        return ChoiceChip(
-                          label: Text(category.name),
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            if (selected) {
-                              setState(() {
-                                _selectedCategoryId = category.id;
-                              });
-                              context.read<WardrobeBloc>().add(
-                                UpdateGarmentCategoryRequested(
-                                  garmentId: widget.garment.id,
-                                  categoryId: category.id,
-                                ),
-                              );
-                            }
-                          },
-                          backgroundColor: AppColors.surface,
-                          selectedColor: AppColors.secondaryLightest,
-                          labelStyle: TextStyle(
-                            color: isSelected
-                                ? AppColors.textOnSecondary
-                                : AppColors.textPrimary,
-                            fontSize: 14,
+                    CategoryChipsSection(
+                      categories: _categories,
+                      selectedCategoryId: _selectedCategoryId,
+                      onCategorySelected: (categoryId) {
+                        setState(() {
+                          _selectedCategoryId = categoryId;
+                        });
+                        context.read<WardrobeBloc>().add(
+                          UpdateGarmentCategoryRequested(
+                            garmentId: widget.garment.id,
+                            categoryId: categoryId,
                           ),
-                          side: BorderSide.none,
                         );
-                      }).toList(),
+                      },
                     ),
 
                     const SizedBox(height: 24),
 
                     // Etiquetas editables
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Etiquetas',
-                          style: AppTypography.body.copyWith(
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline, size: 20),
-                          color: AppColors.primary,
-                          onPressed: _showAddTagDialog,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _selectedTagNames.map((tagName) {
-                        return InputChip(
-                          label: Text(tagName),
-                          onDeleted: () {
-                            setState(() {
-                              _selectedTagNames.remove(tagName);
-                            });
-                            _updateTags();
-                          },
-                          deleteIconColor: AppColors.textOnSecondary,
-                          backgroundColor: AppColors.secondaryLightest,
-                          labelStyle: AppTypography.body.copyWith(
-                            color: AppColors.textOnSecondary,
-                            fontSize: 14,
-                          ),
-                          side: BorderSide.none,
-                        );
-                      }).toList(),
+                    EditableTagsSection(
+                      selectedTags: _selectedTagNames,
+                      onAddTag: _showAddTagDialog,
+                      onRemoveTag: (tagName) {
+                        setState(() {
+                          _selectedTagNames.remove(tagName);
+                        });
+                        _updateTags();
+                      },
                     ),
 
                     const SizedBox(height: 24),
 
                     // Campo Color
-                    _buildDropdownField(
+                    GarmentAttributeField(
                       label: 'Color',
                       value: _selectedColor,
                       items: _colors.map((c) => c.name).toList(),
@@ -473,7 +340,7 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
                     const SizedBox(height: 16),
 
                     // Campo Estilo
-                    _buildDropdownField(
+                    GarmentAttributeField(
                       label: 'Estilo',
                       value: _selectedStyle,
                       items: _styles.map((s) => s.name).toList(),
@@ -488,7 +355,7 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
                     const SizedBox(height: 16),
 
                     // Campo Ocasión
-                    _buildDropdownField(
+                    GarmentAttributeField(
                       label: 'Ocasión',
                       value: _selectedOccasion,
                       items: _occasions.map((o) => o.name).toList(),
@@ -503,52 +370,7 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
                     const SizedBox(height: 32),
 
                     // Sección de Recomendaciones IA
-                    Row(
-                      children: [
-                        Text(
-                          'Recomendaciones de StyleIA',
-                          style: AppTypography.subtitle.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.auto_awesome,
-                          color: AppColors.primary,
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Grid de outfits (placeholders)
-                    GridView.count(
-                      crossAxisCount: 2,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      children: List.generate(4, (index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppColors.border.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.checkroom_outlined,
-                              size: 48,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
+                    const AIRecommendationsSection(),
 
                     const SizedBox(height: 20),
 
@@ -582,97 +404,6 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildDropdownField({
-    required String label,
-    required String? value,
-    required List<String> items,
-    required Function(String?) onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTypography.body.copyWith(
-            color: AppColors.textSecondary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: value,
-          items: items.map((item) {
-            return DropdownMenuItem(
-              value: item,
-              child: Text(
-                item,
-                style: AppTypography.body.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            );
-          }).toList(),
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.surfaceVariant,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-          ),
-          style: AppTypography.body.copyWith(color: AppColors.textPrimary),
-          dropdownColor: AppColors.surfaceVariant,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEditableField({
-    required String label,
-    required TextEditingController controller,
-    required Function(String) onSubmitted,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTypography.body.copyWith(
-            color: AppColors.textSecondary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          style: AppTypography.body.copyWith(color: AppColors.textPrimary),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.surfaceVariant,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.check, size: 20),
-              color: AppColors.primary,
-              onPressed: () {
-                onSubmitted(controller.text);
-                FocusScope.of(context).unfocus();
-              },
-            ),
-          ),
-          onSubmitted: onSubmitted,
-        ),
-      ],
     );
   }
 }

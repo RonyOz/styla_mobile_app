@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
@@ -17,29 +18,27 @@ class GarmentDetailScreen extends StatelessWidget {
           context.read<WardrobeBloc>()
             ..add(GetGarmentByIdRequested(garmentId: garmentId)),
       child: Scaffold(
-        backgroundColor: const Color(0xFF2C2C2C),
+        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: const Color(0xFF2C2C2C),
+          backgroundColor: AppColors.background,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+            icon: Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
           ),
-          title: const Text(
+          title: Text(
             'Mi closet',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
+            style: AppTypography.subtitle.copyWith(
+              color: AppColors.textPrimary,
             ),
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.favorite_border, color: Colors.white),
+              icon: Icon(Icons.favorite_border, color: AppColors.textPrimary),
               onPressed: () {},
             ),
             IconButton(
-              icon: const Icon(Icons.apps, color: Colors.white),
+              icon: Icon(Icons.apps, color: AppColors.textPrimary),
               onPressed: () {},
             ),
           ],
