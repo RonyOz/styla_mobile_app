@@ -13,3 +13,23 @@ class CreatePostRequested extends CommunityEvent {
     this.content,
   });
 }
+
+class SavePostRequested extends CommunityEvent {
+  final String userId;
+  final String postId;
+
+  SavePostRequested({required this.userId, required this.postId});
+}
+
+class UnsavePostRequested extends CommunityEvent {
+  final String userId;
+  final String postId;
+
+  UnsavePostRequested({required this.userId, required this.postId});
+}
+
+class LoadSavedPostsRequested extends CommunityEvent {
+  final String userId;
+
+  LoadSavedPostsRequested({required this.userId});
+}

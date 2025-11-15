@@ -23,3 +23,13 @@ class CommunityErrorState extends CommunityState {
 
   CommunityErrorState({required this.message});
 }
+
+class SavedPostsLoadedState extends CommunityState {
+  final List<Post> savedPosts;
+
+  SavedPostsLoadedState({required this.savedPosts});
+}
+
+class PostSavedState extends CommunityState {}
+
+class PostUnsavedState extends CommunityState {}
