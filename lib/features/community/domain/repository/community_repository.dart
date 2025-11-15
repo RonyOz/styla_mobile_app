@@ -8,4 +8,12 @@ abstract class CommunityRepository {
   });
 
   Future<List<Post>> getFeedPosts();
+
+  Future<void> savePost({required String userId, required String postId});
+
+  Future<void> unsavePost({required String userId, required String postId});
+
+  Future<List<Post>> getSavedPosts({required String userId});
+
+  Future<bool> isPostSaved({required String userId, required String postId});
 }
