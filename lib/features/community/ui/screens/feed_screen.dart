@@ -6,6 +6,7 @@ import 'package:styla_mobile_app/features/community/ui/bloc/events/community_eve
 import 'package:styla_mobile_app/features/community/ui/bloc/states/community_state.dart';
 import 'package:styla_mobile_app/features/community/ui/screens/create_post_screen.dart';
 import 'package:styla_mobile_app/features/community/ui/screens/saved_posts_screen.dart';
+import 'package:styla_mobile_app/features/community/ui/widgets/comments_bottom_sheet.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:styla_mobile_app/features/profile/domain/usescases/who_am_i_usecase.dart';
 import 'package:styla_mobile_app/features/profile/data/repository/profile_repository_impl.dart';
@@ -39,7 +40,7 @@ class _FeedScreenState extends State<FeedScreen> {
           titleTextStyle: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
-            fontSize: 28, 
+            fontSize: 28,
           ),
         ),
         cardTheme: CardThemeData(
@@ -47,7 +48,7 @@ class _FeedScreenState extends State<FeedScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
           ),
-          clipBehavior: Clip.antiAlias, 
+          clipBehavior: Clip.antiAlias,
           margin: EdgeInsets.zero,
         ),
       ),
@@ -86,6 +87,12 @@ class _FeedScreenState extends State<FeedScreen> {
               ).showSnackBar(SnackBar(content: Text(state.message)));
             }
           },
+          buildWhen: (previous, current) {
+            // Solo reconstruir cuando cambie el estado del feed
+            return current is CommunityLoadingState ||
+                current is FeedLoadedState ||
+                current is CommunityIdleState;
+          },
           builder: (context, state) {
             if (state is CommunityLoadingState) {
               return const Center(child: CircularProgressIndicator());
@@ -103,15 +110,15 @@ class _FeedScreenState extends State<FeedScreen> {
                   context.read<CommunityBloc>().add(LoadFeedRequested());
                 },
                 child: MasonryGridView.count(
-                  padding: const EdgeInsets.all(12.0), 
-                  crossAxisCount: 2, 
-                  mainAxisSpacing: 12.0, 
-                  crossAxisSpacing: 12.0, 
+                  padding: const EdgeInsets.all(12.0),
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12.0,
+                  crossAxisSpacing: 12.0,
                   itemCount: state.posts.length,
                   itemBuilder: (context, index) {
                     final post = state.posts[index];
                     final isSaved = _savedStates[post.postId] ?? false;
-                    
+
                     return Card(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,18 +139,26 @@ class _FeedScreenState extends State<FeedScreen> {
                             ),
                             trailing: IconButton(
                               icon: Icon(
-                                isSaved ? Icons.bookmark : Icons.bookmark_border,
+                                isSaved
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border,
                                 color: isSaved ? AppColors.primary : null,
                               ),
                               onPressed: () {
                                 final userId = _whoAmIUsecase.execute();
                                 if (isSaved) {
                                   context.read<CommunityBloc>().add(
-                                    UnsavePostRequested(userId: userId, postId: post.postId),
+                                    UnsavePostRequested(
+                                      userId: userId,
+                                      postId: post.postId,
+                                    ),
                                   );
                                 } else {
                                   context.read<CommunityBloc>().add(
-                                    SavePostRequested(userId: userId, postId: post.postId),
+                                    SavePostRequested(
+                                      userId: userId,
+                                      postId: post.postId,
+                                    ),
                                   );
                                 }
                                 setState(() {
@@ -163,17 +178,47 @@ class _FeedScreenState extends State<FeedScreen> {
                               padding: const EdgeInsets.all(16.0),
                               child: Text(post.content!),
                             ),
-                          //Likes
+                          // Actions: Likes y Comentarios
                           Padding(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
+                              horizontal: 8.0,
                               vertical: 8.0,
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.favorite_border),
-                                const SizedBox(width: 4),
-                                Text('${post.likesAmount} likes'),
+                                // Like button
+                                IconButton(
+                                  icon: const Icon(Icons.favorite_border),
+                                  color: AppColors.error,
+                                  onPressed: () {
+                                    context.read<CommunityBloc>().add(
+                                      LikePostRequested(postId: post.postId),
+                                    );
+                                  },
+                                ),
+                                Text('${post.likesAmount}'),
+                                const SizedBox(width: 16),
+                                // Comment button
+                                IconButton(
+                                  icon: const Icon(Icons.chat_bubble_outline),
+                                  color: AppColors.primary,
+                                  onPressed: () {
+                                    final communityBloc = context
+                                        .read<CommunityBloc>();
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (bottomSheetContext) =>
+                                          BlocProvider.value(
+                                            value: communityBloc,
+                                            child: CommentsBottomSheet(
+                                              postId: post.postId,
+                                            ),
+                                          ),
+                                    );
+                                  },
+                                ),
                               ],
                             ),
                           ),
@@ -199,7 +244,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   MaterialPageRoute(
                     builder: (newContext) => BlocProvider.value(
                       value: context.read<CommunityBloc>(),
-                      child: const CreatePostScreen(), 
+                      child: const CreatePostScreen(),
                     ),
                   ),
                 );

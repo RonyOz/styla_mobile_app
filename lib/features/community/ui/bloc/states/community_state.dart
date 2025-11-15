@@ -1,4 +1,5 @@
 import 'package:styla_mobile_app/features/community/domain/model/post.dart';
+import 'package:styla_mobile_app/features/community/domain/model/comment.dart';
 
 abstract class CommunityState {}
 
@@ -22,6 +23,27 @@ class CommunityErrorState extends CommunityState {
   final String message;
 
   CommunityErrorState({required this.message});
+}
+
+// UC013 - Like
+class PostLikedState extends CommunityState {
+  final String postId;
+
+  PostLikedState({required this.postId});
+}
+
+// UC014 - Comentarios
+class CommentsLoadedState extends CommunityState {
+  final List<Comment> comments;
+  final String postId;
+
+  CommentsLoadedState({required this.comments, required this.postId});
+}
+
+class CommentCreatedState extends CommunityState {
+  final Comment comment;
+
+  CommentCreatedState({required this.comment});
 }
 
 class SavedPostsLoadedState extends CommunityState {

@@ -1,14 +1,13 @@
 import 'package:styla_mobile_app/features/community/domain/model/post.dart';
+import 'package:styla_mobile_app/features/community/domain/model/comment.dart';
 import 'package:styla_mobile_app/features/community/domain/repository/community_repository.dart';
 import 'package:styla_mobile_app/features/community/data/source/community_data_source.dart';
 
 class CommunityRepositoryImpl extends CommunityRepository {
   final CommunityDataSource _communityDataSource;
 
-  CommunityRepositoryImpl({
-    CommunityDataSource? communityDataSource,
-  }) : _communityDataSource =
-            communityDataSource ?? CommunityDataSourceImpl();
+  CommunityRepositoryImpl({CommunityDataSource? communityDataSource})
+    : _communityDataSource = communityDataSource ?? CommunityDataSourceImpl();
 
   @override
   Future<Post> createPost({
@@ -50,5 +49,28 @@ class CommunityRepositoryImpl extends CommunityRepository {
   @override
   Future<bool> isPostSaved({required String userId, required String postId}) {
     return _communityDataSource.isPostSaved(userId: userId, postId: postId);
+  }
+
+  @override
+  Future<void> likePost({required String postId}) {
+    return _communityDataSource.likePost(postId: postId);
+  }
+
+  @override
+  Future<List<Comment>> getComments({required String postId}) {
+    return _communityDataSource.getComments(postId: postId);
+  }
+
+  @override
+  Future<Comment> createComment({
+    required String postId,
+    required String authorUserId,
+    required String content,
+  }) {
+    return _communityDataSource.createComment(
+      postId: postId,
+      authorUserId: authorUserId,
+      content: content,
+    );
   }
 }

@@ -1,5 +1,8 @@
 export 'create_post_usecase.dart';
 export 'get_feed_usecase.dart';
+export 'like_post_usecase.dart';
+export 'get_comments_usecase.dart';
+export 'create_comment_usecase.dart';
 export 'save_post_usecase.dart';
 export 'unsave_post_usecase.dart';
 export 'get_saved_posts_usecase.dart';
