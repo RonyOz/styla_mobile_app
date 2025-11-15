@@ -17,6 +17,14 @@ abstract class CommunityDataSource {
   });
 
   Future<List<Post>> getFeedPosts();
+
+  Future<void> savePost({required String userId, required String postId});
+  
+  Future<void> unsavePost({required String userId, required String postId});
+  
+  Future<List<Post>> getSavedPosts({required String userId});
+  
+  Future<bool> isPostSaved({required String userId, required String postId});
 }
 
 class CommunityDataSourceImpl extends CommunityDataSource {
@@ -86,6 +94,82 @@ class CommunityDataSourceImpl extends CommunityDataSource {
       }).toList();
     } catch (e) {
       throw CommunityException('Failed to fetch feed: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> savePost({required String userId, required String postId}) async {
+    try {
+      await _supabaseClient.from('saved_posts').insert({
+        'user_id': userId,
+        'post_id': postId,
+      });
+    } catch (e) {
+      throw CommunityException('Failed to save post: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> unsavePost({required String userId, required String postId}) async {
+    try {
+      await _supabaseClient
+          .from('saved_posts')
+          .delete()
+          .eq('user_id', userId)
+          .eq('post_id', postId);
+    } catch (e) {
+      throw CommunityException('Failed to unsave post: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Post>> getSavedPosts({required String userId}) async {
+    try {
+      final response = await _supabaseClient
+          .from('saved_posts')
+          .select('''
+            post_id,
+            posts!inner (
+              *,
+              profiles:users_user_id (
+                nickname,
+                photo
+              ),
+              outfits:outfit_id (
+                image_url
+              )
+            )
+          ''')
+          .eq('user_id', userId)
+          .order('saved_at', ascending: false);
+
+      return (response as List).map((savedData) {
+        final postData = savedData['posts'];
+        return Post.fromJson({
+          ...postData,
+          'author_nickname': postData['profiles']?['nickname'],
+          'author_photo': postData['profiles']?['photo'],
+          'image': postData['outfits']?['image_url'],
+        });
+      }).toList();
+    } catch (e) {
+      throw CommunityException('Failed to fetch saved posts: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<bool> isPostSaved({required String userId, required String postId}) async {
+    try {
+      final response = await _supabaseClient
+          .from('saved_posts')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('post_id', postId)
+          .maybeSingle();
+
+      return response != null;
+    } catch (e) {
+      throw CommunityException('Failed to check saved status: ${e.toString()}');
     }
   }
 }

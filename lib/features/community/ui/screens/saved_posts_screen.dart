@@ -4,28 +4,26 @@ import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/community_bloc.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/events/community_event.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/states/community_state.dart';
-import 'package:styla_mobile_app/features/community/ui/screens/create_post_screen.dart';
-import 'package:styla_mobile_app/features/community/ui/screens/saved_posts_screen.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:styla_mobile_app/features/profile/domain/usescases/who_am_i_usecase.dart';
 import 'package:styla_mobile_app/features/profile/data/repository/profile_repository_impl.dart';
 
-class FeedScreen extends StatefulWidget {
-  const FeedScreen({super.key});
+class SavedPostsScreen extends StatefulWidget {
+  const SavedPostsScreen({super.key});
 
   @override
-  State<FeedScreen> createState() => _FeedScreenState();
+  State<SavedPostsScreen> createState() => _SavedPostsScreenState();
 }
 
-class _FeedScreenState extends State<FeedScreen> {
+class _SavedPostsScreenState extends State<SavedPostsScreen> {
   late final WhoAmIUsecase _whoAmIUsecase;
-  final Map<String, bool> _savedStates = {};
 
   @override
   void initState() {
     super.initState();
     _whoAmIUsecase = WhoAmIUsecase(profileRepository: ProfileRepositoryImpl());
-    context.read<CommunityBloc>().add(LoadFeedRequested());
+    final userId = _whoAmIUsecase.execute();
+    context.read<CommunityBloc>().add(LoadSavedPostsRequested(userId: userId));
   }
 
   @override
@@ -39,7 +37,7 @@ class _FeedScreenState extends State<FeedScreen> {
           titleTextStyle: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
-            fontSize: 28, 
+            fontSize: 28,
           ),
         ),
         cardTheme: CardThemeData(
@@ -47,71 +45,40 @@ class _FeedScreenState extends State<FeedScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
           ),
-          clipBehavior: Clip.antiAlias, 
+          clipBehavior: Clip.antiAlias,
           margin: EdgeInsets.zero,
         ),
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Para Ti'),
-          automaticallyImplyLeading: false,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.bookmark_border),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (newContext) => BlocProvider.value(
-                      value: context.read<CommunityBloc>(),
-                      child: const SavedPostsScreen(),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+          title: const Text('Guardados'),
         ),
-        body: BlocConsumer<CommunityBloc, CommunityState>(
-          listener: (context, state) {
-            if (state is PostCreatedState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Post creado exitosamente')),
-              );
-              context.read<CommunityBloc>().add(LoadFeedRequested());
-            }
-            if (state is CommunityErrorState) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
-            }
-          },
+        body: BlocBuilder<CommunityBloc, CommunityState>(
           builder: (context, state) {
             if (state is CommunityLoadingState) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (state is FeedLoadedState) {
-              if (state.posts.isEmpty) {
+            if (state is SavedPostsLoadedState) {
+              if (state.savedPosts.isEmpty) {
                 return const Center(
-                  child: Text('No hay posts aún. ¡Sé el primero en publicar!'),
+                  child: Text('No tienes posts guardados'),
                 );
               }
 
               return RefreshIndicator(
                 onRefresh: () async {
-                  context.read<CommunityBloc>().add(LoadFeedRequested());
+                  final userId = _whoAmIUsecase.execute();
+                  context.read<CommunityBloc>().add(LoadSavedPostsRequested(userId: userId));
                 },
                 child: MasonryGridView.count(
-                  padding: const EdgeInsets.all(12.0), 
-                  crossAxisCount: 2, 
-                  mainAxisSpacing: 12.0, 
-                  crossAxisSpacing: 12.0, 
-                  itemCount: state.posts.length,
+                  padding: const EdgeInsets.all(12.0),
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12.0,
+                  crossAxisSpacing: 12.0,
+                  itemCount: state.savedPosts.length,
                   itemBuilder: (context, index) {
-                    final post = state.posts[index];
-                    final isSaved = _savedStates[post.postId] ?? false;
-                    
+                    final post = state.savedPosts[index];
                     return Card(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,27 +97,6 @@ class _FeedScreenState extends State<FeedScreen> {
                               _formatDate(post.createdAt),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
-                            trailing: IconButton(
-                              icon: Icon(
-                                isSaved ? Icons.bookmark : Icons.bookmark_border,
-                                color: isSaved ? AppColors.primary : null,
-                              ),
-                              onPressed: () {
-                                final userId = _whoAmIUsecase.execute();
-                                if (isSaved) {
-                                  context.read<CommunityBloc>().add(
-                                    UnsavePostRequested(userId: userId, postId: post.postId),
-                                  );
-                                } else {
-                                  context.read<CommunityBloc>().add(
-                                    SavePostRequested(userId: userId, postId: post.postId),
-                                  );
-                                }
-                                setState(() {
-                                  _savedStates[post.postId] = !isSaved;
-                                });
-                              },
-                            ),
                           ),
                           if (post.image != null)
                             Image.network(
@@ -163,7 +109,6 @@ class _FeedScreenState extends State<FeedScreen> {
                               padding: const EdgeInsets.all(16.0),
                               child: Text(post.content!),
                             ),
-                          //Likes
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16.0,
@@ -185,27 +130,11 @@ class _FeedScreenState extends State<FeedScreen> {
               );
             }
 
-            return const Center(child: Text('Cargando feed...'));
-          },
-        ),
-        floatingActionButton: Builder(
-          builder: (context) {
-            return FloatingActionButton(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.border,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (newContext) => BlocProvider.value(
-                      value: context.read<CommunityBloc>(),
-                      child: const CreatePostScreen(), 
-                    ),
-                  ),
-                );
-              },
-              child: const Icon(Icons.add),
-            );
+            if (state is CommunityErrorState) {
+              return Center(child: Text('Error: ${state.message}'));
+            }
+
+            return const Center(child: Text('Cargando...'));
           },
         ),
       ),

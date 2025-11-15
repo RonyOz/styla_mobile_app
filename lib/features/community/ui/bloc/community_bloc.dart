@@ -9,6 +9,9 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   final CommunityRepository _communityRepository;
   late final CreatePostUsecase _createPostUsecase;
   late final GetFeedUsecase _getFeedUsecase;
+  late final SavePostUsecase _savePostUsecase;
+  late final UnsavePostUsecase _unsavePostUsecase;
+  late final GetSavedPostsUsecase _getSavedPostsUsecase;
 
   CommunityBloc({CommunityRepository? communityRepository})
       : _communityRepository =
@@ -17,9 +20,15 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     _createPostUsecase =
         CreatePostUsecase(communityRepository: _communityRepository);
     _getFeedUsecase = GetFeedUsecase(communityRepository: _communityRepository);
+    _savePostUsecase = SavePostUsecase(communityRepository: _communityRepository);
+    _unsavePostUsecase = UnsavePostUsecase(communityRepository: _communityRepository);
+    _getSavedPostsUsecase = GetSavedPostsUsecase(communityRepository: _communityRepository);
 
     on<LoadFeedRequested>(_onLoadFeedRequested);
     on<CreatePostRequested>(_onCreatePostRequested);
+    on<SavePostRequested>(_onSavePostRequested);
+    on<UnsavePostRequested>(_onUnsavePostRequested);
+    on<LoadSavedPostsRequested>(_onLoadSavedPostsRequested);
   }
 
   Future<void> _onLoadFeedRequested(
@@ -47,6 +56,43 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         content: event.content,
       );
       emit(PostCreatedState(post: post));
+    } catch (e) {
+      emit(CommunityErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onSavePostRequested(
+    SavePostRequested event,
+    Emitter<CommunityState> emit,
+  ) async {
+    try {
+      await _savePostUsecase.execute(userId: event.userId, postId: event.postId);
+      emit(PostSavedState());
+    } catch (e) {
+      emit(CommunityErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onUnsavePostRequested(
+    UnsavePostRequested event,
+    Emitter<CommunityState> emit,
+  ) async {
+    try {
+      await _unsavePostUsecase.execute(userId: event.userId, postId: event.postId);
+      emit(PostUnsavedState());
+    } catch (e) {
+      emit(CommunityErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onLoadSavedPostsRequested(
+    LoadSavedPostsRequested event,
+    Emitter<CommunityState> emit,
+  ) async {
+    emit(CommunityLoadingState());
+    try {
+      final savedPosts = await _getSavedPostsUsecase.execute(userId: event.userId);
+      emit(SavedPostsLoadedState(savedPosts: savedPosts));
     } catch (e) {
       emit(CommunityErrorState(message: e.toString()));
     }
