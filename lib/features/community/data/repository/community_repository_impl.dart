@@ -31,4 +31,24 @@ class CommunityRepositoryImpl extends CommunityRepository {
   Future<List<Post>> getFeedPosts() {
     return _communityDataSource.getFeedPosts();
   }
+
+  @override
+  Future<void> savePost({required String userId, required String postId}) {
+    return _communityDataSource.savePost(userId: userId, postId: postId);
+  }
+
+  @override
+  Future<void> unsavePost({required String userId, required String postId}) {
+    return _communityDataSource.unsavePost(userId: userId, postId: postId);
+  }
+
+  @override
+  Future<List<Post>> getSavedPosts({required String userId}) {
+    return _communityDataSource.getSavedPosts(userId: userId);
+  }
+
+  @override
+  Future<bool> isPostSaved({required String userId, required String postId}) {
+    return _communityDataSource.isPostSaved(userId: userId, postId: postId);
+  }
 }
