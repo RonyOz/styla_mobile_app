@@ -13,6 +13,8 @@ import 'package:styla_mobile_app/features/profile/ui/screens/profile_screen.dart
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/screens/add_garment_screen.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/screens/wardrobe_screen.dart';
+import 'package:styla_mobile_app/features/community/ui/screens/user_profile_screen.dart';
+import 'package:styla_mobile_app/features/community/ui/bloc/community_bloc.dart';
 
 import '../pages/home_page.dart';
 import '../pages/splash_page.dart';
@@ -60,6 +62,21 @@ class AppRouter {
   /// Genera rutas dinámicas para navegación avanzada
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case AppRoutes.userProfile:
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args != null) {
+          return MaterialPageRoute(
+            builder: (context) => BlocProvider(
+              create: (_) => CommunityBloc(),
+              child: UserProfileScreen(
+                userId: args['userId'] as String,
+                nickname: args['nickname'] as String?,
+                photo: args['photo'] as String?,
+              ),
+            ),
+          );
+        }
+        return null;
       default:
         return null;
     }

@@ -26,4 +26,7 @@ class AppRoutes {
   static const String onboarding = '/onboarding';
   static const String addGarment = '/wardrobe/add-garment';
   static const String wardrobe = '/wardrobe';
+
+  // Rutas de comunidad
+  static const String userProfile = '/user-profile';
 }

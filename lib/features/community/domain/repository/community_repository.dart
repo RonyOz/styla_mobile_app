@@ -1,5 +1,6 @@
 import 'package:styla_mobile_app/features/community/domain/model/post.dart';
 import 'package:styla_mobile_app/features/community/domain/model/comment.dart';
+import 'package:styla_mobile_app/features/community/domain/model/user_profile.dart';
 
 abstract class CommunityRepository {
   Future<Post> createPost({
@@ -28,5 +29,27 @@ abstract class CommunityRepository {
     required String postId,
     required String authorUserId,
     required String content,
+  });
+
+  // UC016 & UC017 - Perfil de usuario y seguir/dejar de seguir
+  Future<UserProfile> getUserProfile({required String userId});
+
+  Future<List<Post>> getUserPosts({required String userId});
+
+  Future<Map<String, int>> getUserStats({required String userId});
+
+  Future<bool> isFollowing({
+    required String followerUserId,
+    required String followedUserId,
+  });
+
+  Future<void> followUser({
+    required String followerUserId,
+    required String followedUserId,
+  });
+
+  Future<void> unfollowUser({
+    required String followerUserId,
+    required String followedUserId,
   });
 }

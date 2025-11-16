@@ -6,6 +6,7 @@ import 'package:styla_mobile_app/features/community/ui/bloc/events/community_eve
 import 'package:styla_mobile_app/features/community/ui/bloc/states/community_state.dart';
 import 'package:styla_mobile_app/features/community/ui/screens/create_post_screen.dart';
 import 'package:styla_mobile_app/features/community/ui/screens/saved_posts_screen.dart';
+import 'package:styla_mobile_app/features/community/ui/screens/post_detail_screen.dart';
 import 'package:styla_mobile_app/features/community/ui/widgets/comments_bottom_sheet.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:styla_mobile_app/features/profile/domain/usescases/who_am_i_usecase.dart';
@@ -120,109 +121,120 @@ class _FeedScreenState extends State<FeedScreen> {
                     final isSaved = _savedStates[post.postId] ?? false;
 
                     return Card(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage: post.authorPhoto != null
-                                  ? NetworkImage(post.authorPhoto!)
-                                  : null,
-                              child: post.authorPhoto == null
-                                  ? const Icon(Icons.person)
-                                  : null,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  PostDetailScreen(post: post),
                             ),
-                            title: Text(post.authorNickname ?? 'Usuario'),
-                            subtitle: Text(
-                              _formatDate(post.createdAt),
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            trailing: IconButton(
-                              icon: Icon(
-                                isSaved
-                                    ? Icons.bookmark
-                                    : Icons.bookmark_border,
-                                color: isSaved ? AppColors.primary : null,
+                          );
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: post.authorPhoto != null
+                                    ? NetworkImage(post.authorPhoto!)
+                                    : null,
+                                child: post.authorPhoto == null
+                                    ? const Icon(Icons.person)
+                                    : null,
                               ),
-                              onPressed: () {
-                                final userId = _whoAmIUsecase.execute();
-                                if (isSaved) {
-                                  context.read<CommunityBloc>().add(
-                                    UnsavePostRequested(
-                                      userId: userId,
-                                      postId: post.postId,
-                                    ),
-                                  );
-                                } else {
-                                  context.read<CommunityBloc>().add(
-                                    SavePostRequested(
-                                      userId: userId,
-                                      postId: post.postId,
-                                    ),
-                                  );
-                                }
-                                setState(() {
-                                  _savedStates[post.postId] = !isSaved;
-                                });
-                              },
-                            ),
-                          ),
-                          if (post.image != null)
-                            Image.network(
-                              post.image!,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          if (post.content != null)
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(post.content!),
-                            ),
-                          // Actions: Likes y Comentarios
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                              vertical: 8.0,
-                            ),
-                            child: Row(
-                              children: [
-                                // Like button
-                                IconButton(
-                                  icon: const Icon(Icons.favorite_border),
-                                  color: AppColors.error,
-                                  onPressed: () {
+                              title: Text(post.authorNickname ?? 'Usuario'),
+                              subtitle: Text(
+                                _formatDate(post.createdAt),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              trailing: IconButton(
+                                icon: Icon(
+                                  isSaved
+                                      ? Icons.bookmark
+                                      : Icons.bookmark_border,
+                                  color: isSaved ? AppColors.primary : null,
+                                ),
+                                onPressed: () {
+                                  final userId = _whoAmIUsecase.execute();
+                                  if (isSaved) {
                                     context.read<CommunityBloc>().add(
-                                      LikePostRequested(postId: post.postId),
+                                      UnsavePostRequested(
+                                        userId: userId,
+                                        postId: post.postId,
+                                      ),
                                     );
-                                  },
-                                ),
-                                Text('${post.likesAmount}'),
-                                const SizedBox(width: 16),
-                                // Comment button
-                                IconButton(
-                                  icon: const Icon(Icons.chat_bubble_outline),
-                                  color: AppColors.primary,
-                                  onPressed: () {
-                                    final communityBloc = context
-                                        .read<CommunityBloc>();
-                                    showModalBottomSheet(
-                                      context: context,
-                                      isScrollControlled: true,
-                                      backgroundColor: Colors.transparent,
-                                      builder: (bottomSheetContext) =>
-                                          BlocProvider.value(
-                                            value: communityBloc,
-                                            child: CommentsBottomSheet(
-                                              postId: post.postId,
-                                            ),
-                                          ),
+                                  } else {
+                                    context.read<CommunityBloc>().add(
+                                      SavePostRequested(
+                                        userId: userId,
+                                        postId: post.postId,
+                                      ),
                                     );
-                                  },
-                                ),
-                              ],
+                                  }
+                                  setState(() {
+                                    _savedStates[post.postId] = !isSaved;
+                                  });
+                                },
+                              ),
                             ),
-                          ),
-                        ],
+                            if (post.image != null)
+                              Image.network(
+                                post.image!,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            if (post.content != null)
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(post.content!),
+                              ),
+                            // Actions: Likes y Comentarios
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 8.0,
+                              ),
+                              child: Row(
+                                children: [
+                                  // Like button
+                                  IconButton(
+                                    icon: const Icon(Icons.favorite_border),
+                                    color: AppColors.error,
+                                    onPressed: () {
+                                      context.read<CommunityBloc>().add(
+                                        LikePostRequested(postId: post.postId),
+                                      );
+                                    },
+                                  ),
+                                  Text('${post.likesAmount}'),
+                                  const SizedBox(width: 16),
+                                  // Comment button
+                                  IconButton(
+                                    icon: const Icon(Icons.chat_bubble_outline),
+                                    color: AppColors.primary,
+                                    onPressed: () {
+                                      final communityBloc = context
+                                          .read<CommunityBloc>();
+                                      showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (bottomSheetContext) =>
+                                            BlocProvider.value(
+                                              value: communityBloc,
+                                              child: CommentsBottomSheet(
+                                                postId: post.postId,
+                                              ),
+                                            ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },

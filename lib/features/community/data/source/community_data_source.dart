@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:styla_mobile_app/features/community/domain/model/post.dart';
 import 'package:styla_mobile_app/features/community/domain/model/comment.dart';
+import 'package:styla_mobile_app/features/community/domain/model/user_profile.dart';
 
 class CommunityException implements Exception {
   final String message;
@@ -37,6 +38,28 @@ abstract class CommunityDataSource {
     required String postId,
     required String authorUserId,
     required String content,
+  });
+
+  // UC016 & UC017 - Perfil de usuario y seguir/dejar de seguir
+  Future<UserProfile> getUserProfile({required String userId});
+
+  Future<List<Post>> getUserPosts({required String userId});
+
+  Future<Map<String, int>> getUserStats({required String userId});
+
+  Future<bool> isFollowing({
+    required String followerUserId,
+    required String followedUserId,
+  });
+
+  Future<void> followUser({
+    required String followerUserId,
+    required String followedUserId,
+  });
+
+  Future<void> unfollowUser({
+    required String followerUserId,
+    required String followedUserId,
   });
 }
 
@@ -270,6 +293,121 @@ class CommunityDataSourceImpl extends CommunityDataSource {
       });
     } catch (e) {
       throw CommunityException('Failed to create comment: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<UserProfile> getUserProfile({required String userId}) async {
+    try {
+      final response = await _supabaseClient
+          .from('profiles')
+          .select('user_id, nickname, photo, gender, age')
+          .eq('user_id', userId)
+          .single();
+
+      return UserProfile.fromJson(response);
+    } catch (e) {
+      throw CommunityException('Failed to fetch user profile: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Post>> getUserPosts({required String userId}) async {
+    try {
+      final response = await _supabaseClient
+          .from('posts')
+          .select('''
+            *,
+            profiles:users_user_id (
+              nickname,
+              photo
+            ),
+            outfits:outfit_id (
+              image_url
+            )
+          ''')
+          .eq('users_user_id', userId)
+          .order('createdat', ascending: false);
+
+      return (response as List).map((postData) {
+        return Post.fromJson({
+          ...postData,
+          'author_nickname': postData['profiles']?['nickname'],
+          'author_photo': postData['profiles']?['photo'],
+          'image': postData['outfits']?['image_url'],
+        });
+      }).toList();
+    } catch (e) {
+      throw CommunityException('Failed to fetch user posts: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Map<String, int>> getUserStats({required String userId}) async {
+    try {
+      final response = await _supabaseClient
+          .rpc('get_user_stats', params: {'p_user_id': userId})
+          .single();
+
+      return {
+        'posts': (response['posts_count'] as num?)?.toInt() ?? 0,
+        'followers': (response['followers_count'] as num?)?.toInt() ?? 0,
+        'following': (response['following_count'] as num?)?.toInt() ?? 0,
+      };
+    } catch (e) {
+      throw CommunityException('Failed to fetch user stats: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<bool> isFollowing({
+    required String followerUserId,
+    required String followedUserId,
+  }) async {
+    try {
+      final response = await _supabaseClient
+          .from('followers')
+          .select('follower_user_id')
+          .eq('follower_user_id', followerUserId)
+          .eq('followed_user_id', followedUserId)
+          .maybeSingle();
+
+      return response != null;
+    } catch (e) {
+      throw CommunityException(
+        'Failed to check follow status: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<void> followUser({
+    required String followerUserId,
+    required String followedUserId,
+  }) async {
+    try {
+      await _supabaseClient.from('followers').insert({
+        'follower_user_id': followerUserId,
+        'followed_user_id': followedUserId,
+      });
+    } catch (e) {
+      throw CommunityException('Failed to follow user: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> unfollowUser({
+    required String followerUserId,
+    required String followedUserId,
+  }) async {
+    try {
+      await _supabaseClient
+          .from('followers')
+          .delete()
+          .eq('follower_user_id', followerUserId)
+          .eq('followed_user_id', followedUserId);
+    } catch (e) {
+      throw CommunityException('Failed to unfollow user: ${e.toString()}');
     }
   }
 }

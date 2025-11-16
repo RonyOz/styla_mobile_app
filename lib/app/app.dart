@@ -30,6 +30,9 @@ class App extends StatelessWidget {
           child: const SignupScreen(),
         ),
       },
+      // Add onGenerateRoute for dynamic routes
+      onGenerateRoute: AppRouter.onGenerateRoute,
+      onUnknownRoute: AppRouter.onUnknownRoute,
     );
   }
 }
