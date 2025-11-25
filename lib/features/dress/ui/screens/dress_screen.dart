@@ -26,6 +26,7 @@ class _VestirseScreenState extends State<VestirseScreen> {
   List<dynamic> _outfits = []; // Cambia 'dynamic' por tu tipo de Outfit
   bool _isLoadingOutfits = true;
   bool _isLoadingGarments = true;
+  bool _isSavingOutfit = false;
 
   final Map<String, String> _occasions = {
     'Invierno': '0cceab28-6239-440f-94d0-6447acec073b',
@@ -83,6 +84,11 @@ class _VestirseScreenState extends State<VestirseScreen> {
       );
       return;
     }
+
+    // Activar el indicador de carga antes de guardar
+    setState(() {
+      _isSavingOutfit = true;
+    });
 
     context.read<DressBloc>().add(
       SaveDressDataRequested(
@@ -144,16 +150,54 @@ class _VestirseScreenState extends State<VestirseScreen> {
             setState(() {
               _isLoadingOutfits = false;
               _isLoadingGarments = false;
+              _isSavingOutfit = false;
             });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
           }
 
           if (state is DressSavedState) {
+            setState(() {
+              _isSavingOutfit = false;
+            });
             Navigator.of(
               context,
             ).pushNamedAndRemoveUntil('/home', (route) => false);
           }
         },
-        child: _buildBody(),
+        child: Stack(
+          children: [
+            _buildBody(),
+            if (_isSavingOutfit)
+              Container(
+                color: Colors.black.withOpacity(0.7),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(
+                        color: Colors.amber,
+                        strokeWidth: 3,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Generando tu outfit...',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -468,7 +512,7 @@ class _VestirseScreenState extends State<VestirseScreen> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: Image.network(
-                            garment.imageUrl ?? '',
+                            garment.imageUrl,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Icon(

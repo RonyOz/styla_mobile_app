@@ -1,19 +1,26 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/features/dress/data/repository/dress_repository_impl.dart';
+import 'package:styla_mobile_app/features/dress/data/source/dress_data_source.dart';
 import 'package:styla_mobile_app/features/dress/domain/repository/dress_repository.dart';
 import 'package:styla_mobile_app/features/dress/domain/usecase/add_outfit_usecase.dart';
 import 'package:styla_mobile_app/features/dress/domain/usecase/get_outfits_usecase.dart';
 import 'package:styla_mobile_app/features/dress/ui/bloc/events/dress_event.dart';
 import 'package:styla_mobile_app/features/dress/ui/bloc/states/dress_state.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DressBloc extends Bloc<DressEvent, DressState> {
   late final AddOutfitUsecase _addOutfitUsecase;
   late final GetOutfitsUseCase _getOutfitsUseCase;
-  final DressRepository _dressRepository;
+  late final DressRepository _dressRepository;
+  final _supabaseClient = Supabase.instance.client;
 
-  DressBloc({required DressRepository dressRepository})
-    : _dressRepository = dressRepository,
-      super(DressIdleState()) {
+  DressBloc() : super(DressIdleState()) {
+    // Inicializar el repositorio UNA SOLA VEZ
+    _dressRepository = DressRepositoryImpl(
+      dressDataSource: DressDataSourceImpl(),
+    );
+
+    // Inicializar los use cases con el repositorio
     _addOutfitUsecase = AddOutfitUsecase(dressRepository: _dressRepository);
     _getOutfitsUseCase = GetOutfitsUseCase(dressRepository: _dressRepository);
 

@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/bloc/dashboard_bloc.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/bloc/dashboard_event.dart';
 import 'package:styla_mobile_app/app/pages/home/tabs/bloc/dashboard_state.dart';
+import 'package:styla_mobile_app/app/routes/app_router.dart';
+import 'package:styla_mobile_app/app/routes/app_routes.dart';
 import 'package:styla_mobile_app/core/core.dart';
 
 /// Dashboard tab - Home screen showing main content and recommendations
@@ -399,16 +401,21 @@ class _MoodPromptField extends StatelessWidget {
                 ),
               ),
             ),
-            Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary,
-              ),
-              padding: const EdgeInsets.all(8),
-              child: const Icon(
-                Icons.arrow_forward,
-                size: 18,
-                color: Colors.black,
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.dressUp);
+              },
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary,
+                ),
+                padding: const EdgeInsets.all(8),
+                child: const Icon(
+                  Icons.arrow_forward,
+                  size: 18,
+                  color: Colors.black,
+                ),
               ),
             ),
           ],

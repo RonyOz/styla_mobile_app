@@ -49,7 +49,7 @@ class DressDataSourceImpl implements DressDataSource {
     }
 
     final response = await http.post(
-      Uri.parse("http://localhost:8000/generate-outfit"),
+      Uri.parse("https://styla-generator.onrender.com/generate-outfit"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "prompt": "prompt",

@@ -17,8 +17,8 @@ class DressUpTab extends StatelessWidget {
       create: (context) {
         final supabase = Supabase.instance.client;
         final dataSource = DressDataSourceImpl(supabaseClient: supabase);
-        final repository = DressRepositoryImpl(dataSource);
-        return DressBloc(dressRepository: repository);
+        final repository = DressRepositoryImpl(dressDataSource: dataSource);
+        return DressBloc();
       },
       child: const VestirseScreen(),
     );

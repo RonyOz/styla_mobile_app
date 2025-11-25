@@ -6,7 +6,7 @@ import 'package:styla_mobile_app/features/dress/domain/repository/dress_reposito
 class DressRepositoryImpl extends DressRepository {
   final DressDataSource _dataSource;
 
-  DressRepositoryImpl(DressDataSource? dressDataSource)
+  DressRepositoryImpl({required DressDataSource? dressDataSource})
     : _dataSource = dressDataSource ?? DressDataSourceImpl();
 
   @override
