@@ -25,114 +25,123 @@ class SigninScreenState extends State<SigninScreen> {
     super.initState();
   }
 
-  Widget content() => Padding(
-    padding: AppSpacing.paddingLarge,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Title
-        Text(
-          'Inicia Sesión',
-          style: AppTypography.title.copyWith(color: AppColors.primary),
-          textAlign: TextAlign.center,
-        ),
-        AppSpacing.verticalSmall,
-        // Subtitle
-        Text(
-          '¡Qué bueno verte de nuevo!',
-          style: AppTypography.subtitle,
-          textAlign: TextAlign.center,
-        ),
-        AppSpacing.verticalLarge,
-        // Email input
-        AppTextField(controller: emailController, label: 'Username or email'),
-        AppSpacing.verticalMedium,
-        // Password input
-        AppTextField(
-          controller: passwordController,
-          label: 'Password',
-          obscureText: true,
-        ),
-        AppSpacing.verticalLarge,
-        // Submit button
-        submitButton(),
-        AppSpacing.verticalSmall,
-        // Forgot password
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: () {},
-            child: Text('Forgot Password?', style: AppTypography.caption),
+  Widget content() => LayoutBuilder(
+    builder: (context, constraints) {
+      return SingleChildScrollView(
+        padding: AppSpacing.paddingLarge,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: IntrinsicHeight(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Title
+                Text(
+                  'Inicia Sesión',
+                  style: AppTypography.title.copyWith(color: AppColors.primary),
+                  textAlign: TextAlign.center,
+                ),
+                AppSpacing.verticalSmall,
+                // Subtitle
+                Text(
+                  '¡Qué bueno verte de nuevo!',
+                  style: AppTypography.subtitle,
+                  textAlign: TextAlign.center,
+                ),
+                AppSpacing.verticalLarge,
+                // Email input
+                AppTextField(controller: emailController, label: 'Username or email'),
+                AppSpacing.verticalMedium,
+                // Password input
+                AppTextField(
+                  controller: passwordController,
+                  label: 'Password',
+                  obscureText: true,
+                ),
+                AppSpacing.verticalLarge,
+                // Submit button
+                submitButton(),
+                AppSpacing.verticalSmall,
+                // Forgot password
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text('Forgot Password?', style: AppTypography.caption),
+                  ),
+                ),
+                const Spacer(),
+                // Social login
+                Text(
+                  'O inicia con',
+                  style: AppTypography.caption,
+                  textAlign: TextAlign.center,
+                ),
+                AppSpacing.verticalMedium,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.g_mobiledata,
+                        size: 32,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    AppSpacing.horizontalMedium,
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.facebook, color: Colors.blue),
+                    ),
+                  ],
+                ),
+                AppSpacing.verticalLarge,
+                // Sign up link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'No tienes cuenta? ',
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.pushReplacementNamed(context, AppRoutes.signup),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'Crear cuenta',
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                AppSpacing.verticalLarge,
+              ],
+            ),
           ),
         ),
-        const Spacer(),
-        // Social login
-        Text(
-          'O inicia con',
-          style: AppTypography.caption,
-          textAlign: TextAlign.center,
-        ),
-        AppSpacing.verticalMedium,
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.g_mobiledata,
-                size: 32,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            AppSpacing.horizontalMedium,
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.facebook, color: Colors.blue),
-            ),
-          ],
-        ),
-        AppSpacing.verticalLarge,
-        // Sign up link
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'No tienes cuenta? ',
-              style: AppTypography.body.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            TextButton(
-              onPressed: () =>
-                  Navigator.pushReplacementNamed(context, AppRoutes.signup),
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                'Crear cuenta',
-                style: AppTypography.body.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        AppSpacing.verticalLarge,
-      ],
-    ),
+      );
+    },
   );
 
   Widget submitButton() => BlocBuilder<SigninBloc, SignInState>(

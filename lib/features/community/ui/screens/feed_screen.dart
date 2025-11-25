@@ -22,6 +22,9 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   late final WhoAmIUsecase _whoAmIUsecase;
   final Map<String, bool> _savedStates = {};
+  final Map<String, int> _likeCounts = {};
+  final Map<String, bool> _likedPosts = {};
+  final Map<String, bool> _likingPosts = {};
 
   @override
   void initState() {
@@ -87,6 +90,20 @@ class _FeedScreenState extends State<FeedScreen> {
                 context,
               ).showSnackBar(SnackBar(content: Text(state.message)));
             }
+            if (state is FeedLoadedState) {
+              setState(() {
+                for (final post in state.posts) {
+                  _likeCounts[post.postId] = post.likesAmount;
+                  _likedPosts.putIfAbsent(post.postId, () => false);
+                  _likingPosts[post.postId] = false;
+                }
+              });
+            }
+            if (state is PostLikedState) {
+              setState(() {
+                _likingPosts[state.postId] = false;
+              });
+            }
           },
           buildWhen: (previous, current) {
             // Solo reconstruir cuando cambie el estado del feed
@@ -119,6 +136,9 @@ class _FeedScreenState extends State<FeedScreen> {
                   itemBuilder: (context, index) {
                     final post = state.posts[index];
                     final isSaved = _savedStates[post.postId] ?? false;
+                    final isLiked = _likedPosts[post.postId] ?? false;
+                    final likeCount =
+                        _likeCounts[post.postId] ?? post.likesAmount;
 
                     return Card(
                       child: GestureDetector(
@@ -192,45 +212,120 @@ class _FeedScreenState extends State<FeedScreen> {
                             // Actions: Likes y Comentarios
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 8.0,
+                                horizontal: 12.0,
+                                vertical: 10.0,
                               ),
-                              child: Row(
-                                children: [
-                                  // Like button
-                                  IconButton(
-                                    icon: const Icon(Icons.favorite_border),
-                                    color: AppColors.error,
-                                    onPressed: () {
-                                      context.read<CommunityBloc>().add(
-                                        LikePostRequested(postId: post.postId),
-                                      );
-                                    },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceVariant,
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: AppColors.border.withOpacity(0.4),
                                   ),
-                                  Text('${post.likesAmount}'),
-                                  const SizedBox(width: 16),
-                                  // Comment button
-                                  IconButton(
-                                    icon: const Icon(Icons.chat_bubble_outline),
-                                    color: AppColors.primary,
-                                    onPressed: () {
-                                      final communityBloc = context
-                                          .read<CommunityBloc>();
-                                      showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (bottomSheetContext) =>
-                                            BlocProvider.value(
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextButton.icon(
+                                        onPressed: isLiked ||
+                                                (_likingPosts[post.postId] ??
+                                                    false)
+                                            ? null
+                                            : () {
+                                                setState(() {
+                                                  _likedPosts[post.postId] =
+                                                      true;
+                                                  _likingPosts[post.postId] =
+                                                      true;
+                                                  _likeCounts[post.postId] =
+                                                      likeCount + 1;
+                                                });
+                                                context
+                                                    .read<CommunityBloc>()
+                                                    .add(
+                                                      LikePostRequested(
+                                                        postId: post.postId,
+                                                      ),
+                                                    );
+                                              },
+                                        icon: Icon(
+                                          isLiked
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color: isLiked
+                                              ? AppColors.error
+                                              : AppColors.textSecondary,
+                                        ),
+                                        label: Text(
+                                          '$likeCount',
+                                          style:
+                                              AppTypography.body.copyWith(
+                                            color: AppColors.textPrimary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: AppColors.textPrimary,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: TextButton.icon(
+                                        onPressed: () {
+                                          final communityBloc =
+                                              context.read<CommunityBloc>();
+                                          showModalBottomSheet(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            builder: (bottomSheetContext) =>
+                                                BlocProvider.value(
                                               value: communityBloc,
                                               child: CommentsBottomSheet(
                                                 postId: post.postId,
                                               ),
                                             ),
-                                      );
-                                    },
-                                  ),
-                                ],
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.chat_bubble_outline,
+                                          color: AppColors.primary,
+                                        ),
+                                        label: Text(
+                                          'Comentarios',
+                                          style:
+                                              AppTypography.body.copyWith(
+                                            color: AppColors.textPrimary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
