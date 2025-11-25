@@ -44,6 +44,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   int _followingCount = 0;
   List<Post> _userPosts = [];
   bool _isLoading = true;
+  bool _isRefreshing = false;
   String? _currentUserId;
   String? _displayNickname;
   String? _displayPhoto;
@@ -57,7 +58,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _loadUserProfile() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _isRefreshing = true;
+    });
 
     try {
       // Obtener el ID del usuario actual
@@ -68,7 +72,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         userId: widget.userId,
       );
 
-      // Cargar estadísticas
+      // Cargar estadisticas
       final stats = await _getUserStatsUsecase.execute(userId: widget.userId);
 
       // Cargar posts
@@ -93,9 +97,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         _userPosts = posts;
         _isFollowing = isFollowing;
         _isLoading = false;
+        _isRefreshing = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _isRefreshing = false;
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -112,7 +120,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     final wasFollowing = _isFollowing;
 
-    // Actualizar UI optimísticamente
+    // Actualizar UI optimisticamente
     setState(() {
       _isFollowing = !_isFollowing;
       _followersCount += _isFollowing ? 1 : -1;
@@ -150,260 +158,306 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isOwnProfile =
+        _currentUserId != null && _currentUserId == widget.userId;
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          // App bar with user photo
-          SliverAppBar(
-            expandedHeight: 200.0,
-            pinned: true,
-            backgroundColor: AppColors.primary,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppColors.primary, AppColors.secondary],
-                  ),
-                ),
-                child: Center(
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundColor: AppColors.surface,
-                    backgroundImage: _displayPhoto != null
-                        ? NetworkImage(_displayPhoto!)
-                        : null,
-                    child: _displayPhoto == null
-                        ? Icon(
-                            Icons.person,
-                            size: 60,
-                            color: AppColors.textSecondary,
-                          )
-                        : null,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // User info section
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Nickname
-                  Text(
-                    _displayNickname ?? 'Usuario',
-                    style: AppTypography.title.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Edad y Género
-                  if (_displayAge != null || _displayGender != null)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (_displayAge != null) ...[
-                          Icon(
-                            Icons.cake,
-                            size: 16,
-                            color: AppColors.textSecondary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$_displayAge años',
-                            style: AppTypography.body.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                        if (_displayAge != null && _displayGender != null)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(
-                              '•',
-                              style: AppTypography.body.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
-                        if (_displayGender != null) ...[
-                          Icon(
-                            _displayGender?.toLowerCase() == 'masculino'
-                                ? Icons.male
-                                : _displayGender?.toLowerCase() == 'femenino'
-                                ? Icons.female
-                                : Icons.transgender,
-                            size: 16,
-                            color: AppColors.textSecondary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _displayGender!,
-                            style: AppTypography.body.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: _loadUserProfile,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 220.0,
+              pinned: true,
+              backgroundColor: AppColors.background,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.primary,
+                        AppColors.secondary.withOpacity(0.85),
                       ],
                     ),
-                  const SizedBox(height: 16),
-
-                  // Follower stats
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildStatColumn('Posts', _userPosts.length),
-                      const SizedBox(width: 24),
-                      _buildStatColumn('Seguidores', _followersCount),
-                      const SizedBox(width: 24),
-                      _buildStatColumn('Siguiendo', _followingCount),
-                    ],
                   ),
-                  const SizedBox(height: 16),
-
-                  // Follow button (solo si no es el perfil propio)
-                  if (_currentUserId != null && _currentUserId != widget.userId)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _toggleFollow,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _isFollowing
-                              ? AppColors.surfaceVariant
-                              : AppColors.primary,
-                          foregroundColor: _isFollowing
-                              ? AppColors.textPrimary
-                              : AppColors.textOnPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          _isFollowing ? 'Siguiendo' : 'Seguir',
-                          style: AppTypography.body.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-                  Divider(color: AppColors.border),
-                ],
-              ),
-            ),
-          ),
-
-          // Posts section title
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Publicaciones',
-                style: AppTypography.subtitle.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-
-          // User's posts grid
-          if (_isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (_userPosts.isEmpty)
-            SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.photo_library_outlined,
-                      size: 64,
-                      color: AppColors.textSecondary,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Este usuario aún no ha publicado nada',
-                      style: AppTypography.body.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.all(16.0),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 4.0,
-                  crossAxisSpacing: 4.0,
-                  childAspectRatio: 1.0,
-                ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final post = _userPosts[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PostDetailScreen(post: post),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: post.image != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: Image.network(
-                                post.image!,
-                                fit: BoxFit.cover,
-                              ),
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 64,
+                      backgroundColor: AppColors.surface,
+                      backgroundImage: _displayPhoto != null
+                          ? NetworkImage(_displayPhoto!)
+                          : null,
+                      child: _displayPhoto == null
+                          ? Icon(
+                              Icons.person,
+                              size: 60,
+                              color: AppColors.textSecondary,
                             )
-                          : Center(
-                              child: Icon(
-                                Icons.image_not_supported,
-                                color: AppColors.textSecondary,
+                          : null,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border.withOpacity(0.35)),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _displayNickname ?? 'Usuario',
+                                  style: AppTypography.title.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                if (_displayAge != null || _displayGender != null)
+                                  Row(
+                                    children: [
+                                      if (_displayAge != null) ...[
+                                        Icon(
+                                          Icons.cake,
+                                          size: 16,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '$_displayAge anos',
+                                          style: AppTypography.body.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                      if (_displayAge != null && _displayGender != null)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          child: Text(
+                                            '-',
+                                            style: AppTypography.body.copyWith(
+                                              color: AppColors.textSecondary,
+                                            ),
+                                          ),
+                                        ),
+                                      if (_displayGender != null) ...[
+                                        Icon(
+                                          _displayGender?.toLowerCase() == 'masculino'
+                                              ? Icons.male
+                                              : _displayGender?.toLowerCase() == 'femenino'
+                                                  ? Icons.female
+                                                  : Icons.transgender,
+                                          size: 16,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          _displayGender!,
+                                          style: AppTypography.body.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ),
+                          if (!isOwnProfile)
+                            TextButton(
+                              onPressed: _isLoading ? null : _toggleFollow,
+                              style: TextButton.styleFrom(
+                                backgroundColor: _isFollowing
+                                    ? AppColors.surfaceVariant
+                                    : AppColors.primary,
+                                foregroundColor: _isFollowing
+                                    ? AppColors.textPrimary
+                                    : AppColors.textOnPrimary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: _isFollowing
+                                        ? AppColors.border
+                                        : Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _isFollowing ? Icons.check : Icons.add_rounded,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _isFollowing ? 'Siguiendo' : 'Seguir',
+                                    style: AppTypography.body.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                    ),
-                  );
-                }, childCount: _userPosts.length),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildStatChip('Posts', _userPosts.length),
+                          _buildStatChip('Seguidores', _followersCount),
+                          _buildStatChip('Siguiendo', _followingCount),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-        ],
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                child: Text(
+                  'Publicaciones',
+                  style: AppTypography.subtitle.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
+            if (_isLoading && !_isRefreshing)
+              const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_userPosts.isEmpty)
+              SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.photo_library_outlined,
+                        size: 64,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Este usuario aun no ha publicado nada',
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.all(16.0),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 4.0,
+                    crossAxisSpacing: 4.0,
+                    childAspectRatio: 1.0,
+                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final post = _userPosts[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PostDetailScreen(post: post),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.border.withOpacity(0.3),
+                          ),
+                        ),
+                        child: post.image != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  post.image!,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : Center(
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                      ),
+                    );
+                  }, childCount: _userPosts.length),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStatColumn(String label, int count) {
-    return Column(
-      children: [
-        Text(
-          count.toString(),
-          style: AppTypography.subtitle.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: AppTypography.body.copyWith(color: AppColors.textSecondary),
-        ),
-      ],
+  Widget _buildStatChip(String label, int count) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            count.toString(),
+            style: AppTypography.subtitle.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: AppTypography.body.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
