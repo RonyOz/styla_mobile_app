@@ -1,15 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styla_mobile_app/app/routes/app_routes.dart';
 import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/features/community/domain/model/post.dart';
-import 'package:styla_mobile_app/app/routes/app_routes.dart';
+import 'package:styla_mobile_app/features/community/ui/bloc/community_bloc.dart';
+import 'package:styla_mobile_app/features/community/ui/bloc/events/community_event.dart';
+import 'package:styla_mobile_app/features/community/ui/widgets/comments_bottom_sheet.dart';
 
-class PostDetailScreen extends StatelessWidget {
+class PostDetailScreen extends StatefulWidget {
   final Post post;
 
   const PostDetailScreen({super.key, required this.post});
 
   @override
+  State<PostDetailScreen> createState() => _PostDetailScreenState();
+}
+
+class _PostDetailScreenState extends State<PostDetailScreen> {
+  late int _likeCount;
+  bool _isLiked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _likeCount = widget.post.likesAmount;
+  }
+
+  void _handleLike() {
+    if (_isLiked) return;
+    setState(() {
+      _isLiked = true;
+      _likeCount += 1;
+    });
+    context
+        .read<CommunityBloc>()
+        .add(LikePostRequested(postId: widget.post.postId));
+  }
+
+  void _openComments() {
+    final communityBloc = context.read<CommunityBloc>();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) => BlocProvider.value(
+        value: communityBloc,
+        child: CommentsBottomSheet(postId: widget.post.postId),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final post = widget.post;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -140,13 +184,18 @@ class PostDetailScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  // Likes
+                  // Likes con contador en vivo
                   Row(
                     children: [
-                      Icon(Icons.favorite, color: AppColors.error, size: 20),
+                      Icon(
+                        _isLiked ? Icons.favorite : Icons.favorite_border,
+                        color:
+                            _isLiked ? AppColors.error : AppColors.textSecondary,
+                        size: 22,
+                      ),
                       const SizedBox(width: 8),
                       Text(
-                        '${post.likesAmount} likes',
+                        '$_likeCount likes',
                         style: AppTypography.body.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -160,7 +209,7 @@ class PostDetailScreen extends StatelessWidget {
                     const Divider(color: AppColors.border),
                     const SizedBox(height: 16),
                     Text(
-                      'Descripción',
+                      'Descripcion',
                       style: AppTypography.subtitle.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.bold,
@@ -176,12 +225,82 @@ class PostDetailScreen extends StatelessWidget {
                     ),
                   ],
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 80),
                 ],
               ),
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border.withOpacity(0.3)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextButton.icon(
+                    onPressed: _isLiked ? null : _handleLike,
+                    icon: Icon(
+                      _isLiked ? Icons.favorite : Icons.favorite_border,
+                      color:
+                          _isLiked ? AppColors.error : AppColors.textSecondary,
+                    ),
+                    label: Text(
+                      '$_likeCount',
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextButton.icon(
+                    onPressed: _openComments,
+                    icon: const Icon(
+                      Icons.chat_bubble_outline,
+                      color: AppColors.primary,
+                    ),
+                    label: Text(
+                      'Comentarios',
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -193,7 +312,7 @@ class PostDetailScreen extends StatelessWidget {
     if (diff.inDays > 7) {
       return '${date.day}/${date.month}/${date.year}';
     } else if (diff.inDays > 0) {
-      return 'Hace ${diff.inDays} día${diff.inDays > 1 ? 's' : ''}';
+      return 'Hace ${diff.inDays} dias';
     } else if (diff.inHours > 0) {
       return 'Hace ${diff.inHours} hora${diff.inHours > 1 ? 's' : ''}';
     } else if (diff.inMinutes > 0) {
