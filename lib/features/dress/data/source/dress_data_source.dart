@@ -48,19 +48,39 @@ class DressDataSourceImpl implements DressDataSource {
       shoes = '';
     }
 
+    final shirt_url = await _supabaseClient
+        .from('garments')
+        .select()
+        .eq("id", shirt)
+        .single();
+
+    final pants_url = await _supabaseClient
+        .from('garments')
+        .select()
+        .eq("id", pants)
+        .single();
+
+    final shoes_url = shoes.isNotEmpty
+        ? await _supabaseClient
+              .from('garments')
+              .select()
+              .eq("id", shoes)
+              .single()
+        : null;
+
     final response = await http.post(
       Uri.parse("https://styla-generator.onrender.com/generate-outfit"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "prompt": "prompt",
-        "camisa_url": shirt,
-        "pantalon_url": pants,
-        "zapatos_url": shoes,
+        "camisa_url": shirt_url["image_url"],
+        "pantalon_url": pants_url["image_url"],
+        "zapatos_url": shoes_url?["image_url"] ?? "",
       }),
     );
 
     final json = jsonDecode(response.body);
-    print("Respuesta del servidor: ${json["image_base64"].length} caracteres");
+    //print("Respuesta del servidor: ${json["image_base64"].length} caracteres");
     Uint8List bytes = base64Decode(json["image_base64"]);
 
     final imageUrl = await uploadGeneratedImage(bytes, userId);
@@ -74,7 +94,22 @@ class DressDataSourceImpl implements DressDataSource {
       imageUrl: imageUrl,
     );
 
-    await _supabaseClient.from('outfits').insert(newOutfit.toJson());
+    final insertedOutfit = await _supabaseClient
+        .from('outfits')
+        .insert(newOutfit.toJson())
+        .select()
+        .single();
+
+    await _supabaseClient.from('outfit_garments').insert([
+      {'outfit_id': insertedOutfit['outfit_id'], 'garment_id': shirt},
+      {'outfit_id': insertedOutfit['outfit_id'], 'garment_id': pants},
+      if (shoes.isNotEmpty)
+        {'outfit_id': insertedOutfit['outfit_id'], 'garment_id': shoes},
+    ]);
+
+    await _supabaseClient.from('sources').insert([
+      {'outfit_id': insertedOutfit['outfit_id'], 'ia': true, 'USER': false},
+    ]);
   }
 
   @override

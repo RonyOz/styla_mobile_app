@@ -71,6 +71,8 @@ class GetGarmentByIdRequested extends WardrobeEvent {
   GetGarmentByIdRequested({required this.garmentId});
 }
 
+class LoadRandomOutfitsRequested extends WardrobeEvent {}
+
 class UpdateGarmentFieldRequested extends WardrobeEvent {
   final String garmentId;
   final String field; // 'color', 'style', 'occasion'

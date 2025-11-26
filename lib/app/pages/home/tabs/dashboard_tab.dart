@@ -6,6 +6,7 @@ import 'package:styla_mobile_app/app/pages/home/tabs/bloc/dashboard_state.dart';
 import 'package:styla_mobile_app/app/routes/app_router.dart';
 import 'package:styla_mobile_app/app/routes/app_routes.dart';
 import 'package:styla_mobile_app/core/core.dart';
+import 'package:styla_mobile_app/features/dress/ui/screens/outfit_detail_screen.dart';
 
 /// Dashboard tab - Home screen showing main content and recommendations
 class DashboardTab extends StatelessWidget {
@@ -19,43 +20,17 @@ class DashboardTab extends StatelessWidget {
     'Concierto',
   ];
 
-  static const List<_OutfitCardData> _recommendedOutfits = [
-    _OutfitCardData(
-      title: 'Outfit para ir a la U',
-      vibe: 'Casual',
-      tags: ['Casual', 'Cool'],
-      isFavorite: true,
-    ),
-    _OutfitCardData(
-      title: 'Brunch relajado',
-      vibe: 'Fresco',
-      tags: ['Relax', 'Denim'],
-    ),
-    _OutfitCardData(
-      title: 'Reunion creativa',
-      vibe: 'Smart',
-      tags: ['Trabajo', 'Color'],
-    ),
-  ];
-
   static const List<_OutfitCardData> _highlightedOutfits = [
-    _OutfitCardData(
-      title: 'Viernes informal',
-      vibe: 'Cool',
-      tags: ['Casual', 'Mix&Match'],
-      isFavorite: true,
-    ),
-    _OutfitCardData(
-      title: 'Date night',
-      vibe: 'Bold',
-      tags: ['Cita', 'Nocturno'],
-    ),
+    _OutfitCardData(title: 'Viernes informal', vibe: 'Cool', isFavorite: true),
+    _OutfitCardData(title: 'Date night', vibe: 'Bold'),
   ];
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => DashboardBloc()..add(LoadUserProfile()),
+      create: (context) => DashboardBloc()
+        ..add(LoadUserProfile())
+        ..add(LoadRandomOutfitsRequested()),
       child: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           final nickname = state is DashboardLoaded
@@ -123,7 +98,7 @@ class DashboardTab extends StatelessWidget {
                       onTap: () => _showComingSoon(context),
                     ),
                     const SizedBox(height: 12),
-                    _buildOutfitCarousel(_recommendedOutfits),
+                    _buildRecommendedOutfitsSection(context, state),
                     const SizedBox(height: 28),
                     _buildSectionHeader(
                       context,
@@ -139,6 +114,148 @@ class DashboardTab extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildRecommendedOutfitsSection(
+    BuildContext context,
+    DashboardState state,
+  ) {
+    // Caso de error
+    if (state is DashboardError) {
+      return Container(
+        height: 360,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceVariant,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, color: AppColors.secondary, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                'Error al cargar outfits',
+                style: AppTypography.body.copyWith(color: AppColors.white),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+                  context.read<DashboardBloc>().add(
+                    LoadRandomOutfitsRequested(),
+                  );
+                },
+                child: Text(
+                  'Reintentar',
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Caso de carga
+    if (state is DashboardLoading) {
+      return SizedBox(
+        height: 360,
+        child: ListView.separated(
+          clipBehavior: Clip.none,
+          physics: const BouncingScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          itemCount: 3,
+          separatorBuilder: (_, __) => const SizedBox(width: 16),
+          itemBuilder: (context, index) => const _OutfitCardSkeleton(),
+        ),
+      );
+    }
+
+    // Caso de éxito con outfits cargados
+    if (state is OutfitsLoadedState) {
+      final outfits = state.outfits;
+
+      // Si no hay outfits
+      if (outfits.isEmpty) {
+        return Container(
+          height: 360,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.checkroom_outlined,
+                  color: AppColors.textSecondary,
+                  size: 48,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'No hay outfits disponibles',
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // Mostrar outfits cargados
+      return SizedBox(
+        height: 360,
+        child: ListView.separated(
+          clipBehavior: Clip.none,
+          physics: const BouncingScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          itemCount: outfits.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 16),
+          itemBuilder: (context, index) {
+            final outfit = outfits[index];
+            final cardData = _OutfitCardData(
+              title: outfit.name.isNotEmpty ? outfit.name : 'Outfit sin nombre',
+              vibe: outfit.description.isNotEmpty
+                  ? outfit.description
+                  : 'Casual',
+              imageUrl: outfit.imageUrl,
+              isFavorite: false,
+              outfitId: outfit.userId,
+            );
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OutfitDetailScreen(outfit: outfit),
+                  ),
+                );
+              },
+              child: _OutfitCard(data: cardData),
+            );
+          },
+        ),
+      );
+    }
+
+    // Estado desconocido o inicial - mostrar loading
+    return SizedBox(
+      height: 360,
+      child: ListView.separated(
+        clipBehavior: Clip.none,
+        physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        itemCount: 3,
+        separatorBuilder: (_, __) => const SizedBox(width: 16),
+        itemBuilder: (context, index) => const _OutfitCardSkeleton(),
       ),
     );
   }
@@ -350,6 +467,56 @@ class DashboardTab extends StatelessWidget {
   }
 }
 
+// Widget skeleton para mostrar mientras carga
+class _OutfitCardSkeleton extends StatelessWidget {
+  const _OutfitCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 190,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: 3 / 4,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                color: AppColors.surfaceVariant,
+              ),
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primary,
+                  strokeWidth: 2,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 16,
+            width: 140,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 12,
+            width: 100,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _MoodChip extends StatelessWidget {
   const _MoodChip({required this.label});
 
@@ -429,14 +596,16 @@ class _OutfitCardData {
   const _OutfitCardData({
     required this.title,
     required this.vibe,
-    required this.tags,
+    this.imageUrl,
     this.isFavorite = false,
+    this.outfitId,
   });
 
   final String title;
   final String vibe;
-  final List<String> tags;
+  final String? imageUrl;
   final bool isFavorite;
+  final String? outfitId;
 }
 
 class _OutfitCard extends StatelessWidget {
@@ -458,22 +627,77 @@ class _OutfitCard extends StatelessWidget {
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(24),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF2F2F2F), Color(0xFF1C1C1C)],
-                        ),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.checkroom_outlined,
-                          size: 48,
-                          color: Colors.white54,
-                        ),
-                      ),
-                    ),
+                    child: data.imageUrl != null && data.imageUrl!.isNotEmpty
+                        ? Image.network(
+                            data.imageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Color(0xFF2F2F2F),
+                                      Color(0xFF1C1C1C),
+                                    ],
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.broken_image_outlined,
+                                    size: 48,
+                                    color: Colors.white54,
+                                  ),
+                                ),
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Color(0xFF2F2F2F),
+                                      Color(0xFF1C1C1C),
+                                    ],
+                                  ),
+                                ),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.primary,
+                                    strokeWidth: 2,
+                                    value:
+                                        loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress
+                                                  .expectedTotalBytes!
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [Color(0xFF2F2F2F), Color(0xFF1C1C1C)],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.checkroom_outlined,
+                                size: 48,
+                                color: Colors.white54,
+                              ),
+                            ),
+                          ),
                   ),
                 ),
                 Positioned(
@@ -512,32 +736,6 @@ class _OutfitCard extends StatelessWidget {
               color: AppColors.white,
               fontWeight: FontWeight.w600,
             ),
-          ),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: data.tags
-                .map(
-                  (tag) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      tag,
-                      style: AppTypography.caption.copyWith(
-                        color: AppColors.textSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                )
-                .toList(),
           ),
           const SizedBox(height: 6),
           Text(

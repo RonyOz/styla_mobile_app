@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/core/domain/model/garment.dart';
 import 'package:styla_mobile_app/features/dress/ui/bloc/dress_bloc.dart';
 import 'package:styla_mobile_app/features/dress/ui/bloc/events/dress_event.dart';
 import 'package:styla_mobile_app/features/dress/ui/bloc/states/dress_state.dart';
+import 'package:styla_mobile_app/features/dress/ui/screens/outfit_detail_screen.dart';
 
 class VestirseScreen extends StatefulWidget {
   const VestirseScreen({Key? key}) : super(key: key);
@@ -237,80 +239,55 @@ class _VestirseScreenState extends State<VestirseScreen> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Outfit centrado con navegación
+          // Outfit Card con navegación
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Row(
               children: [
-                // Imagen del outfit con navegación
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_ios,
-                        color: Colors.white,
-                      ),
-                      onPressed: () => _previousOutfit(_outfits.length),
-                    ),
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.grey[800],
-                        ),
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.35,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            _outfits[_currentOutfitIndex].imageUrl ?? '',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.grey[700],
-                                child: const Icon(
-                                  Icons.image_not_supported,
-                                  color: Colors.grey,
-                                ),
-                              );
-                            },
+                // Botón anterior
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                  onPressed: () => _previousOutfit(_outfits.length),
+                ),
+
+                // OutfitCard
+                Expanded(
+                  child: OutfitCard(
+                    outfit: _outfits[_currentOutfitIndex],
+                    showNotes: false,
+                    showTags: false,
+                    onTap: () {
+                      // Navegar a la pantalla de detalle del outfit
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OutfitDetailScreen(
+                            outfit: _outfits[_currentOutfitIndex],
                           ),
                         ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.white,
-                      ),
-                      onPressed: () => _nextOutfit(_outfits.length),
-                    ),
-                  ],
+                      );
+                    },
+                  ),
                 ),
-                const SizedBox(height: 12),
-                // Nombre del outfit e indicador de posición
-                Column(
-                  children: [
-                    Text(
-                      _outfits[_currentOutfitIndex].name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${_currentOutfitIndex + 1}/${_outfits.length}',
-                      style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                    ),
-                  ],
+
+                // Botón siguiente
+                IconButton(
+                  icon: const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white,
+                  ),
+                  onPressed: () => _nextOutfit(_outfits.length),
                 ),
               ],
+            ),
+          ),
+
+          // Indicador de posición
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              '${_currentOutfitIndex + 1}/${_outfits.length}',
+              style: TextStyle(color: Colors.grey[500], fontSize: 12),
             ),
           ),
 
@@ -496,7 +473,7 @@ class _VestirseScreenState extends State<VestirseScreen> {
             underline: SizedBox.shrink(),
             items: items.map((garment) {
               return DropdownMenuItem(
-                value: garment.imageUrl,
+                value: garment.id,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Row(

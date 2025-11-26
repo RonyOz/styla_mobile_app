@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:styla_mobile_app/core/core.dart';
 import 'package:styla_mobile_app/core/domain/model/garment.dart';
+import 'package:styla_mobile_app/core/domain/model/outfit.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/events/wardrobe_event.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/states/wardrobe_state.dart';
 import 'package:styla_mobile_app/features/wardrobe/ui/bloc/wardrobe_bloc.dart';
@@ -36,6 +37,9 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
   List<ColorOption> _colors = [];
   List<StyleOption> _styles = [];
   List<OccasionOption> _occasions = [];
+  List<Outfit> _outfits = []; // Agrega esto
+  bool _isLoadingOutfits = false; // Agrega esto
+  String? _outfitsError;
 
   String? _selectedCategoryId;
   List<String> _selectedTagNames = [];
@@ -59,6 +63,7 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
     context.read<WardrobeBloc>().add(LoadColorsRequested());
     context.read<WardrobeBloc>().add(LoadStylesRequested());
     context.read<WardrobeBloc>().add(LoadOccasionsRequested());
+    context.read<WardrobeBloc>().add(LoadRandomOutfitsRequested());
   }
 
   @override
@@ -246,6 +251,17 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
               _selectedOccasion = null; // Limpiar si no existe
             }
           });
+        } else if (state is WardrobeLoadingState) {
+          setState(() {
+            _isLoadingOutfits = true;
+            _outfitsError = null;
+          });
+        } else if (state is OutfitsLoadedState) {
+          setState(() {
+            _outfits = state.outfits;
+            _isLoadingOutfits = false;
+            _outfitsError = null;
+          });
         } else if (state is GarmentUpdatedState) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -370,31 +386,13 @@ class _GarmentDetailScreenState extends State<GarmentDetailScreen> {
                     const SizedBox(height: 32),
 
                     // Sección de Recomendaciones IA
-                    const AIRecommendationsSection(),
+                    AIRecommendationsSection(
+                      outfits: _outfits,
+                      isLoading: _isLoadingOutfits,
+                      errorMessage: _outfitsError,
+                    ),
 
                     const SizedBox(height: 20),
-
-                    // Mensaje de IA
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondary.withOpacity(0.2),
-                        borderRadius: AppRadius.borderRadiusLarge,
-                        border: Border.all(
-                          color: AppColors.secondary.withOpacity(0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Text(
-                        'AQUÍ se renderizarán las prendas con IA',
-                        style: AppTypography.body.copyWith(
-                          color: AppColors.secondary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
 
                     const SizedBox(height: 40),
                   ],

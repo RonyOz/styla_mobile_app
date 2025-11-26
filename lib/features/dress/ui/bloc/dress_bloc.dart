@@ -59,7 +59,7 @@ class DressBloc extends Bloc<DressEvent, DressState> {
     emit(DressLoadingState());
     try {
       final outfits = await _getOutfitsUseCase.execute();
-      print("Aquiiii leggooo el outfitssss: $outfits");
+      //print("Aquiiii leggooo el outfitssss: $outfits");
       emit(DressDataLoadedState(outfits: outfits));
     } catch (e) {
       emit(DressErrorState(message: e.toString()));
