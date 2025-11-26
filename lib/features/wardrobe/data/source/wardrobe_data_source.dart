@@ -1,4 +1,5 @@
 import 'package:styla_mobile_app/core/domain/model/garment.dart';
+import 'package:styla_mobile_app/core/domain/model/outfit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class WardrobeException implements Exception {
@@ -67,6 +68,7 @@ abstract class WardrobeDataSource {
   Future<List<Map<String, String>>> getAvailableStyles();
 
   Future<List<Map<String, String>>> getAvailableOccasions();
+  Future<List<Outfit>> getRandomOutfits();
 }
 
 class WardrobeDataSourceImpl extends WardrobeDataSource {
@@ -548,6 +550,35 @@ class WardrobeDataSourceImpl extends WardrobeDataSource {
           .toList();
     } catch (e) {
       throw WardrobeException('Failed to fetch occasions: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Outfit>> getRandomOutfits() async {
+    try {
+      // Obtener 4 outfits aleatorios de la tabla outfit
+      final response = await _supabaseClient
+          .from('outfits')
+          .select()
+          .limit(100); // Primero obtenemos hasta 100 registros
+
+      if (response.isEmpty) {
+        return [];
+      }
+
+      // Mezclar aleatoriamente y tomar solo 4
+      final outfits = (response as List)
+          .map((json) => Outfit.fromJson(json))
+          .toList();
+
+      outfits.shuffle(); // Mezclar aleatoriamente
+
+      // Retornar máximo 4 outfits
+      return outfits.take(4).toList();
+    } catch (e) {
+      throw WardrobeException(
+        'Failed to fetch random outfits: ${e.toString()}',
+      );
     }
   }
 }

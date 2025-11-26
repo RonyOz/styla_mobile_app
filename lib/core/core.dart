@@ -13,3 +13,4 @@ export 'ui/widgets/app_text_field.dart';
 export 'ui/widgets/app_image.dart';
 export 'ui/widgets/app_chip_button.dart';
 export 'ui/widgets/app_toggle_pill.dart';
+export 'ui/widgets/outfit_card.dart';

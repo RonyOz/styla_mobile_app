@@ -1,4 +1,5 @@
 import 'package:styla_mobile_app/core/domain/model/garment.dart';
+import 'package:styla_mobile_app/core/domain/model/outfit.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/category.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/color_option.dart';
@@ -39,6 +40,12 @@ class GarmentUpdatedState extends WardrobeState {
   final Garment garment;
 
   GarmentUpdatedState({required this.garment});
+}
+
+class OutfitsLoadedState extends WardrobeState {
+  final List<Outfit> outfits;
+
+  OutfitsLoadedState({required this.outfits});
 }
 
 class WardrobeErrorState extends WardrobeState {

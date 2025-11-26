@@ -1,4 +1,5 @@
 import 'package:styla_mobile_app/core/domain/model/garment.dart';
+import 'package:styla_mobile_app/core/domain/model/outfit.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/category.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/color_option.dart';
@@ -212,5 +213,10 @@ class WardrobeRepositoryImpl extends WardrobeRepository {
     return dtos
         .map((dto) => OccasionOption(id: dto['id']!, name: dto['name']!))
         .toList();
+  }
+
+  @override
+  Future<List<Outfit>> getRandomOutfits() {
+    return _wardrobeDataSource.getRandomOutfits();
   }
 }

@@ -1,4 +1,5 @@
 import 'package:styla_mobile_app/core/domain/model/garment.dart';
+import 'package:styla_mobile_app/core/domain/model/outfit.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/category.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/tag.dart';
 import 'package:styla_mobile_app/features/wardrobe/domain/model/color_option.dart';
@@ -74,4 +75,5 @@ abstract class WardrobeRepository {
 
   /// Get available occasion options from database
   Future<List<OccasionOption>> getAvailableOccasions();
+  Future<List<Outfit>> getRandomOutfits();
 }

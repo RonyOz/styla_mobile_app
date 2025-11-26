@@ -92,6 +92,7 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     on<LoadColorsRequested>(_onLoadColorsRequested);
     on<LoadStylesRequested>(_onLoadStylesRequested);
     on<LoadOccasionsRequested>(_onLoadOccasionsRequested);
+    on<LoadRandomOutfitsRequested>(_onLoadRandomOutfitsRequested);
   }
 
   Future<void> _onAddGarmentRequested(
@@ -308,6 +309,20 @@ class WardrobeBloc extends Bloc<WardrobeEvent, WardrobeState> {
     try {
       final occasions = await _getAvailableOccasionsUsecase.execute();
       emit(OccasionsLoadedState(occasions: occasions));
+    } catch (e) {
+      emit(WardrobeErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onLoadRandomOutfitsRequested(
+    LoadRandomOutfitsRequested event,
+    Emitter<WardrobeState> emit,
+  ) async {
+    emit(WardrobeLoadingState());
+    try {
+      final outfits = await _wardrobeRepository.getRandomOutfits();
+      //print('Outfits loaded: $outfits');
+      emit(OutfitsLoadedState(outfits: outfits));
     } catch (e) {
       emit(WardrobeErrorState(message: e.toString()));
     }
