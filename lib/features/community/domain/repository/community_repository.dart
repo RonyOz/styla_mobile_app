@@ -1,3 +1,4 @@
+import 'package:styla_mobile_app/core/domain/model/outfit.dart';
 import 'package:styla_mobile_app/features/community/domain/model/post.dart';
 import 'package:styla_mobile_app/features/community/domain/model/comment.dart';
 import 'package:styla_mobile_app/features/community/domain/model/user_profile.dart';
@@ -52,4 +53,6 @@ abstract class CommunityRepository {
     required String followerUserId,
     required String followedUserId,
   });
+
+  Future<List<Outfit>> getRandomOutfits();
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:styla_mobile_app/core/domain/model/outfit.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
 import 'package:styla_mobile_app/features/auth/ui/screens/signIn_screen.dart';
+import 'package:styla_mobile_app/features/dress/ui/bloc/dress_bloc.dart';
+import 'package:styla_mobile_app/features/dress/ui/screens/dress_screen.dart';
 import 'package:styla_mobile_app/features/onboarding/ui/screens/onboarding_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/app/pages/onboarding_setup_page.dart';
@@ -55,6 +58,11 @@ class AppRouter {
       AppRoutes.addGarment: (context) => BlocProvider(
         create: (_) => WardrobeBloc(),
         child: const AddGarmentScreen(),
+      ),
+
+      AppRoutes.dressUp: (context) => BlocProvider(
+        create: (_) => DressBloc(),
+        child: const VestirseScreen(),
       ),
     };
   }

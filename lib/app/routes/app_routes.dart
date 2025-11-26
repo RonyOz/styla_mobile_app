@@ -29,4 +29,6 @@ class AppRoutes {
 
   // Rutas de comunidad
   static const String userProfile = '/user-profile';
+
+  static const String dressUp = '/dress-up';
 }

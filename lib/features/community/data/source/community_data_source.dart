@@ -1,3 +1,4 @@
+import 'package:styla_mobile_app/core/domain/model/outfit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:styla_mobile_app/features/community/domain/model/post.dart';
 import 'package:styla_mobile_app/features/community/domain/model/comment.dart';
@@ -61,6 +62,8 @@ abstract class CommunityDataSource {
     required String followerUserId,
     required String followedUserId,
   });
+
+  Future<List<Outfit>> getRandomOutfits();
 }
 
 class CommunityDataSourceImpl extends CommunityDataSource {
@@ -408,6 +411,36 @@ class CommunityDataSourceImpl extends CommunityDataSource {
           .eq('followed_user_id', followedUserId);
     } catch (e) {
       throw CommunityException('Failed to unfollow user: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Outfit>> getRandomOutfits() async {
+    try {
+      // Obtener 4 outfits aleatorios de la tabla outfit
+      final response = await _supabaseClient
+          .from('outfits') // Cambiado de 'outfits' a 'outfit'
+          .select()
+          .limit(100); // Primero obtenemos hasta 100 registros
+
+      if (response.isEmpty) {
+        return [];
+      }
+
+      // Mezclar aleatoriamente y tomar solo 4
+      final outfits = (response as List)
+          .map((json) => Outfit.fromJson(json))
+          .toList();
+
+      outfits.shuffle(); // Mezclar aleatoriamente
+
+      // Retornar máximo 4 outfits
+      return outfits.take(4).toList();
+    } catch (e) {
+      print('Error fetching random outfits: $e');
+      throw CommunityException(
+        'Failed to fetch random outfits: ${e.toString()}',
+      );
     }
   }
 }

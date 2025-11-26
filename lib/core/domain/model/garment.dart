@@ -43,7 +43,7 @@ class Garment {
       'created_at': createdAt.toIso8601String(),
       'color': color,
       'style': style,
-      'occasion': occasion,
+      'ocasion': occasion,
     };
   }
 
@@ -55,7 +55,7 @@ class Garment {
       createdAt: DateTime.parse(json['created_at'] as String),
       color: json['color'] as String? ?? '',
       style: json['style'] as String? ?? '',
-      occasion: json['occasion'] as String? ?? '',
+      occasion: json['ocasion'] as String? ?? '',
       categoryName: json['garment_category_id'] as String? ?? '',
       tagNames: (json['tag_names'] as List<dynamic>?)
           ?.map((e) => e as String)
