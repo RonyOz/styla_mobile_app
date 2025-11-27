@@ -69,15 +69,18 @@ class _FeedScreenState extends State<FeedScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.bookmark_border),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (newContext) => BlocProvider.value(
-                      value: context.read<CommunityBloc>(),
-                      child: const SavedPostsScreen(),
+              onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (newContext) => BlocProvider.value(
+                        value: context.read<CommunityBloc>(),
+                        child: const SavedPostsScreen(),
+                      ),
                     ),
-                  ),
+                  );
+                  context.read<CommunityBloc>().add(
+                  LoadFeedRequested(),
                 );
               },
             ),
