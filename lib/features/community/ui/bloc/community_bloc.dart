@@ -5,8 +5,9 @@ import 'package:styla_mobile_app/features/community/domain/repository/community_
 import 'package:styla_mobile_app/features/community/data/repository/community_repository_impl.dart';
 import 'package:styla_mobile_app/features/community/domain/usecases/usecases.dart';
 
-class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
+class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {  
   final CommunityRepository _communityRepository;
+  CommunityRepository get communityRepository => _communityRepository;
   late final CreatePostUsecase _createPostUsecase;
   late final GetFeedUsecase _getFeedUsecase;
   late final SavePostUsecase _savePostUsecase;

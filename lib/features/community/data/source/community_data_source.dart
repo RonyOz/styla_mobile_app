@@ -74,25 +74,28 @@ class CommunityDataSourceImpl extends CommunityDataSource {
   CommunityDataSourceImpl({SupabaseClient? supabaseClient})
     : _supabaseClient = supabaseClient ?? Supabase.instance.client;
 
-  @override
-  Future<List<Outfit>> getOutfits() async {
-    try {
-      final String? user_id = _supabaseClient.auth.currentUser?.id;
+@override
+Future<List<Outfit>> getOutfits() async {
+  try {
+    final String? userId = _supabaseClient.auth.currentUser?.id;
 
-      if (user_id == null) {
-        throw CommunityException('User not authenticated');
-      }
-
-      final response = await _supabaseClient
-          .from('outfits')
-          .select()
-          .eq('users_user_id', user_id);
-
-      return (response as List).map((json) => Outfit.fromJson(json)).toList();
-    } catch (e) {
-      throw CommunityException('Failed to fetch outfits: ${e.toString()}');
+    if (userId == null) {
+      throw CommunityException('User not authenticated');
     }
+
+    final response = await _supabaseClient
+        .from('outfits')
+        .select('outfit_id, name, description, created_at, users_user_id, prompts_prompt_id, image_url')
+        .eq('users_user_id', userId);
+
+    return response
+        .map<Outfit>((json) => Outfit.fromJson(json))
+        .toList();
+
+  } catch (e) {
+    throw CommunityException('Failed to fetch outfits: $e');
   }
+}
 
   @override
   Future<Post> createPost({

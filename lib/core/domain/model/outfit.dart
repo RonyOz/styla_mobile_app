@@ -1,4 +1,5 @@
 class Outfit {
+  final String? id;
   final String name;
   final String description;
   final String createdAt;
@@ -7,6 +8,7 @@ class Outfit {
   final String imageUrl;
 
   Outfit({
+    this.id,
     required this.name,
     required this.description,
     required this.createdAt,
@@ -17,6 +19,7 @@ class Outfit {
 
   factory Outfit.empty() {
     return Outfit(
+      id: '',
       name: '',
       description: '',
       createdAt: '',
@@ -39,6 +42,7 @@ class Outfit {
 
   factory Outfit.fromJson(Map<String, dynamic> json) {
     return Outfit(
+      id: json['outfit_id'] as String?,
       name: json['name'] as String,
       description: json['description'] as String,
       createdAt: json['created_at'] as String,
@@ -58,6 +62,7 @@ class Outfit {
     String? imageUrl,
   }) {
     return Outfit(
+      id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,

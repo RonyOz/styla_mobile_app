@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/core/core.dart';
+import 'package:styla_mobile_app/features/community/domain/repository/community_repository.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/community_bloc.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/events/community_event.dart';
 import 'package:styla_mobile_app/features/community/ui/bloc/states/community_state.dart';
@@ -11,6 +12,8 @@ import 'package:styla_mobile_app/features/community/ui/widgets/comments_bottom_s
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:styla_mobile_app/features/profile/domain/usescases/who_am_i_usecase.dart';
 import 'package:styla_mobile_app/features/profile/data/repository/profile_repository_impl.dart';
+import 'package:provider/provider.dart'; 
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -339,15 +342,23 @@ class _FeedScreenState extends State<FeedScreen> {
         ),
         floatingActionButton: Builder(
           builder: (context) {
+            final communityBloc = context.read<CommunityBloc>();
+            final communityRepository = communityBloc.communityRepository;
+
             return FloatingActionButton(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.border,
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (newContext) => BlocProvider.value(
-                      value: context.read<CommunityBloc>(),
+                    builder: (_) => MultiProvider(
+                      providers: [
+                        Provider<CommunityRepository>.value(
+                          value: communityRepository,
+                        ),
+                        BlocProvider<CommunityBloc>.value(
+                          value: communityBloc,
+                        ),
+                      ],
                       child: const CreatePostScreen(),
                     ),
                   ),
