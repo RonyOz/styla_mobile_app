@@ -492,20 +492,13 @@ Future<List<Outfit>> getOutfits() async {
           .order('likesamount', ascending: false)
           .limit(10);
 
-      // DEBUG: imprime la respuesta cruda para ver la estructura
-      print('[getMostLikedOutfits] raw response: $response');
-
       final uniqueOutfits = <String, Outfit>{};
 
-      // response puede ser List<dynamic>
       for (final post in (response as List)) {
-        final outfitData = post['outfit']; // ahora usamos 'outfit' (alias)
+        final outfitData = post['outfit'];
         if (outfitData == null) continue;
 
-        // Forzar tipo correcto
         final Map<String, dynamic> mapped = Map<String, dynamic>.from(outfitData);
-
-        // Aseguramos que el campo 'outfit_id' esté presente (por si acaso)
         mapped['outfit_id'] ??= outfitData['outfit_id'];
 
         final outfit = Outfit.fromJson(mapped);
