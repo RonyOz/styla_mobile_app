@@ -35,6 +35,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const Color actionColor = Color(0xFFE5FF69);
     return Theme(
       data: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: AppColors.background,
@@ -46,8 +47,9 @@ class _FeedScreenState extends State<FeedScreen> {
             fontWeight: FontWeight.bold,
             fontSize: 28,
           ),
+          iconTheme: IconThemeData(color: AppColors.textPrimary),
         ),
-        cardTheme: CardThemeData(
+        cardTheme: CardTheme.of(context).copyWith( 
           color: const Color(0xFF1C1C1E),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
@@ -55,7 +57,11 @@ class _FeedScreenState extends State<FeedScreen> {
           clipBehavior: Clip.antiAlias,
           margin: EdgeInsets.zero,
         ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: actionColor,
+        foregroundColor: Colors.black,
       ),
+    ),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Para Ti'),
@@ -152,180 +158,168 @@ class _FeedScreenState extends State<FeedScreen> {
                           );
                         },
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage: post.authorPhoto != null
-                                    ? NetworkImage(post.authorPhoto!)
-                                    : null,
-                                child: post.authorPhoto == null
-                                    ? const Icon(Icons.person)
-                                    : null,
-                              ),
-                              title: Text(post.authorNickname ?? 'Usuario'),
-                              subtitle: Text(
-                                _formatDate(post.createdAt),
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              trailing: IconButton(
-                                icon: Icon(
-                                  isSaved
-                                      ? Icons.bookmark
-                                      : Icons.bookmark_border,
-                                  color: isSaved ? AppColors.primary : null,
-                                ),
-                                onPressed: () {
-                                  final userId = _whoAmIUsecase.execute();
-                                  if (isSaved) {
-                                    context.read<CommunityBloc>().add(
-                                      UnsavePostRequested(
-                                        userId: userId,
-                                        postId: post.postId,
-                                      ),
-                                    );
-                                  } else {
-                                    context.read<CommunityBloc>().add(
-                                      SavePostRequested(
-                                        userId: userId,
-                                        postId: post.postId,
-                                      ),
-                                    );
-                                  }
-                                  setState(() {
-                                    _savedStates[post.postId] = !isSaved;
-                                  });
-                                },
-                              ),
-                            ),
-                            if (post.image != null)
-                              Image.network(
-                                post.image!,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            if (post.content != null)
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Text(post.content!),
-                              ),
-                            // Actions: Likes y Comentarios
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12.0,
-                                vertical: 10.0,
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.surfaceVariant,
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                    color: AppColors.border.withOpacity(0.4),
+                              padding: const EdgeInsets.fromLTRB(12, 12, 4, 8),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 14,
+                                    backgroundImage: post.authorPhoto != null
+                                        ? NetworkImage(post.authorPhoto!)
+                                        : null,
+                                    child: post.authorPhoto == null
+                                        ? const Icon(Icons.person, size: 16)
+                                        : null,
                                   ),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 6,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextButton.icon(
-                                        onPressed: isLiked ||
-                                                (_likingPosts[post.postId] ??
-                                                    false)
-                                            ? null
-                                            : () {
-                                                setState(() {
-                                                  _likedPosts[post.postId] =
-                                                      true;
-                                                  _likingPosts[post.postId] =
-                                                      true;
-                                                  _likeCounts[post.postId] =
-                                                      likeCount + 1;
-                                                });
-                                                context
-                                                    .read<CommunityBloc>()
-                                                    .add(
-                                                      LikePostRequested(
-                                                        postId: post.postId,
-                                                      ),
-                                                    );
-                                              },
-                                        icon: Icon(
-                                          isLiked
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          color: isLiked
-                                              ? AppColors.error
-                                              : AppColors.textSecondary,
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          post.authorNickname ?? '@user',
+                                          style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        label: Text(
-                                          '$likeCount',
-                                          style:
-                                              AppTypography.body.copyWith(
-                                            color: AppColors.textPrimary,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                        Text(
+                                          _formatDate(post.createdAt),
+                                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                                fontSize: 10,
+                                                color: AppColors.textSecondary,
+                                              ),
                                         ),
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: AppColors.textPrimary,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                        ),
-                                      ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: TextButton.icon(
-                                        onPressed: () {
-                                          final communityBloc =
-                                              context.read<CommunityBloc>();
-                                          showModalBottomSheet(
-                                            context: context,
-                                            isScrollControlled: true,
-                                            backgroundColor: Colors.transparent,
-                                            builder: (bottomSheetContext) =>
-                                                BlocProvider.value(
-                                              value: communityBloc,
-                                              child: CommentsBottomSheet(
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      isSaved ? Icons.bookmark : Icons.bookmark_border,
+                                      size: 20,
+                                      color: isSaved ? AppColors.primary : AppColors.textSecondary,
+                                    ),
+                                    onPressed: () {
+                                      final userId = _whoAmIUsecase.execute();
+                                      if (isSaved) {
+                                        context.read<CommunityBloc>().add(
+                                              UnsavePostRequested(
+                                                userId: userId,
                                                 postId: post.postId,
                                               ),
-                                            ),
-                                          );
-                                        },
-                                        icon: const Icon(
-                                          Icons.chat_bubble_outline,
-                                          color: AppColors.primary,
-                                        ),
-                                        label: Text(
-                                          'Comentarios',
-                                          style:
-                                              AppTypography.body.copyWith(
-                                            color: AppColors.textPrimary,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        style: TextButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                            );
+                                      } else {
+                                        context.read<CommunityBloc>().add(
+                                              SavePostRequested(
+                                                userId: userId,
+                                                postId: post.postId,
+                                              ),
+                                            );
+                                      }
+                                      setState(() {
+                                        _savedStates[post.postId] = !isSaved;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            if (post.image != null)
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(0), 
+                                child: Image.network(
+                                  post.image!,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
                                 ),
+                              ),
+
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (post.content != null)
+                                    Text(
+                                      post.content!,
+                                      style: Theme.of(context).textTheme.bodyMedium,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  const SizedBox(height: 8),
+
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(
+                                              isLiked ? Icons.favorite : Icons.favorite_border,
+                                              color: isLiked ? AppColors.error : AppColors.textSecondary,
+                                              size: 20,
+                                            ),
+                                            onPressed: isLiked ||
+                                                    (_likingPosts[post.postId] ?? false)
+                                                ? null
+                                                : () {
+                                                    setState(() {
+                                                      _likedPosts[post.postId] = true;
+                                                      _likingPosts[post.postId] = true;
+                                                      _likeCounts[post.postId] = likeCount + 1;
+                                                    });
+                                                    context.read<CommunityBloc>().add(
+                                                          LikePostRequested(
+                                                            postId: post.postId,
+                                                          ),
+                                                        );
+                                                  },
+                                          ),
+                                          Text(
+                                            '$likeCount',
+                                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 12, 
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 16),
+
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.chat_bubble_outline,
+                                              color: AppColors.textSecondary,
+                                              size: 20,
+                                            ),
+                                            onPressed: () {
+                                              final communityBloc = context.read<CommunityBloc>();
+                                              showModalBottomSheet(
+                                                context: context,
+                                                isScrollControlled: true,
+                                                backgroundColor: Colors.transparent,
+                                                builder: (bottomSheetContext) => BlocProvider.value(
+                                                  value: communityBloc,
+                                                  child: CommentsBottomSheet(
+                                                    postId: post.postId,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ],
