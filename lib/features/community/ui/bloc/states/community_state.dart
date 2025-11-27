@@ -1,3 +1,4 @@
+import 'package:styla_mobile_app/core/domain/model/outfit.dart';
 import 'package:styla_mobile_app/features/community/domain/model/post.dart';
 import 'package:styla_mobile_app/features/community/domain/model/comment.dart';
 
@@ -55,3 +56,17 @@ class SavedPostsLoadedState extends CommunityState {
 class PostSavedState extends CommunityState {}
 
 class PostUnsavedState extends CommunityState {}
+
+class OutfitLoadedState extends CommunityState {
+  final List<Outfit> outfits;
+
+  OutfitLoadedState({required this.outfits});
+}
+
+class OutfitLoadErrorState extends CommunityState {
+  final String message;
+
+  OutfitLoadErrorState({required this.message});
+}
+
+class OutfitLoadingState extends CommunityState {}

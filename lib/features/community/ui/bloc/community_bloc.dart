@@ -50,6 +50,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     on<LikePostRequested>(_onLikePostRequested);
     on<LoadCommentsRequested>(_onLoadCommentsRequested);
     on<CreateCommentRequested>(_onCreateCommentRequested);
+    on<LoadOutfitsRequested>(_onLoadOutfitsRequested);
   }
 
   Future<void> _onLoadFeedRequested(
@@ -169,6 +170,19 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       emit(CommentsLoadedState(comments: comments, postId: event.postId));
     } catch (e) {
       emit(CommunityErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onLoadOutfitsRequested(
+    LoadOutfitsRequested event,
+    Emitter<CommunityState> emit,
+  ) async {
+    emit(OutfitLoadingState());
+    try {
+      final outfits = await _communityRepository.getOutfits();
+      emit(OutfitLoadedState(outfits: outfits));
+    } catch (e) {
+      emit(OutfitLoadErrorState(message: e.toString()));
     }
   }
 }

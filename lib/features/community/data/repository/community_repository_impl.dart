@@ -12,6 +12,11 @@ class CommunityRepositoryImpl extends CommunityRepository {
     : _communityDataSource = communityDataSource ?? CommunityDataSourceImpl();
 
   @override
+  Future<List<Outfit>> getOutfits() {
+    return _communityDataSource.getOutfits();
+  }
+
+  @override
   Future<Post> createPost({
     required String userId,
     required String outfitId,

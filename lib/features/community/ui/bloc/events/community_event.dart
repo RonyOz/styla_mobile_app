@@ -2,6 +2,8 @@ abstract class CommunityEvent {}
 
 class LoadFeedRequested extends CommunityEvent {}
 
+class LoadOutfitsRequested extends CommunityEvent {}
+
 class CreatePostRequested extends CommunityEvent {
   final String userId;
   final String outfitId;
