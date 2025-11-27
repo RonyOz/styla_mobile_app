@@ -42,3 +42,12 @@ class OutfitsLoadedState extends DashboardState {
 
   OutfitsLoadedState({required this.outfits});
 }
+
+class HighlightedOutfitsLoadedState extends DashboardState {
+  final List<Outfit> highlightedOutfits;
+
+  HighlightedOutfitsLoadedState(this.highlightedOutfits);
+
+  @override
+  List<Object> get props => [highlightedOutfits];
+}

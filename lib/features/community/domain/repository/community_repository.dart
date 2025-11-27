@@ -57,4 +57,6 @@ abstract class CommunityRepository {
   });
 
   Future<List<Outfit>> getRandomOutfits();
+
+  Future<List<Outfit>> getMostLikedOutfits();
 }

@@ -66,6 +66,8 @@ abstract class CommunityDataSource {
   });
 
   Future<List<Outfit>> getRandomOutfits();
+
+  Future<List<Outfit>> getMostLikedOutfits();
 }
 
 class CommunityDataSourceImpl extends CommunityDataSource {
@@ -466,6 +468,60 @@ Future<List<Outfit>> getOutfits() async {
       throw CommunityException(
         'Failed to fetch random outfits: ${e.toString()}',
       );
+    }
+  }
+  
+  @override
+  Future<List<Outfit>> getMostLikedOutfits() async {
+    try {
+      final response = await _supabaseClient
+          .from('posts')
+          .select('''
+            likesamount,
+            outfit:outfit_id (
+              outfit_id,
+              name,
+              description,
+              created_at,
+              users_user_id,
+              prompts_prompt_id,
+              image_url
+            )
+          ''')
+          .not('outfit_id', 'is', null)
+          .order('likesamount', ascending: false)
+          .limit(10);
+
+      // DEBUG: imprime la respuesta cruda para ver la estructura
+      print('[getMostLikedOutfits] raw response: $response');
+
+      final uniqueOutfits = <String, Outfit>{};
+
+      // response puede ser List<dynamic>
+      for (final post in (response as List)) {
+        final outfitData = post['outfit']; // ahora usamos 'outfit' (alias)
+        if (outfitData == null) continue;
+
+        // Forzar tipo correcto
+        final Map<String, dynamic> mapped = Map<String, dynamic>.from(outfitData);
+
+        // Aseguramos que el campo 'outfit_id' esté presente (por si acaso)
+        mapped['outfit_id'] ??= outfitData['outfit_id'];
+
+        final outfit = Outfit.fromJson(mapped);
+
+        if (outfit.id != null && outfit.id!.isNotEmpty) {
+          uniqueOutfits[outfit.id!] = outfit;
+        }
+      }
+
+      // Devuelve máximo 4 outfits
+      final result = uniqueOutfits.values.take(4).toList();
+      print('[getMostLikedOutfits] returning ${result.length} outfits');
+      return result;
+    } catch (e, st) {
+      print('Error fetching most liked outfits: $e\n$st');
+      throw CommunityException('Failed to fetch most liked outfits: $e');
     }
   }
 }

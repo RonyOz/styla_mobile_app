@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styla_mobile_app/features/community/data/repository/community_repository_impl.dart';
+import 'package:styla_mobile_app/features/community/domain/usecases/get_most_liked_outfits_usecase.dart';
 import 'package:styla_mobile_app/features/profile/data/repository/profile_repository_impl.dart';
 import 'package:styla_mobile_app/features/profile/domain/usescases/get_profile_usecase.dart';
 import 'package:styla_mobile_app/features/community/domain/usecases/get_random_outft_usecase.dart';
@@ -15,9 +16,14 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     communityRepository: CommunityRepositoryImpl(),
   );
 
+  final GetMostLikedOutfitsUseCase _getMostLikedOutfitsUseCase = GetMostLikedOutfitsUseCase(
+    communityRepository: CommunityRepositoryImpl(),
+  );
+
   DashboardBloc() : super(DashboardInitial()) {
     on<LoadUserProfile>(_onLoadUserProfile);
     on<LoadRandomOutfitsRequested>(_onLoadRandomOutfitsRequested);
+    on<LoadHighlightedOutfitsRequested>(_onLoadHighlightedOutfitsRequested);
   }
 
   void _onLoadUserProfile(
@@ -51,6 +57,20 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     } catch (e) {
       print("Error loading outfits: $e");
       emit(DashboardError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadHighlightedOutfitsRequested(
+    LoadHighlightedOutfitsRequested event,
+    Emitter<DashboardState> emit,
+  ) async {
+    try {
+      final highlightedOutfits = await _getMostLikedOutfitsUseCase(); 
+
+      emit(HighlightedOutfitsLoadedState(highlightedOutfits));
+
+    } catch (e) {
+      emit(DashboardError('Error al cargar outfits destacados')); 
     }
   }
 }
