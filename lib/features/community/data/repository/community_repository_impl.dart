@@ -133,4 +133,9 @@ class CommunityRepositoryImpl extends CommunityRepository {
   Future<List<Outfit>> getRandomOutfits() {
     return _communityDataSource.getRandomOutfits();
   }
+
+  @override
+  Future<List<Outfit>> getMostLikedOutfits() {
+    return _communityDataSource.getMostLikedOutfits();
+  }
 }

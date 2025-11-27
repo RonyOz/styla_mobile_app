@@ -30,7 +30,8 @@ class DashboardTab extends StatelessWidget {
     return BlocProvider(
       create: (context) => DashboardBloc()
         ..add(LoadUserProfile())
-        ..add(LoadRandomOutfitsRequested()),
+        ..add(LoadRandomOutfitsRequested())
+        ..add(LoadHighlightedOutfitsRequested()),
       child: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           final nickname = state is DashboardLoaded
@@ -106,7 +107,7 @@ class DashboardTab extends StatelessWidget {
                       onTap: () => _showComingSoon(context),
                     ),
                     const SizedBox(height: 12),
-                    _buildOutfitCarousel(_highlightedOutfits),
+                    _buildHighlightedOutfitsSection(context, state), 
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -247,6 +248,92 @@ class DashboardTab extends StatelessWidget {
     }
 
     // Estado desconocido o inicial - mostrar loading
+    return SizedBox(
+      height: 360,
+      child: ListView.separated(
+        clipBehavior: Clip.none,
+        physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        itemCount: 3,
+        separatorBuilder: (_, __) => const SizedBox(width: 16),
+        itemBuilder: (context, index) => const _OutfitCardSkeleton(),
+      ),
+    );
+  }
+
+  Widget _buildHighlightedOutfitsSection(
+    BuildContext context,
+    DashboardState state,
+  ) {
+    // Manejo del estado cargado
+    if (state is HighlightedOutfitsLoadedState) {
+      final outfits = state.highlightedOutfits;
+
+      if (outfits.isEmpty) {
+        return Container(
+          height: 360,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.star_outline,
+                  color: AppColors.textSecondary,
+                  size: 48,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Aún no hay outfits destacados',
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      return SizedBox(
+        height: 360,
+        child: ListView.separated(
+          clipBehavior: Clip.none,
+          physics: const BouncingScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          itemCount: outfits.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 16),
+          itemBuilder: (context, index) {
+            final outfit = outfits[index];
+            final cardData = _OutfitCardData(
+              title: outfit.name.isNotEmpty ? outfit.name : 'Outfit sin nombre',
+              vibe: outfit.description.isNotEmpty
+                  ? outfit.description
+                  : 'Destacado', 
+              imageUrl: outfit.imageUrl,
+              isFavorite: false,
+              outfitId: outfit.id, 
+            );
+            
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OutfitDetailScreen(outfit: outfit),
+                  ),
+                );
+              },
+              child: _OutfitCard(data: cardData),
+            );
+          },
+        ),
+      );
+    }
+
     return SizedBox(
       height: 360,
       child: ListView.separated(

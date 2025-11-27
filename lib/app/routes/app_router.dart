@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:styla_mobile_app/core/domain/model/outfit.dart';
 import 'package:styla_mobile_app/features/auth/ui/bloc/signin_bloc.dart';
 import 'package:styla_mobile_app/features/auth/ui/screens/signIn_screen.dart';
+import 'package:styla_mobile_app/features/community/data/repository/community_repository_impl.dart';
 import 'package:styla_mobile_app/features/dress/ui/bloc/dress_bloc.dart';
 import 'package:styla_mobile_app/features/dress/ui/screens/dress_screen.dart';
 import 'package:styla_mobile_app/features/onboarding/ui/screens/onboarding_screen.dart';
@@ -75,7 +76,7 @@ class AppRouter {
         if (args != null) {
           return MaterialPageRoute(
             builder: (context) => BlocProvider(
-              create: (_) => CommunityBloc(),
+              create: (_) => CommunityBloc(communityRepository: CommunityRepositoryImpl(),),
               child: UserProfileScreen(
                 userId: args['userId'] as String,
                 nickname: args['nickname'] as String?,

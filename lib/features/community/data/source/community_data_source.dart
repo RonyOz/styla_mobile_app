@@ -66,6 +66,8 @@ abstract class CommunityDataSource {
   });
 
   Future<List<Outfit>> getRandomOutfits();
+
+  Future<List<Outfit>> getMostLikedOutfits();
 }
 
 class CommunityDataSourceImpl extends CommunityDataSource {
@@ -74,25 +76,28 @@ class CommunityDataSourceImpl extends CommunityDataSource {
   CommunityDataSourceImpl({SupabaseClient? supabaseClient})
     : _supabaseClient = supabaseClient ?? Supabase.instance.client;
 
-  @override
-  Future<List<Outfit>> getOutfits() async {
-    try {
-      final String? user_id = _supabaseClient.auth.currentUser?.id;
+@override
+Future<List<Outfit>> getOutfits() async {
+  try {
+    final String? userId = _supabaseClient.auth.currentUser?.id;
 
-      if (user_id == null) {
-        throw CommunityException('User not authenticated');
-      }
-
-      final response = await _supabaseClient
-          .from('outfits')
-          .select()
-          .eq('users_user_id', user_id);
-
-      return (response as List).map((json) => Outfit.fromJson(json)).toList();
-    } catch (e) {
-      throw CommunityException('Failed to fetch outfits: ${e.toString()}');
+    if (userId == null) {
+      throw CommunityException('User not authenticated');
     }
+
+    final response = await _supabaseClient
+        .from('outfits')
+        .select('outfit_id, name, description, created_at, users_user_id, prompts_prompt_id, image_url')
+        .eq('users_user_id', userId);
+
+    return response
+        .map<Outfit>((json) => Outfit.fromJson(json))
+        .toList();
+
+  } catch (e) {
+    throw CommunityException('Failed to fetch outfits: $e');
   }
+}
 
   @override
   Future<Post> createPost({
@@ -463,6 +468,53 @@ class CommunityDataSourceImpl extends CommunityDataSource {
       throw CommunityException(
         'Failed to fetch random outfits: ${e.toString()}',
       );
+    }
+  }
+  
+  @override
+  Future<List<Outfit>> getMostLikedOutfits() async {
+    try {
+      final response = await _supabaseClient
+          .from('posts')
+          .select('''
+            likesamount,
+            outfit:outfit_id (
+              outfit_id,
+              name,
+              description,
+              created_at,
+              users_user_id,
+              prompts_prompt_id,
+              image_url
+            )
+          ''')
+          .not('outfit_id', 'is', null)
+          .order('likesamount', ascending: false)
+          .limit(10);
+
+      final uniqueOutfits = <String, Outfit>{};
+
+      for (final post in (response as List)) {
+        final outfitData = post['outfit'];
+        if (outfitData == null) continue;
+
+        final Map<String, dynamic> mapped = Map<String, dynamic>.from(outfitData);
+        mapped['outfit_id'] ??= outfitData['outfit_id'];
+
+        final outfit = Outfit.fromJson(mapped);
+
+        if (outfit.id != null && outfit.id!.isNotEmpty) {
+          uniqueOutfits[outfit.id!] = outfit;
+        }
+      }
+
+      // Devuelve máximo 4 outfits
+      final result = uniqueOutfits.values.take(4).toList();
+      print('[getMostLikedOutfits] returning ${result.length} outfits');
+      return result;
+    } catch (e, st) {
+      print('Error fetching most liked outfits: $e\n$st');
+      throw CommunityException('Failed to fetch most liked outfits: $e');
     }
   }
 }
