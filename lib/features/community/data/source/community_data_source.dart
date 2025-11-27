@@ -13,6 +13,8 @@ class CommunityException implements Exception {
 }
 
 abstract class CommunityDataSource {
+  Future<List<Outfit>> getOutfits();
+
   Future<Post> createPost({
     required String userId,
     required String outfitId,
@@ -71,6 +73,26 @@ class CommunityDataSourceImpl extends CommunityDataSource {
 
   CommunityDataSourceImpl({SupabaseClient? supabaseClient})
     : _supabaseClient = supabaseClient ?? Supabase.instance.client;
+
+  @override
+  Future<List<Outfit>> getOutfits() async {
+    try {
+      final String? user_id = _supabaseClient.auth.currentUser?.id;
+
+      if (user_id == null) {
+        throw CommunityException('User not authenticated');
+      }
+
+      final response = await _supabaseClient
+          .from('outfits')
+          .select()
+          .eq('users_user_id', user_id);
+
+      return (response as List).map((json) => Outfit.fromJson(json)).toList();
+    } catch (e) {
+      throw CommunityException('Failed to fetch outfits: ${e.toString()}');
+    }
+  }
 
   @override
   Future<Post> createPost({

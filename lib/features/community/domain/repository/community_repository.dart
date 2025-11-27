@@ -4,6 +4,8 @@ import 'package:styla_mobile_app/features/community/domain/model/comment.dart';
 import 'package:styla_mobile_app/features/community/domain/model/user_profile.dart';
 
 abstract class CommunityRepository {
+  Future<List<Outfit>> getOutfits();
+
   Future<Post> createPost({
     required String userId,
     required String outfitId,
