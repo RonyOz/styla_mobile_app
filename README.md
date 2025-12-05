@@ -1,146 +1,214 @@
 # Styla Mobile App
 
-Aplicación móvil de asistente de estilo personal que ayuda a los usuarios a organizar su guardarropa, recibir recomendaciones diarias de outfits, explorar nuevas ideas de moda y compartir inspiración con una comunidad de entusiastas de la moda.
+> A Personal Style Assistant for Wardrobe Organization and Outfit Recommendations
 
-## Flujos Principales
+[![Flutter](https://img.shields.io/badge/Flutter-3.9.2-blue)](https://flutter.dev/)
+[![Supabase](https://img.shields.io/badge/Supabase-2.10.2-green)](https://supabase.com/)
+[![Clean Architecture](https://img.shields.io/badge/Architecture-Clean-orange)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 
-#### 1. **Autenticación**
-- **Welcome** - Pantalla de bienvenida con opciones de inicio de sesión/registro
-- **Signin** - Inicio de sesión con email y contraseña
-- **Signup** - Registro de nuevos usuarios con validación de email
+---
 
-#### 2. **Onboarding**
-- Configuración inicial del perfil (después de la autenticación)
-- **Gender** - Selección de género
-- **Fill Profile** - Datos básicos del usuario
-- **Measurements** - Medidas corporales
-- **Style** - Preferencias de estilo
-- **Additional Info** - Información adicional
+## Overview
 
-#### 3. **Home/Feed**
-- Dashboard principal con recomendaciones de outfits (Placeholder por el momento - En sprint 3 tendrá las funcionalidades completas)
-- Feed de la comunidad para explorar estilos e inspiración
-- Navegación a funcionalidades principales
+Styla is a mobile application that helps users organize their wardrobe, receive daily outfit recommendations, explore fashion ideas, and share inspiration within a community of style enthusiasts. Built with Flutter and following Clean Architecture principles, it provides a scalable foundation for personal styling features powered by Supabase backend services.
 
-#### 4. **Wardrobe (Guardarropa)**
-- **Wardrobe Screen** - Visualización y gestión del guardarropa completo
-- **Add Garment** - Agregar nuevas prendas con fotos e información
-- **Garment Detail** - Vista detallada de cada prenda con edición
-- **Filtros avanzados** - Por categoría, color, estilo, etiquetas y ocasiones
-- **Recomendaciones IA** - Sugerencias inteligentes de outfits
-- **Tags personalizados** - Sistema flexible de etiquetado
+---
 
-#### 5. **Community (Comunidad)**
-- **Feed Screen** - Explorar publicaciones de la comunidad
-- **Create Post** - Compartir outfits e inspiración
-- **Comentarios e interacciones** - Comentar y dar "me gusta" a publicaciones
-- **Descubrir estilos** - Encontrar nuevas tendencias e ideas
+## Contents
 
-#### 6. **Profile (Perfil)**
-- Gestión de perfil de usuario
-- Configuración de preferencias de estilo
-- Actualizar medidas y datos personales
-- Cerrar sesión
+- [Styla Mobile App](#styla-mobile-app)
+  - [Overview](#overview)
+  - [Contents](#contents)
+  - [Core Features](#core-features)
+  - [System Architecture](#system-architecture)
+  - [Project Structure](#project-structure)
+  - [Getting Started](#getting-started)
+  - [Navigation Flow](#navigation-flow)
+  - [Development Status](#development-status)
+  - [Contributors](#contributors)
 
-## Navegación entre Flujos
+---
 
-### Desde Welcome
-- **"Iniciar sesión"** → Pantalla de Signin
-- **"Registrarse"** → Pantalla de Signup
+## Core Features
 
-### Desde Signin
-- **"Crear cuenta"** → Reemplaza con Signup
-- **Botón atrás** → Vuelve a Welcome
-- **Login exitoso** → Navega a Home/Feed
+**Authentication & Onboarding**
+* Email-based authentication with secure session management
+* Multi-step onboarding flow for profile setup and style preferences
+* Gender selection, body measurements, and style profile configuration
 
-### Desde Signup
-- **"Iniciar sesión"** → Reemplaza con Signin
-- **Botón atrás** → Vuelve a Welcome
-- **Registro exitoso** → Navega a Onboarding
+**Wardrobe Management**
+* Digital wardrobe with image storage and metadata tagging
+* Advanced filtering by category, color, style, tags, and occasions
+* Custom tag system for flexible garment organization
+* Detailed garment views with full CRUD operations
 
-### Desde Onboarding
-- **Completar proceso** → Navega a Home/Feed
-- **Pasos**: Gender → Fill Profile → Measurements → Style → Additional Info
+**Community & Social**
+* Public feed for sharing outfit posts and inspiration
+* Bookmark system for saving favorite posts
+* User profiles with published posts gallery
+* Like and comment interactions on community posts
 
-### Desde Home/Feed
-- **Icono guardarropa** → Navega a Wardrobe
-- **Icono perfil** → Navega a Profile
-- **Crear publicación** → Navega a Create Post
+**AI Recommendations**
+* Intelligent outfit suggestions based on wardrobe inventory
+* Personalized recommendations considering style preferences
+* Context-aware outfit generation
 
-### Desde Wardrobe
-- **Agregar prenda** → Navega a Add Garment
-- **Seleccionar prenda** → Navega a Garment Detail
-- **Botón atrás** → Regresa a Home/Feed
+---
 
-### Desde Community
-- **Crear publicación** → Navega a Create Post
-- **Botón atrás** → Regresa a Home/Feed
+## System Architecture
 
-### Rutas Principales
-```dart
-AppRoutes.welcome       // /welcome
-AppRoutes.signin        // /signin
-AppRoutes.signup        // /signup
-AppRoutes.onboarding    // /onboarding (después de signup exitoso)
-AppRoutes.home          // /home (feed principal)
-AppRoutes.wardrobe      // /wardrobe
-AppRoutes.addGarment    // /add-garment
-AppRoutes.garmentDetail // /garment-detail/:id
-AppRoutes.feed          // /feed
-AppRoutes.createPost    // /create-post
-AppRoutes.profile       // /profile
-```
+> **Note:** This application follows Clean Architecture principles with clear separation between data, domain, and presentation layers. State management is handled through BLoC pattern for predictable and testable state transitions.
 
-## Estructura del Código
+**Technology Stack**
+* **Framework:** Flutter 3.9.2
+* **Backend:** Supabase (PostgreSQL + Storage + Auth)
+* **State Management:** flutter_bloc 9.1.1
+* **Architecture:** Clean Architecture with BLoC pattern
+
+**Layer Structure**
+* `data/` - Repository implementations, data sources, and API clients
+* `domain/` - Business logic, use cases, entities, and repository interfaces
+* `ui/` - Screens, widgets, and BLoC components
+
+---
+
+## Project Structure
 
 ```text
 lib/
 ├── main.dart
+├── core/
+│   ├── domain/model/          # Shared models (Garment)
+│   └── ui/
+│       ├── design/            # Design system (colors, typography, spacing, radius)
+│       └── widgets/           # Reusable components (buttons, text fields, chips)
+│
 └── features/
-    ├── auth/                   # Flujo de autenticación
-    │   ├── data/              # Repositorios e implementaciones
-    │   ├── domain/            # Casos de uso y entidades
-    │   │   └── usescases/     # Login, Logout, Register
-    │   └── ui/
-    │       ├── screens/       # Signin, Signup
-    │       ├── widgets/       # AuthAppBar
-    │       └── bloc/          # SigninBloc, SignupBloc
+    ├── auth/                  # Authentication flow
+    │   ├── data/              # Auth repository implementation
+    │   ├── domain/usecases/   # Login, Register, Logout
+    │   └── ui/                # Signin/Signup screens + BLoC
     │
-    ├── onboarding/            # Flujo de configuración inicial
-    │   ├── data/              # Modelos y repositorios
-    │   ├── domain/            # Entidades y casos de uso
-    │   │   └── usecases/      # CompleteOnboarding, GetAvailableColors, GetAvailableStyles
-    │   └── ui/
-    │       ├── screens/       # Onboarding screen
-    │       ├── widgets/       # Pasos del onboarding
-    │       └── bloc/          # OnboardingBloc
+    ├── onboarding/            # Initial profile setup
+    │   ├── data/              # Onboarding data sources
+    │   ├── domain/usecases/   # CompleteOnboarding, GetOptions
+    │   └── ui/                # Onboarding wizard + BLoC
     │
-    ├── wardrobe/              # Gestión de guardarropa
-    │   ├── data/              # Repositorios e implementaciones
-    │   │   └── source/        # StorageDataSource, WardrobeDataSource
-    │   ├── domain/            # Modelos y casos de uso
-    │   │   ├── model/         # Category, ColorOption, StyleOption, Tag, OccasionOption
-    │   │   ├── repository/    # WardrobeRepository
-    │   │   └── usecases/      # AddGarment, GetGarments, UpdateGarment, etc.
+    ├── wardrobe/              # Wardrobe management
+    │   ├── data/source/       # WardrobeDataSource, StorageDataSource
+    │   ├── domain/
+    │   │   ├── model/         # Category, Tag, ColorOption, StyleOption
+    │   │   └── usecases/      # AddGarment, GetGarments, UpdateGarment
     │   └── ui/
-    │       ├── screens/       # WardrobeScreen, AddGarmentScreen, GarmentDetailScreen
-    │       ├── widgets/       # GarmentGridTile, FilterSection, AIRecommendations, etc.
-    │       └── bloc/          # WardrobeBloc
+    │       ├── screens/       # Wardrobe, AddGarment, GarmentDetail
+    │       └── widgets/       # GarmentGridTile, FilterSection, Controls
     │
-    ├── community/             # Características sociales
-    │   ├── data/              # Repositorios e implementaciones
-    │   ├── domain/            # Modelos y casos de uso
+    ├── community/             # Social features
+    │   ├── data/source/       # CommunityDataSource
+    │   ├── domain/
     │   │   ├── model/         # Post, Comment
-    │   │   ├── repository/    # CommunityRepository
-    │   │   └── usecases/      # CreatePost, GetFeed
-    │   └── ui/
-    │       ├── screens/       # FeedScreen, CreatePostScreen
-    │       └── bloc/          # CommunityBloc
+    │   │   └── usecases/      # CreatePost, GetFeed, SavePost
+    │   └── ui/                # FeedScreen, CreatePostScreen, SavedPostsScreen
     │
-    └── profile/               # Gestión de perfil
-        ├── data/              # Repositorios e implementaciones
-        ├── domain/            # Casos de uso
-        │   └── usecases/      # GetProfile, UpdateProfile, DeleteProfile, SignOut, WhoAmI
-        └── ui/
-            ├── screens/       # Profile screen
-            └── bloc/          # ProfileBloc
+    └── profile/               # User profile
+        ├── domain/usecases/   # GetProfile, UpdateProfile, SignOut
+        └── ui/                # Profile screen + BLoC
+```
+
+---
+
+## Getting Started
+
+> **Warning:** This project requires Flutter 3.9.2 or higher and a configured Supabase project with the appropriate database schema.
+
+**Prerequisites**
+* Flutter SDK 3.9.2+
+* Dart SDK
+* Supabase account and project
+* Android Studio / Xcode for emulators
+
+**Installation**
+
+```bash
+# Clone repository
+git clone https://github.com/RonyOz/styla_mobile_app
+cd styla_mobile_app
+
+# Install dependencies
+flutter pub get
+
+# Run application
+flutter run
+```
+
+**Supabase Setup**
+
+Required tables: `profiles`, `garments`, `garment_categories`, `tags`, `posts`, `saved_posts`
+
+Refer to `doc/sql_saved_posts.md` for database schema examples.
+
+---
+
+## Navigation Flow
+
+**Routes**
+
+```dart
+AppRoutes.welcome       // /welcome - Landing screen
+AppRoutes.signin        // /signin - Email login
+AppRoutes.signup        // /signup - User registration
+AppRoutes.onboarding    // /onboarding - Profile setup wizard
+AppRoutes.home          // /home - Main dashboard
+AppRoutes.wardrobe      // /wardrobe - Wardrobe management
+AppRoutes.addGarment    // /add-garment - Add new garment
+AppRoutes.garmentDetail // /garment-detail/:id - Garment details
+AppRoutes.feed          // /feed - Community feed
+AppRoutes.createPost    // /create-post - Create outfit post
+AppRoutes.profile       // /profile - User profile
+```
+
+**Flow Diagram**
+
+```
+Welcome → Signin/Signup → Onboarding → Home/Dashboard
+                                          ├─→ Wardrobe → Add/Edit Garments
+                                          ├─→ Community Feed → Create Post
+                                          └─→ Profile → Settings
+```
+
+---
+
+## Development Status
+
+**Completed Features**
+* Authentication & onboarding flow
+* Wardrobe CRUD with image storage
+* Advanced filtering and tag system
+* Community feed with posts
+* Bookmark/save posts functionality
+* User profiles
+
+**In Progress**
+* AI-powered outfit recommendations
+* Outfit calendar and planning
+* Like and comment system on posts
+* User follow system
+
+**Planned**
+* Weather-based outfit suggestions
+* Outfit history tracking
+* Social profile analytics
+
+---
+
+## Contributors
+
+* [Mariana Agudelo](https://github.com/lilmagusa17)
+* [Rony Ordoñez](https://github.com/RonyOz)
+* [Juan José de la Pava](https://github.com/JuanJDlp)
+* [Mateo Silva](https://github.com/MateoSilvaLasso)
+* [Natalia Vargas](https://github.com/NattVS)
+
+---
+
+> Built with Clean Architecture principles to ensure scalability, maintainability, and testability. This project serves as a foundation for a comprehensive personal styling platform.
